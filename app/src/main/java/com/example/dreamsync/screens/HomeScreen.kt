@@ -13,8 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ProfileScreen(
-    profile: Profile,
+fun HomeScreen(
     onNavigateToFriendsScreen: () -> Unit,
 ) {
     Box(
@@ -28,7 +27,7 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Profile for ${profile.name}", modifier = Modifier.align(Alignment.CenterHorizontally))
+            Text(text = "Home Screen", modifier = Modifier.align(Alignment.CenterHorizontally))
 
             Button(
                 onClick = { onNavigateToFriendsScreen() },

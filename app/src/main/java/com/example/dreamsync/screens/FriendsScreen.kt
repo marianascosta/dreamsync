@@ -12,24 +12,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
-
 @Composable
-fun FriendsListScreen(onNavigateToProfile: () -> Unit) {
+fun FriendsScreen(onNavigateToProfile: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp), // Optional padding for aesthetics
+            .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween, // Ensures content spacing
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Centered text
-            Text(text = "Friends List", modifier = Modifier.align(Alignment.CenterHorizontally))
-
-            // Button at the bottom
+            Text(text = "Friends Screen", modifier = Modifier.align(Alignment.CenterHorizontally))
             Button(
                 onClick = { onNavigateToProfile() },
                 modifier = Modifier.align(Alignment.CenterHorizontally)
