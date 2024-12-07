@@ -1,4 +1,4 @@
-package com.example.dreamsync.screens
+package com.example.dreamsync.screens.internal
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,9 +11,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.dreamsync.data.models.Profile
 
 @Composable
-fun FriendsScreen(onNavigateToProfile: () -> Unit) {
+fun FriendsScreen(
+    profile: Profile,
+    onNavigateToProfile: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()

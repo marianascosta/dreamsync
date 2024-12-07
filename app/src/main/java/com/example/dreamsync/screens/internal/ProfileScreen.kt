@@ -1,4 +1,4 @@
-package com.example.dreamsync.screens
+package com.example.dreamsync.screens.internal
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,9 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.dreamsync.data.models.Profile
 
 @Composable
-fun HomeScreen(
+fun ProfileScreen(
+    profile: Profile,
     onNavigateToFriendsScreen: () -> Unit,
 ) {
     Box(
@@ -27,7 +29,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Home Screen", modifier = Modifier.align(Alignment.CenterHorizontally))
+            Text(text = "Profile for ${profile.name}", modifier = Modifier.align(Alignment.CenterHorizontally))
 
             Button(
                 onClick = { onNavigateToFriendsScreen() },
