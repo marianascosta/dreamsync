@@ -64,4 +64,24 @@ class DreamService {
             onDreamFetched(null)
         }
     }
+
+    fun getDreamsList(onDreamsFetched: (List<Dream>) -> Unit) {
+        dreamsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val dreams = mutableListOf<Dream>()
+                for (dreamSnapshot in snapshot.children) {
+                    val dream = dreamSnapshot.getValue(Dream::class.java)
+                    if (dream != null) {
+                        dreams.add(dream)
+                    }
+                }
+                onDreamsFetched(dreams)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("DreamService", "Error fetching dreams: ${error.message}")
+                onDreamsFetched(emptyList())
+            }
+        })
+    }
 }
