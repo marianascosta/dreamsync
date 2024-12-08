@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     // Kotlin serialization plugin for type safe routes and navigation arguments
     kotlin("plugin.serialization") version "2.0.21"
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -59,6 +60,7 @@ dependencies {
     implementation(libs.androidx.navigation.ui)
     // Feature module support for Fragments
     implementation(libs.androidx.navigation.dynamic.features.fragment)
+    implementation(libs.firebase.database)
     // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)
     // JSON serialization library, works with the Kotlin serialization plugin

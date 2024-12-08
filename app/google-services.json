@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "322763070701",
+    "firebase_url": "https://dreamsync-19b8b-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "dreamsync-19b8b",
+    "storage_bucket": "dreamsync-19b8b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:322763070701:android:8c5d15ed1ccfe116fd80e4",
+        "android_client_info": {
+          "package_name": "com.example.dreamsync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGZoNmdcXCZrkV6ni3ZBQkSfPW9y92Ec4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
