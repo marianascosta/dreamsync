@@ -49,7 +49,8 @@ fun BottomNavigationBar(
             NavigationBarItem(
                 icon = {
                     Icon(
-                        imageVector = if (selectedItemIndex == index) item.selectedIcon else item.unselectedIcon,
+                        imageVector = if (selectedItemIndex == index) item.selectedIcon
+                            else item.unselectedIcon,
                         contentDescription = item.label
                     )
                 },

@@ -21,7 +21,7 @@ import kotlinx.serialization.Serializable
 
 @Composable
 fun AppNavigation() {
-    var initialSelectedIndex = 0
+    var initialSelectedIndex = 1 // Home screen is the default screen
     val navController = rememberNavController()
     val selectedIndex = remember { mutableStateOf(initialSelectedIndex) }
     val logged_in_user = remember { mutableStateOf(Profile(name = "")) }
