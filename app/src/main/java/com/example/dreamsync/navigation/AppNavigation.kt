@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 fun AppNavigation() {
     val navController = rememberNavController()
     val selectedIndex = remember { mutableStateOf(1) } // Default: Home
-    val logged_in_user = remember { mutableStateOf(Profile(name = "")) }
+    val logged_in_user = remember { mutableStateOf(Profile(userName = "")) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
@@ -62,12 +62,14 @@ fun AppNavigation() {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = { NavigationDrawer(
-            navController,
-            selectedIndex.value,
-            { selectedIndex.value = it },
-            { coroutineScope.launch { drawerState.close() } }
-        ) }
+        drawerContent = {
+            NavigationDrawer(
+                navController,
+                selectedIndex.value,
+                { selectedIndex.value = it },
+                { coroutineScope.launch { drawerState.close() } }
+            )
+        }
     ) {
         Scaffold(
             topBar = {

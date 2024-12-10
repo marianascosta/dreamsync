@@ -29,7 +29,10 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "Profile for ${profile.name}", modifier = Modifier.align(Alignment.CenterHorizontally))
+            // Use profile.userName instead of profile.name
+            Text(text = "Profile for ${profile.userName}", modifier = Modifier.align(Alignment.CenterHorizontally))
+            Text(text = "Email: ${profile.userEmail.ifEmpty { "N/A" }}", modifier = Modifier.align(Alignment.CenterHorizontally))
+            Text(text = "Bio: ${profile.userBio.ifEmpty { "No bio available." }}", modifier = Modifier.align(Alignment.CenterHorizontally))
 
             Button(
                 onClick = { onNavigateToFriendsScreen() },

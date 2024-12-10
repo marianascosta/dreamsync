@@ -64,7 +64,7 @@ fun LoginScreen(onLoginSuccess: (Profile) -> Unit) {
         Button(
             onClick = {
                 if (nameState.value.text.isNotBlank()) {
-                    val profile = Profile(name = nameState.value.text)
+                    val profile = Profile(userName = nameState.value.text)
                     onLoginSuccess(profile)
                 }
             },
