@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 
@@ -16,11 +15,7 @@ fun NavigationDrawer(
     onCloseDrawer: () -> Unit
 ) {
     ModalDrawerSheet {
-        Text(
-            "Explore",
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(16.dp)
-        )
+        Text("Drawer Title", modifier = Modifier.padding(16.dp))
         NavigationDrawerItem(
             label = { Text("Home") },
             selected = selectedIndex == 1,
