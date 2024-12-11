@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.dreamsync.data.models.Profile
+import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.NavigationDrawer
 import com.example.dreamsync.screens.external.LoginScreen
@@ -24,10 +26,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val selectedIndex = remember { mutableStateOf(1) } // Default: Home
+    val selectedIndex = remember { mutableIntStateOf(1) } // Default: Home
     val logged_in_user = remember { mutableStateOf(Profile(userName = "")) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+    val roles = listOf("Manager", "Architect", "Chemist", "Extractor", "Forger")
 
     val navGraph = navController.createGraph(startDestination = "login") {
         composable("login") {
@@ -43,9 +46,15 @@ fun AppNavigation() {
         composable("profile") {
             ProfileScreen(
                 profile = logged_in_user.value,
-                onNavigateToFriendsScreen = { navController.navigate("friends") }
+                roles = roles, // Pass roles here
+                onNavigateToFriendsScreen = { navController.navigate("friends") },
+                onRoleSelected = { selectedRole ->
+                    logged_in_user.value = logged_in_user.value.copy(preferredRole = selectedRole)
+                    Log.d("AppNavigation", "Role selected: $selectedRole")
+                }
             )
         }
+
         composable("friends") {
             FriendsScreen(
                 profile = logged_in_user.value,

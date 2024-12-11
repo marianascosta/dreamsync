@@ -6,10 +6,11 @@ import kotlinx.serialization.Serializable
 data class Profile(
     val userName: String = "",
     val userEmail: String = "",
-    val userBio: String = ""
+    val userBio: String = "",
+    val preferredRole: String = "",
+    val profilePicture: String = ""
 ) {
-    // This constructor is necessary for Firebase deserialization.
-    constructor() : this("", "", "")
+    constructor() : this("", "", "", "", "")
 }
 
 

@@ -26,7 +26,7 @@ class ProfileService {
         }
     }
 
-    fun saveProfile(profile: Profile, onComplete: (Boolean) -> Unit) {
+    private fun saveProfile(profile: Profile, onComplete: (Boolean) -> Unit) {
         val profileKey = profilesRef.push().key ?: return onComplete(false)
         profilesRef.child(profileKey).setValue(profile)
             .addOnCompleteListener { task ->
