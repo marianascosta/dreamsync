@@ -32,6 +32,11 @@ fun AppNavigation() {
     val coroutineScope = rememberCoroutineScope()
     val roles = listOf("Manager", "Architect", "Chemist", "Extractor", "Forger")
 
+    // Function to update profile information
+    fun updateProfile(updatedProfile: Profile) {
+        logged_in_user.value = updatedProfile
+    }
+
     val navGraph = navController.createGraph(startDestination = "login") {
         composable("login") {
             LoginScreen(
@@ -51,6 +56,9 @@ fun AppNavigation() {
                 onRoleSelected = { selectedRole ->
                     logged_in_user.value = logged_in_user.value.copy(preferredRole = selectedRole)
                     Log.d("AppNavigation", "Role selected: $selectedRole")
+                },
+                onProfileUpdated = { updatedProfile ->
+                    updateProfile(updatedProfile) // Update the profile with the new information
                 }
             )
         }
@@ -97,9 +105,9 @@ fun AppNavigation() {
                 val isLoginScreen = navController.currentBackStackEntryAsState().value?.destination?.route == "login"
                 if (!isLoginScreen) {
                     BottomNavigationBar(
-                        selectedItemIndex = selectedIndex.value,
+                        selectedItemIndex = selectedIndex.intValue,
                         onItemSelected = { index ->
-                            selectedIndex.value = index
+                            selectedIndex.intValue = index
                             when (index) {
                                 0 -> navController.navigate("profile")
                                 1 -> navController.navigate("home")

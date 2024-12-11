@@ -31,7 +31,9 @@ import androidx.compose.material3.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.dreamsync.R
 
 @Composable
@@ -39,70 +41,124 @@ fun ProfileScreen(
     profile: Profile,
     roles: List<String>,
     onNavigateToFriendsScreen: () -> Unit,
-    onRoleSelected: (String) -> Unit
+    onRoleSelected: (String) -> Unit,
+    onProfileUpdated: (Profile) -> Unit // Callback to update profile
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedRole by remember { mutableStateOf(profile.preferredRole) }
+    var isEditing by remember { mutableStateOf(false) }
+    var newEmail by remember { mutableStateOf(profile.userEmail) }
+    var newBio by remember { mutableStateOf(profile.userBio) }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 32.dp), // Space for top padding and app bar
+            verticalArrangement = Arrangement.spacedBy(16.dp), // Consistent spacing between elements
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val profilePicResource = if (profile.profilePicture.isNotEmpty()) {
-                // Replace with dynamic URL or resource reference if available
-                profile.profilePicture
+            // Profile Picture Section
+            val profilePicResource = if (profile.profilePicture.isEmpty()) {
+                "defaultprofilepic" // Placeholder if no image provided
             } else {
-                "defaultprofilepic" // Default if no profile picture is set
+                profile.profilePicture
             }
 
             Image(
                 painter = painterResource(id = R.drawable.defaultprofilepic), // Default image
                 contentDescription = "Profile Picture",
                 modifier = Modifier
-                    .size(100.dp) // Size of the image
-                    .padding(bottom = 16.dp) // Padding to give space
-                    .clip(CircleShape) // Circular shape for profile picture
+                    .size(120.dp) // Larger size for better visibility
+                    .clip(CircleShape) // Circular image
+                    .background(MaterialTheme.colorScheme.surface) // Optional background
             )
 
-            // Displaying profile details
-            Text(text = "Profile for ${profile.userName}", modifier = Modifier.align(Alignment.CenterHorizontally))
-            Text(text = "Email: ${profile.userEmail.ifEmpty { "N/A" }}", modifier = Modifier.align(Alignment.CenterHorizontally))
-            Text(text = profile.userBio.ifEmpty { "No bio available." }, modifier = Modifier.align(Alignment.CenterHorizontally))
-            Text(text = "Preferred Role: ${selectedRole.ifEmpty { "None" }}", modifier = Modifier.align(Alignment.CenterHorizontally))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Dropdown Menu for roles
-            Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                Button(onClick = { expanded = !expanded }) {
-                    Text(text = selectedRole.ifEmpty { "Choose Role" })
-                }
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false }
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    roles.forEach { role ->
-                        DropdownMenuItem(
-                            text = { Text(role) },
-                            onClick = {
-                                selectedRole = role // Update UI
-                                expanded = false // Close dropdown
-                                onRoleSelected(role) // Notify parent
-                            }
+                    Text(text = "${profile.userName}'s Profile", style = MaterialTheme.typography.headlineSmall)
+
+                    // Editable email and bio
+                    if (isEditing) {
+                        TextField(
+                            value = newEmail,
+                            onValueChange = { newEmail = it },
+                            label = { Text("Email") },
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
                         )
+                        TextField(
+                            value = newBio,
+                            onValueChange = { newBio = it },
+                            label = { Text("Bio") },
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                        )
+                    } else {
+                        Text(text = "Email: ${profile.userEmail.ifEmpty { "N/A" }}", style = MaterialTheme.typography.bodyLarge)
+                        Text(text = "Bio: ${profile.userBio.ifEmpty { "No bio available." }}", style = MaterialTheme.typography.bodyLarge)
+                    }
+
+                    Text(text = "Preferred Role: ${selectedRole.ifEmpty { "None" }}", style = MaterialTheme.typography.bodyLarge)
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Role Selection Dropdown
+                    Button(onClick = { expanded = !expanded }) {
+                        Text(text = "Select Role: ${selectedRole.ifEmpty { "Choose Role" }}")
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        roles.forEach { role ->
+                            DropdownMenuItem(
+                                text = { Text(role) },
+                                onClick = {
+                                    selectedRole = role // Update selected role
+                                    expanded = false // Close dropdown
+                                    onRoleSelected(role) // Notify parent
+                                }
+                            )
+                        }
                     }
                 }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Button to toggle edit mode
+            Button(
+                onClick = {
+                    if (isEditing) {
+                        // Save updated profile info
+                        onProfileUpdated(profile.copy(userEmail = newEmail, userBio = newBio))
+                    }
+                    isEditing = !isEditing
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (isEditing) "Save Changes" else "Edit Profile Info")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Button to navigate to Friends Screen
             Button(
                 onClick = { onNavigateToFriendsScreen() },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Go to Friends Screen")
             }
