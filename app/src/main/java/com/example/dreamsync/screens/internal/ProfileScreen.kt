@@ -55,7 +55,6 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Profile Picture (Dynamic based on profilePicture field)
             val profilePicResource = if (profile.profilePicture.isNotEmpty()) {
                 // Replace with dynamic URL or resource reference if available
                 profile.profilePicture
@@ -75,7 +74,7 @@ fun ProfileScreen(
             // Displaying profile details
             Text(text = "Profile for ${profile.userName}", modifier = Modifier.align(Alignment.CenterHorizontally))
             Text(text = "Email: ${profile.userEmail.ifEmpty { "N/A" }}", modifier = Modifier.align(Alignment.CenterHorizontally))
-            Text(text = "Bio: ${profile.userBio.ifEmpty { "No bio available." }}", modifier = Modifier.align(Alignment.CenterHorizontally))
+            Text(text = profile.userBio.ifEmpty { "No bio available." }, modifier = Modifier.align(Alignment.CenterHorizontally))
             Text(text = "Preferred Role: ${selectedRole.ifEmpty { "None" }}", modifier = Modifier.align(Alignment.CenterHorizontally))
 
             // Dropdown Menu for roles
