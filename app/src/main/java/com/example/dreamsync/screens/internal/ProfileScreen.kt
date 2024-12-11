@@ -64,7 +64,7 @@ fun ProfileScreen(
             }
 
             Image(
-                painter = painterResource(id = R.drawable.defaultprofilepic), // Default image
+                painter = painterResource(id = R.drawable.defaultProfilePic), // Default image
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(100.dp) // Size of the image
