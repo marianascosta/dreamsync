@@ -1,6 +1,8 @@
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
@@ -11,29 +13,31 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
-import com.example.dreamsync.data.models.Profile
+import com.example.dreamsync.AppState
+import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.NavigationDrawer
 import com.example.dreamsync.screens.external.LoginScreen
-import com.example.dreamsync.screens.internal.FriendsScreen
-import com.example.dreamsync.screens.internal.HomeScreen
-import com.example.dreamsync.screens.internal.ProfileScreen
+import com.example.dreamsync.screens.internal.friends.FriendsScreen
+import com.example.dreamsync.screens.internal.home.HomeScreen
+import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val selectedIndex = remember { mutableStateOf(1) } // Default: Home
-    val logged_in_user = remember { mutableStateOf(Profile(name = "")) }
+    val selectedIndex = remember { mutableIntStateOf(1) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+
+    val dreamService = DreamService()
 
     val navGraph = navController.createGraph(startDestination = "login") {
         composable("login") {
             LoginScreen(
                 onLoginSuccess = { profile ->
-                    logged_in_user.value = profile
+                    AppState.updateLoggedInUser(profile)
                     navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
                     }
@@ -42,20 +46,17 @@ fun AppNavigation() {
         }
         composable("profile") {
             ProfileScreen(
-                profile = logged_in_user.value,
                 onNavigateToFriendsScreen = { navController.navigate("friends") }
             )
         }
         composable("friends") {
             FriendsScreen(
-                profile = logged_in_user.value,
                 onNavigateToProfile = { navController.navigate("profile") }
             )
         }
         composable("home") {
             HomeScreen(
-                profile = logged_in_user.value,
-                onNavigateToFriendsScreen = { navController.navigate("friends") }
+                dreamService = dreamService
             )
         }
     }
@@ -64,8 +65,8 @@ fun AppNavigation() {
         drawerState = drawerState,
         drawerContent = { NavigationDrawer(
             navController,
-            selectedIndex.value,
-            { selectedIndex.value = it },
+            selectedIndex.intValue,
+            { selectedIndex.intValue = it },
             { coroutineScope.launch { drawerState.close() } }
         ) }
     ) {
@@ -83,12 +84,13 @@ fun AppNavigation() {
                 }
             },
             bottomBar = {
+                // A bottom bar so pode aparecer se nao for a login page
                 val isLoginScreen = navController.currentBackStackEntryAsState().value?.destination?.route == "login"
                 if (!isLoginScreen) {
                     BottomNavigationBar(
-                        selectedItemIndex = selectedIndex.value,
+                        selectedItemIndex = selectedIndex.intValue,
                         onItemSelected = { index ->
-                            selectedIndex.value = index
+                            selectedIndex.intValue = index
                             when (index) {
                                 0 -> navController.navigate("profile")
                                 1 -> navController.navigate("home")
@@ -98,8 +100,13 @@ fun AppNavigation() {
                     )
                 }
             }
-        ) { paddingValues ->
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+            ) {
                 NavHost(
                     navController = navController,
                     graph = navGraph
