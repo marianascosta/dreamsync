@@ -46,12 +46,18 @@ fun AppNavigation() {
         }
         composable("profile") {
             ProfileScreen(
-                onNavigateToFriendsScreen = { navController.navigate("friends") }
+                onNavigateToFriendsScreen = {
+                    navController.navigate("friends")
+                    selectedIndex.intValue = 2
+                }
             )
         }
         composable("friends") {
             FriendsScreen(
-                onNavigateToProfile = { navController.navigate("profile") }
+                onNavigateToProfile = {
+                    navController.navigate("profile")
+                    selectedIndex.intValue = 0
+                }
             )
         }
         composable("home") {
@@ -70,11 +76,18 @@ fun AppNavigation() {
             { coroutineScope.launch { drawerState.close() } }
         ) }
     ) {
+        val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
         Scaffold(
             topBar = {
-                if (navController.currentBackStackEntryAsState().value?.destination?.route != "login") {
+                val title = when (currentRoute) {
+                    "home" -> "Home"
+                    "profile" -> "Profile"
+                    "friends" -> "Friends"
+                    else -> "DreamSync"
+                }
+                if (currentRoute != "login") {
                     TopAppBar(
-                        title = { Text("DreamSync") },
+                        title = { Text(title) },
                         navigationIcon = {
                             IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
                                 Icon(Icons.Filled.Menu, contentDescription = "Open Drawer")
@@ -84,9 +97,7 @@ fun AppNavigation() {
                 }
             },
             bottomBar = {
-                // A bottom bar so pode aparecer se nao for a login page
-                val isLoginScreen = navController.currentBackStackEntryAsState().value?.destination?.route == "login"
-                if (!isLoginScreen) {
+                if (currentRoute != "login") {
                     BottomNavigationBar(
                         selectedItemIndex = selectedIndex.intValue,
                         onItemSelected = { index ->
