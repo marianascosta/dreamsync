@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 object AppState {
-    private val _loggedInUser = MutableStateFlow(Profile(name = ""))
+    private val _loggedInUser = MutableStateFlow(Profile(userName = ""))
     val loggedInUser: StateFlow<Profile> = _loggedInUser
 
     fun updateLoggedInUser(profile: Profile) {
