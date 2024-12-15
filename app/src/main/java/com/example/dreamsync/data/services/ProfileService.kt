@@ -2,11 +2,7 @@ package com.example.dreamsync.data.services
 
 import android.util.Log
 import com.example.dreamsync.data.models.Profile
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 
 class ProfileService {
 
@@ -15,53 +11,89 @@ class ProfileService {
 
     fun initProfiles() {
         val profiles = listOf(
-            Profile(name = "John Doe"),
-            Profile(name = "Jane Smith")
+            Profile(userName = "John Doe"),
+            Profile(userName = "Jane Smith")
         )
 
         profiles.forEach { profile ->
-            profilesRef.push().setValue(profile).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("ProfileService", "Profile written successfully.")
+            saveProfile(profile) { success ->
+                if (success) {
+                    Log.d("ProfileService", "Profile initialized: ${profile.userName}")
                 } else {
-                    Log.e("ProfileService", "Failed to write profile.", task.exception)
+                    Log.e("ProfileService", "Failed to initialize profile: ${profile.userName}")
                 }
             }
         }
     }
 
-    fun saveProfile(profile: Profile) {
-        profilesRef.push().setValue(profile).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.d("ProfileService", "Profile written successfully.")
-            } else {
-                Log.e("ProfileService", "Failed to write profile.", task.exception)
+    private fun saveProfile(profile: Profile, onComplete: (Boolean) -> Unit) {
+        val profileKey = profilesRef.push().key ?: return onComplete(false)
+        profilesRef.child(profileKey).setValue(profile)
+            .addOnCompleteListener { task ->
+                onComplete(task.isSuccessful)
+                if (task.isSuccessful) {
+                    Log.d("ProfileService", "Profile saved: ${profile.userName}")
+                } else {
+                    Log.e("ProfileService", "Failed to save profile: ${task.exception}")
+                }
             }
-        }
     }
 
-    fun getProfiles() {
-        profilesRef.addValueEventListener(object : ValueEventListener {
+    fun getProfiles(onProfilesFetched: (List<Profile>) -> Unit) {
+        profilesRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (profileSnapshot in snapshot.children) {
+                val profiles = mutableListOf<Profile>()
+                snapshot.children.forEach { profileSnapshot ->
                     val profile = profileSnapshot.getValue(Profile::class.java)
-                    Log.d("ProfileService", "Profile read: ${profile?.name}")
+                    profile?.let { profiles.add(it) }
                 }
+                onProfilesFetched(profiles)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.w("ProfileService", "Failed to read profiles.", error.toException())
+                Log.e("ProfileService", "Failed to fetch profiles.", error.toException())
+                onProfilesFetched(emptyList())
             }
         })
     }
 
     fun getProfileById(profileId: String, onProfileFetched: (Profile?) -> Unit) {
-        profilesRef.child(profileId).get().addOnSuccessListener {
-            val profile = it.getValue(Profile::class.java)
-            onProfileFetched(profile)
-        }.addOnFailureListener { error ->
-            Log.e("ProfileService", "Failed to fetch profile: ${error.message}")
-            onProfileFetched(null)
-        }
+        profilesRef.child(profileId).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val profile = snapshot.getValue(Profile::class.java)
+                // Callback to return the fetched profile
+                onProfileFetched(profile)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileService", "Failed to fetch profile: $profileId", error.toException())
+                // Returning null if fetch failed
+                onProfileFetched(null)
+            }
+        })
+    }
+
+    fun updateProfile(profileId: String, updatedProfile: Profile, onComplete: (Boolean) -> Unit) {
+        profilesRef.child(profileId).setValue(updatedProfile)
+            .addOnCompleteListener { task ->
+                onComplete(task.isSuccessful)
+                if (task.isSuccessful) {
+                    Log.d("ProfileService", "Profile updated: ${updatedProfile.userName}")
+                } else {
+                    Log.e("ProfileService", "Failed to update profile: ${task.exception}")
+                }
+            }
+    }
+
+    fun deleteProfile(profileId: String, onComplete: (Boolean) -> Unit) {
+        profilesRef.child(profileId).removeValue()
+            .addOnCompleteListener { task ->
+                onComplete(task.isSuccessful)
+                if (task.isSuccessful) {
+                    Log.d("ProfileService", "Profile deleted: $profileId")
+                } else {
+                    Log.e("ProfileService", "Failed to delete profile: ${task.exception}")
+                }
+            }
     }
 }
