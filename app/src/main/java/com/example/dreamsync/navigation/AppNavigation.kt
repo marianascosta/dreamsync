@@ -1,4 +1,3 @@
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,7 +12,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.dreamsync.data.models.Profile
-import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.NavigationDrawer
 import com.example.dreamsync.screens.external.LoginScreen
@@ -26,16 +24,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val selectedIndex = remember { mutableIntStateOf(1) } // Default: Home
-    val logged_in_user = remember { mutableStateOf(Profile(userName = "")) }
+    val selectedIndex = remember { mutableStateOf(1) } // Default: Home
+    val logged_in_user = remember { mutableStateOf(Profile(name = "")) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
-    val roles = listOf("Manager", "Architect", "Chemist", "Extractor", "Forger")
-
-    // Function to update profile information
-    fun updateProfile(updatedProfile: Profile) {
-        logged_in_user.value = updatedProfile
-    }
 
     val navGraph = navController.createGraph(startDestination = "login") {
         composable("login") {
@@ -51,18 +43,9 @@ fun AppNavigation() {
         composable("profile") {
             ProfileScreen(
                 profile = logged_in_user.value,
-                roles = roles, // Pass roles here
-                onNavigateToFriendsScreen = { navController.navigate("friends") },
-                onRoleSelected = { selectedRole ->
-                    logged_in_user.value = logged_in_user.value.copy(preferredRole = selectedRole)
-                    Log.d("AppNavigation", "Role selected: $selectedRole")
-                },
-                onProfileUpdated = { updatedProfile ->
-                    updateProfile(updatedProfile) // Update the profile with the new information
-                }
+                onNavigateToFriendsScreen = { navController.navigate("friends") }
             )
         }
-
         composable("friends") {
             FriendsScreen(
                 profile = logged_in_user.value,
@@ -79,14 +62,12 @@ fun AppNavigation() {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
-        drawerContent = {
-            NavigationDrawer(
-                navController,
-                selectedIndex.value,
-                { selectedIndex.value = it },
-                { coroutineScope.launch { drawerState.close() } }
-            )
-        }
+        drawerContent = { NavigationDrawer(
+            navController,
+            selectedIndex.value,
+            { selectedIndex.value = it },
+            { coroutineScope.launch { drawerState.close() } }
+        ) }
     ) {
         Scaffold(
             topBar = {
@@ -105,9 +86,9 @@ fun AppNavigation() {
                 val isLoginScreen = navController.currentBackStackEntryAsState().value?.destination?.route == "login"
                 if (!isLoginScreen) {
                     BottomNavigationBar(
-                        selectedItemIndex = selectedIndex.intValue,
+                        selectedItemIndex = selectedIndex.value,
                         onItemSelected = { index ->
-                            selectedIndex.intValue = index
+                            selectedIndex.value = index
                             when (index) {
                                 0 -> navController.navigate("profile")
                                 1 -> navController.navigate("home")
