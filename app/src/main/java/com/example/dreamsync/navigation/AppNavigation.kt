@@ -20,6 +20,7 @@ import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.NavigationDrawer
 import com.example.dreamsync.screens.external.LoginScreen
+import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.friends.FriendsScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
@@ -78,6 +79,11 @@ fun AppNavigation() {
                 dreamService = dreamService
             )
         }
+        composable("explore") {
+            ExploreScreen(
+                dreamService = dreamService
+            )
+        }
     }
 
     ModalNavigationDrawer(
@@ -96,6 +102,7 @@ fun AppNavigation() {
                     "home" -> "Home"
                     "profile" -> "Profile"
                     "friends" -> "Friends"
+                    "explore" -> "Explore"
                     else -> "DreamSync"
                 }
                 if (currentRoute != "login") {
@@ -119,6 +126,7 @@ fun AppNavigation() {
                                 0 -> navController.navigate("profile")
                                 1 -> navController.navigate("home")
                                 2 -> navController.navigate("friends")
+                                3 -> navController.navigate("explore")
                             }
                         }
                     )

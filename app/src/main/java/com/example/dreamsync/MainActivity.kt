@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         storageHandler = StorageHandler()
-//        storageHandler.initRealTimeDatabase() // uncomment to populate the database
+        storageHandler.initRealTimeDatabase() // uncomment to populate the database
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
