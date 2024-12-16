@@ -1,6 +1,8 @@
 package com.example.dreamsync.screens.internal.explore
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -47,7 +49,6 @@ fun ExploreScreen(dreamService: DreamService) {
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp)
         )
 
         CategoriesRow(
@@ -91,6 +92,7 @@ fun CategoriesRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
             .fillMaxWidth()
+            .horizontalScroll(rememberScrollState())
             .wrapContentHeight()
     ) {
         categories.forEach { category ->
