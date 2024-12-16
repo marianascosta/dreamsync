@@ -61,13 +61,12 @@ class ProfileService {
         profilesRef.child(profileId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val profile = snapshot.getValue(Profile::class.java)
-                // Callback to return the fetched profile
                 onProfileFetched(profile)
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("ProfileService", "Failed to fetch profile: $profileId", error.toException())
-                // Returning null if fetch failed
+
                 onProfileFetched(null)
             }
         })
