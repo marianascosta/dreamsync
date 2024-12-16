@@ -25,12 +25,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import com.example.dreamsync.R
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 
 @Composable
 fun ProfileScreen(
@@ -58,9 +62,9 @@ fun ProfileScreen(
                 .padding(top = 32.dp), // Space for top padding and app bar
             verticalArrangement = Arrangement.spacedBy(16.dp), // Consistent spacing between elements
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
             val profilePicResource = if (profile.profilePicture.isEmpty()) {
-                "defaultprofilepic" // Placeholder if no image provided
+                "defaultprofilepic"
             } else {
                 profile.profilePicture
             }
@@ -85,76 +89,102 @@ fun ProfileScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(text = "${profile.userName}'s Profile", style = MaterialTheme.typography.headlineSmall)
+                    // Row to align "User's Profile" and the icon (edit or save)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween // Ensures proper spacing
+                    ) {
+                        Text(
+                            text = "${profile.userName}'s Profile",
+                            style = MaterialTheme.typography.headlineSmall
+                        )
 
-                    // Editable email and bio
+                        // IconButton for editing or saving
+                        IconButton(
+                            onClick = {
+                                if (isEditing) {
+                                    // Save updated profile info, including the selected role
+                                    onProfileUpdated(
+                                        profile.copy(
+                                            userEmail = newEmail,
+                                            userBio = newBio,
+                                            preferredRole = selectedRole
+                                        )
+                                    )
+                                }
+                                isEditing = !isEditing
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit,
+                                contentDescription = if (isEditing) "Save Changes" else "Edit Profile Info"
+                            )
+                        }
+                    }
+
+                    // Editable email, bio, and dropdown for role
                     if (isEditing) {
                         TextField(
                             value = newEmail,
                             onValueChange = { newEmail = it },
                             label = { Text("Email") },
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
                         )
                         TextField(
                             value = newBio,
                             onValueChange = { newBio = it },
                             label = { Text("Bio") },
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
                         )
-                    } else {
-                        Text(text = "Email: ${profile.userEmail.ifEmpty { "N/A" }}", style = MaterialTheme.typography.bodyLarge)
-                        Text(text = "Bio: ${profile.userBio.ifEmpty { "No bio available." }}", style = MaterialTheme.typography.bodyLarge)
-                    }
 
-                    Text(text = "Preferred Role: ${selectedRole.ifEmpty { "None" }}", style = MaterialTheme.typography.bodyLarge)
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Role Selection Dropdown
-                    Button(onClick = { expanded = !expanded }) {
-                        Text(text = "Select Role: ${selectedRole.ifEmpty { "Choose Role" }}")
-                    }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
-                    ) {
-                        roles.forEach { role ->
-                            HighlightDropMenuItem (
-                                text = role,
-                                onClick = {
-                                    selectedRole = role
-                                    expanded = false
-                                    onRoleSelected(role)
+                        // Dropdown for editing the role
+                        var roleDropdownExpanded by remember { mutableStateOf(false) }
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Button(
+                                onClick = { roleDropdownExpanded = true },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(text = "Preferred Role: ${selectedRole.ifEmpty { "Choose Role" }}")
+                            }
+                            DropdownMenu(
+                                expanded = roleDropdownExpanded,
+                                onDismissRequest = { roleDropdownExpanded = false }
+                            ) {
+                                roles.forEach { role ->
+                                    DropdownMenuItem(
+                                        onClick = {
+                                            selectedRole = role
+                                            roleDropdownExpanded = false
+                                        },
+                                        text = { Text(role) }
+                                    )
                                 }
-                            )
+                            }
                         }
+                    } else {
+                        Text(
+                            text = "Email: ${profile.userEmail.ifEmpty { "N/A" }}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "Bio: ${profile.userBio.ifEmpty { "No bio available." }}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = "Preferred Role: ${selectedRole.ifEmpty { "None" }}",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
                     }
                 }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Button to toggle edit mode
-            Button(
-                onClick = {
-                    if (isEditing) {
-                        // Save updated profile info
-                        onProfileUpdated(profile.copy(userEmail = newEmail, userBio = newBio))
-                    }
-                    isEditing = !isEditing
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(if (isEditing) "Save Changes" else "Edit Profile Info")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { onNavigateToFriendsScreen() },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("View Friends")
             }
         }
     }
