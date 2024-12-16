@@ -2,9 +2,7 @@ package com.example.dreamsync.screens.internal.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
@@ -14,18 +12,51 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.dreamsync.data.models.Dream
+import com.example.dreamsync.data.services.DreamService
 
 @Composable
-fun DreamFeedScreen(dreams: List<Dream>) {
+fun DreamFeedScreen(dreamService: DreamService) {
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        dreams.forEach { dream ->
-            DreamPost(dream = dream)
+    val dreams = remember { mutableStateOf<List<Dream>>(emptyList()) }
+    val isLoading = remember { mutableStateOf(true) }
+    val errorMessage = remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        try {
+            dreamService.getDreamsList { fetchedDreams ->
+                dreams.value = fetchedDreams
+                isLoading.value = false
+            }
+        } catch (e: Exception) {
+            isLoading.value = false
+            errorMessage.value = "Failed to load dreams. Please try again later."
+        }
+    }
+
+    if (isLoading.value) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    } else if (errorMessage.value != null) {
+        Text("Error: ${errorMessage.value}", color = Color.Red, textAlign = TextAlign.Center)
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            dreams.value.forEach { dream ->
+                DreamPost(dream = dream)
+            }
         }
     }
 }
@@ -39,21 +70,18 @@ fun DreamPost(dream: Dream) {
             .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp)
     ) {
-        
         Column(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // Author avatar and name
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
             ) {
-                // circular image with a gray background
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -67,7 +95,6 @@ fun DreamPost(dream: Dream) {
                     fontWeight = FontWeight.Bold
                 )
             }
-            // Placeholder Image
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -76,14 +103,12 @@ fun DreamPost(dream: Dream) {
                     .background(Color.Gray)
             )
 
-            // Dream Post Title
             Text(
                 text = dream.title,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
             )
 
-            // Dream Description
             Text(
                 text = dream.description,
                 style = MaterialTheme.typography.bodyMedium,
@@ -94,14 +119,12 @@ fun DreamPost(dream: Dream) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Time
                 Text(
                     text = "Time: 10:00 PM",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray,
                 )
 
-                // Location
                 Text(
                     text = "Location: New York",
                     style = MaterialTheme.typography.bodySmall,
@@ -109,7 +132,6 @@ fun DreamPost(dream: Dream) {
                 )
             }
 
-            // Buttons
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
