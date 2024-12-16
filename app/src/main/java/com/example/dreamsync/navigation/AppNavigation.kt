@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Profile
+import com.example.dreamsync.screens.internal.profile.CreateHikeScreen
 import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.NavigationDrawer
@@ -56,6 +57,7 @@ fun AppNavigation() {
                 profile = logged_in_user.value,
                 roles = roles, // Pass roles here
                 onNavigateToFriendsScreen = { navController.navigate("friends") },
+                onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
                 onRoleSelected = { selectedRole ->
                     logged_in_user.value = logged_in_user.value.copy(preferredRole = selectedRole)
                     Log.d("AppNavigation", "Role selected: $selectedRole")
@@ -77,6 +79,9 @@ fun AppNavigation() {
             HomeScreen(
                 dreamService = dreamService
             )
+        }
+        composable("create_hike") {
+            CreateHikeScreen()
         }
     }
 

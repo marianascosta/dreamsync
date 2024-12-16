@@ -33,6 +33,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import com.example.dreamsync.R
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 
@@ -41,8 +43,9 @@ fun ProfileScreen(
     profile: Profile,
     roles: List<String>,
     onNavigateToFriendsScreen: () -> Unit,
+    onNavigateToCreateHikeScreen: () -> Unit,
     onRoleSelected: (String) -> Unit,
-    onProfileUpdated: (Profile) -> Unit // Callback to update profile
+    onProfileUpdated: (Profile) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedRole by remember { mutableStateOf(profile.preferredRole) }
@@ -59,8 +62,8 @@ fun ProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 32.dp), // Space for top padding and app bar
-            verticalArrangement = Arrangement.spacedBy(16.dp), // Consistent spacing between elements
+                .padding(top = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val profilePicResource = if (profile.profilePicture.isEmpty()) {
@@ -70,12 +73,12 @@ fun ProfileScreen(
             }
 
             Image(
-                painter = painterResource(id = R.drawable.defaultprofilepic), // Default image
+                painter = painterResource(id = R.drawable.defaultprofilepic),
                 contentDescription = "Profile Picture",
                 modifier = Modifier
-                    .size(120.dp) // Larger size for better visibility
-                    .clip(CircleShape) // Circular image
-                    .background(MaterialTheme.colorScheme.surface) // Optional background
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -89,22 +92,19 @@ fun ProfileScreen(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    // Row to align "User's Profile" and the icon (edit or save)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween // Ensures proper spacing
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             text = "${profile.userName}'s Profile",
                             style = MaterialTheme.typography.headlineSmall
                         )
 
-                        // IconButton for editing or saving
                         IconButton(
                             onClick = {
                                 if (isEditing) {
-                                    // Save updated profile info, including the selected role
                                     onProfileUpdated(
                                         profile.copy(
                                             userEmail = newEmail,
@@ -122,8 +122,6 @@ fun ProfileScreen(
                             )
                         }
                     }
-
-                    // Editable email, bio, and dropdown for role
                     if (isEditing) {
                         TextField(
                             value = newEmail,
@@ -141,8 +139,6 @@ fun ProfileScreen(
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp)
                         )
-
-                        // Dropdown for editing the role
                         var roleDropdownExpanded by remember { mutableStateOf(false) }
                         Box(
                             modifier = Modifier
@@ -160,12 +156,12 @@ fun ProfileScreen(
                                 onDismissRequest = { roleDropdownExpanded = false }
                             ) {
                                 roles.forEach { role ->
-                                    DropdownMenuItem(
+                                    HighlightDropMenuItem(
                                         onClick = {
                                             selectedRole = role
                                             roleDropdownExpanded = false
                                         },
-                                        text = { Text(role) }
+                                        text = role
                                     )
                                 }
                             }
@@ -185,6 +181,21 @@ fun ProfileScreen(
                         )
                     }
                 }
+            }
+            Row {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = "Create Dream Hike",
+                    modifier = Modifier
+                        .size(24.dp)
+                        .clickable { onNavigateToCreateHikeScreen() },
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "Create Dream Hike",
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(top = 3.dp)
+                )
             }
         }
     }
