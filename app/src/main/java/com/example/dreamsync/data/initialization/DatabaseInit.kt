@@ -29,5 +29,14 @@ class DatabaseInit {
         profiles.forEach { profile ->
             profileService.saveProfile(profile)
         }
+        val firstProfile = profiles.first()
+        addFriendsSample(firstProfile.id)
+    }
+
+    fun addFriendsSample(profileId: String){
+        val friendIds = profilesSample.map { it.id }.filter { it != profileId }
+        for (friendId in friendIds){
+            profileService.addFriend(profileId, friendId)
+        }
     }
 }
