@@ -14,33 +14,6 @@ open class DreamService {
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val dreamsRef: DatabaseReference = database.getReference("dreams")
 
-    fun initDreams() {
-        val dreams = listOf(
-            Dream(
-                title = "Dream 1",
-                description = "Description 1",
-                date = "2021-01-01",
-                dreamCategories = listOf(DreamCategory.ADVENTURE)
-            ),
-            Dream(
-                title = "Dream 2",
-                description = "Description 2",
-                date = "2021-01-02",
-                dreamCategories = listOf(DreamCategory.MYSTERY)
-            )
-        )
-
-        dreams.forEach { dream ->
-            dreamsRef.push().setValue(dream).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("DreamService", "Dream written successfully.")
-                } else {
-                    Log.e("DreamService", "Failed to write dream.", task.exception)
-                }
-            }
-        }
-    }
-
     fun saveDream(dream: Dream) {
         dreamsRef.push().setValue(dream).addOnCompleteListener { task ->
             if (task.isSuccessful) {
