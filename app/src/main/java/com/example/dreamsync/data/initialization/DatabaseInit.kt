@@ -37,6 +37,10 @@ class DatabaseInit {
                 )
             }
         })
+        // adicionar todos os profiles como friends do admin
+        for (profile in profilesSample) {
+            profileService.addFriend(adminProfile.id, profile.id)
+        }
     }
 
     fun saveDreamsSample(dreams: List<Dream>){
