@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import com.example.dreamsync.data.models.Hike
 
 @Composable
 fun ProfileScreen(
@@ -44,10 +45,12 @@ fun ProfileScreen(
     roles: List<String>,
     onNavigateToFriendsScreen: () -> Unit,
     onNavigateToCreateHikeScreen: () -> Unit,
+    onHikeCreated: (Hike) -> Unit,
     onRoleSelected: (String) -> Unit,
     onProfileUpdated: (Profile) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var updatedProfile by remember { mutableStateOf(profile) }
     var selectedRole by remember { mutableStateOf(profile.preferredRole) }
     var isEditing by remember { mutableStateOf(false) }
     var newEmail by remember { mutableStateOf(profile.userEmail) }
@@ -196,6 +199,23 @@ fun ProfileScreen(
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(top = 3.dp)
                 )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "${profile.userName}'s Dream Hikes",
+                style = MaterialTheme.typography.headlineSmall
+            )
+            updatedProfile.hikes.filter { !it.isComplete }.forEach { hike ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(text = "Name: ${hike.name}")
+                        Text(text = "Description: ${hike.description}")
+                        Text(text = "Layers: ${hike.layers}")
+                    }
+                }
             }
         }
     }

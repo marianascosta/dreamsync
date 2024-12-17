@@ -58,12 +58,18 @@ fun AppNavigation() {
                 roles = roles, // Pass roles here
                 onNavigateToFriendsScreen = { navController.navigate("friends") },
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
+                onHikeCreated = { newHike ->
+                    val updatedProfile = logged_in_user.value.copy(
+                        hikes = logged_in_user.value.hikes + newHike
+                    )
+                    logged_in_user.value = updatedProfile
+                },
                 onRoleSelected = { selectedRole ->
                     logged_in_user.value = logged_in_user.value.copy(preferredRole = selectedRole)
                     Log.d("AppNavigation", "Role selected: $selectedRole")
                 },
                 onProfileUpdated = { updatedProfile ->
-                    updateProfile(updatedProfile) // Update the profile with the new information
+                    updateProfile(updatedProfile)
                 }
             )
         }
@@ -81,7 +87,13 @@ fun AppNavigation() {
             )
         }
         composable("create_hike") {
-            CreateHikeScreen()
+            CreateHikeScreen { newHike ->
+                val updatedProfile = logged_in_user.value.copy(
+                    hikes = logged_in_user.value.hikes + newHike
+                )
+                logged_in_user.value = updatedProfile
+                navController.popBackStack()
+            }
         }
     }
 

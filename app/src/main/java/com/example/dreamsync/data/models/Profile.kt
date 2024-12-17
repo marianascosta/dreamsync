@@ -8,7 +8,8 @@ data class Profile(
     val userEmail: String = "",
     val userBio: String = "",
     val preferredRole: String = "",
-    val profilePicture: String = ""
+    val profilePicture: String = "",
+    val hikes: List<Hike> = emptyList()
 ) {
-    constructor() : this("", "", "", "", "")
+    constructor() : this("", "", "", "", "", emptyList())
 }
