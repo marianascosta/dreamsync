@@ -23,7 +23,6 @@ open class ProfileService {
         }
     }
 
-
     fun getProfileById(profileId: String, onProfileFetched: (Profile?) -> Unit) {
         profilesRef.child(profileId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -52,10 +51,9 @@ open class ProfileService {
             }
     }
 
-    fun deleteProfile(profileId: String, onComplete: (Boolean) -> Unit) {
+    fun deleteProfile(profileId: String) {
         profilesRef.child(profileId).removeValue()
             .addOnCompleteListener { task ->
-                onComplete(task.isSuccessful)
                 if (task.isSuccessful) {
                     Log.d("ProfileService", "Profile deleted: $profileId")
                 } else {

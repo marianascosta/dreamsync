@@ -2,6 +2,14 @@ package com.example.dreamsync.data.initialization
 
 import com.example.dreamsync.data.models.Profile
 
+val adminProfile = Profile(
+    userName = "Admin",
+    userEmail = "admin@email.com",
+    userBio = "Admin user with full access to the app.",
+    preferredRole = "Admin",
+    profilePicture = "https://via.placeholder.com/150"
+)
+
 val profilesSample = listOf(
     Profile(
         userName = "Alice Smith",
