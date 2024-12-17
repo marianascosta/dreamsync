@@ -10,5 +10,5 @@ data class Profile(
     val userBio: String = "",
     val preferredRole: String = "",
     val profilePicture: String = "",
-    var friendIds: List<String> = emptyList()
+    var friendsIds: List<String> = emptyList()
 )

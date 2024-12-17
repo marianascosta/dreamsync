@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +35,6 @@ import com.example.dreamsync.AppState.loggedInUser
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.ProfileService
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FriendsScreen(
     profileService: ProfileService,
@@ -44,20 +44,19 @@ fun FriendsScreen(
     val isLoading = remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        profileService.getFriendsList(
-            profileId = loggedInUser.value.id
-        ) { fetchedFriends ->
-            friends.value = fetchedFriends
+        Log.d("FriendsScreen", "Fetched friends: ${loggedInUser.value.id} - ${loggedInUser.value.friendsIds}")
+        profileService.getFriendsList(loggedInUser.value.id) { friendsList ->
+            friends.value = friendsList
             isLoading.value = false
         }
     }
 
     Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
-    )  {
+    ) {
         if (friends.value.isEmpty()) {
             Box(
                 contentAlignment = Alignment.Center,
@@ -65,19 +64,13 @@ fun FriendsScreen(
             ) {
                 Text("You have no friends yet.", fontSize = 18.sp, color = Color.Gray)
             }
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(friends.value.size) { index ->
-                    val friend = friends.value[index]
-                    FriendCard(friend = friend, onFriendClick = onFriendClick)
-                }
-            }
         }
-    }
 
+        for (friend in friends.value) {
+            FriendCard(friend = friend, onFriendClick = onFriendClick)
+        }
+
+    }
 }
 
 @Composable
@@ -108,22 +101,8 @@ fun FriendCard(friend: Profile, onFriendClick: (Profile) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun FriendsScreenPreview() {
-    val mockFriends = remember {
-        listOf(
-            Profile(userName = "Alice Smith", profilePicture = "https://via.placeholder.com/150"),
-            Profile(userName = "Bob Johnson", profilePicture = "https://via.placeholder.com/150"),
-            Profile(userName = "Charlie Brown", profilePicture = "https://via.placeholder.com/150")
-        )
-    }
-
-    class MockProfileService : ProfileService() {
-        override fun getFriendsList(loggedInUserId: String, onFriendsFetched: (List<Profile>) -> Unit) {
-            onFriendsFetched(mockFriends)
-        }
-    }
-
     FriendsScreen(
-        profileService = MockProfileService(),
+        profileService = ProfileService(),
         onFriendClick = { friend ->
             println("Clicked on: ${friend.userName}")
         }

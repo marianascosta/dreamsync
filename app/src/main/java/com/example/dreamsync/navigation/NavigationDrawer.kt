@@ -34,14 +34,5 @@ fun NavigationDrawer(
                 onCloseDrawer()
             }
         )
-        NavigationDrawerItem(
-            label = { Text("Friends") },
-            selected = selectedIndex == 2,
-            onClick = {
-                onDrawerItemSelected(2)
-                navController.navigate("friends")
-                onCloseDrawer()
-            }
-        )
     }
 }

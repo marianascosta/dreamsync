@@ -11,13 +11,15 @@ open class ProfileService {
 
     fun saveProfile(profile: Profile, onProfileSaved: (String?) -> Unit) {
         val newProfileId = profilesRef.push().key
-        if (newProfileId != null) {
-            profile.id = newProfileId
+        if(newProfileId == null) {
+            throw Exception("Failed to generate a new profile ID")
         }
-        profilesRef.push().setValue(profile).addOnCompleteListener { task ->
+        //save the profile with the id
+        profile.id = newProfileId
+        profilesRef.child(newProfileId).setValue(profile).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 onProfileSaved(newProfileId)
-                Log.d("ProfileService", "Profile written successfully.")
+                Log.d("ProfileService", "Profile written successfully: $profile")
             } else {
                 onProfileSaved(null)
                 Log.e("ProfileService", "Failed to write profile.", task.exception)
@@ -65,36 +67,54 @@ open class ProfileService {
     }
 
     open fun getFriendsList(profileId: String, onFriendsFetched: (List<Profile>) -> Unit) {
-        profilesRef.child(profileId).child("friendsIds").get().addOnSuccessListener { snapshot ->
-            val friendIds = snapshot.children.mapNotNull { it.getValue(String::class.java) }
-            val friends = mutableListOf<Profile>()
-            friendIds.forEach { friendId ->
-                profilesRef.child(friendId).get().addOnSuccessListener { friendSnapshot ->
-                    val friend = friendSnapshot.getValue(Profile::class.java)
-                    if (friend != null) {
-                        friends.add(friend)
-                    }
-                    if (friends.size == friendIds.size) {
-                        onFriendsFetched(friends)
+        getProfileById(profileId) { profile ->
+            if (profile != null) {
+                val friendsIds: List<String> = profile.friendsIds
+                val friends = mutableListOf<Profile>()
+                var friendsFetchedCount = 0
+
+                for (friendId in friendsIds) {
+                    getProfileById(friendId) { friend ->
+                        if (friend != null) {
+                            friends.add(friend)
+                        }
+
+                        friendsFetchedCount++
+                        if (friendsFetchedCount == friendsIds.size) {
+                            onFriendsFetched(friends)
+                            Log.d("FriendsScreen", "Fetched ${friends.size} friends for ${profile.userName}")
+                        }
                     }
                 }
+
+                if (friendsIds.isEmpty()) {
+                    onFriendsFetched(emptyList())
+                }
+            } else {
+                onFriendsFetched(emptyList())
             }
-            if (friendIds.isEmpty()) {
-                onFriendsFetched(friends)
-            }
-        }.addOnFailureListener {
-            onFriendsFetched(emptyList())
         }
     }
 
     fun addFriend(profile: Profile, friendId: String) {
-        profilesRef.child(profile.id).child("friendsIds").push().setValue(friendId)
-            .addOnSuccessListener {
-                Log.d("ProfileService", "Friend added successfully for ${profile.id}")
-            }
-            .addOnFailureListener {
-                Log.e("ProfileService", "Failed to add friend for ${profile.id}", it)
-            }
+        val friendsRef = profilesRef.child(profile.id).child("friendsIds")
+
+        friendsRef.get().addOnSuccessListener { snapshot ->
+            val currentFriends = snapshot.getValue(List::class.java) as? List<String> ?: emptyList()
+            val updatedFriends = currentFriends.toMutableList().apply { add(friendId) }
+
+            friendsRef.setValue(updatedFriends)
+                .addOnSuccessListener {
+                    Log.d("ProfileService", "Friend added successfully for ${profile.id}")
+                }
+                .addOnFailureListener {
+                    Log.e("ProfileService", "Failed to add friend for ${profile.id}", it)
+                }
+
+        }.addOnFailureListener {
+            Log.e("ProfileService", "Failed to fetch friends list for ${profile.id}", it)
+        }
+
     }
 
     fun getAllProfiles(onProfilesFetched: (List<Profile>) -> Unit) {

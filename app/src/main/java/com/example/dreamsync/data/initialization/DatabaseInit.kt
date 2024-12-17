@@ -14,37 +14,35 @@ class DatabaseInit {
     val dreamService = DreamService()
     val profileService = ProfileService()
     val accountService = AccountService()
-    var adminFriendIds = emptyList<String>()
+
+    // cache
+    var profilesList = mutableListOf<Profile>()
+    var accountsList = mutableListOf<Profile>()
 
     fun initRealTimeDatabase() {
         database.reference.removeValue()
 
+        saveAdmin()
         saveProfilesSample(profilesSample)
         saveDreamsSample(dreamsSample)
 
-        registerAdminUser()
+        //wait for the profiles to be saved
+        Log.d("DatabaseInit", "Profiles saved: $profilesList")
+        Log.i("DatabaseInit", "Database initialized")
     }
 
-    fun registerAdminUser() {
+    fun saveAdmin() {
         // guardar o profile do admin na colecao profiles
-        profileService.saveProfile(adminProfile, onProfileSaved = { profileId ->
-            if (profileId != null) {
+        profileService.saveProfile(adminProfile, onProfileSaved = {
+            adminProfileId ->
                 // guardar o informacao de login na colecao accounts
                 accountService.saveAccount(
-                    adminAccount.copy(profileId = profileId),
+                    adminAccount.copy(profileId = adminProfileId!!),
                     onAccountSaved = { success ->
                         Log.d("DatabaseInit", "Admin account saved: $success")
                     }
                 )
-                adminProfile.id = profileId
-                // adicionar os amigos do admin
-                for (friendId in adminFriendIds) {
-                    profileService.addFriend(adminProfile, friendId)
-                }
-            }
         })
-
-
     }
 
     fun saveDreamsSample(dreams: List<Dream>){
@@ -55,15 +53,21 @@ class DatabaseInit {
 
     fun saveProfilesSample(profiles: List<Profile>) {
         profiles.forEach { profile ->
-            profileService.saveProfile(profile, onProfileSaved = { profileId ->
-                Log.d("DatabaseInit", "Profile saved: $profileId")
-            })
+            profileService.saveProfile(
+                profile = profile,
+                onProfileSaved = { profileId ->
+                    //update the profile.id before saving to cache
+                    profile.id = profileId!!
+                    profilesList.add(profile)
+                    addFriendToAdmin(profileId)
+                    Log.d("DatabaseInit", "Profile saved: $profile")
 
-            if (adminFriendIds.size < 3) {
-                profileService.saveProfile(profile, onProfileSaved = { profileId ->
-                    adminFriendIds += profileId!!
-                })
-            }
+            })
         }
+    }
+
+    fun addFriendToAdmin(friendId: String) {
+        profileService.addFriend(adminProfile, friendId)
+        Log.d("DatabaseInit", "Friend added to admin: $friendId")
     }
 }
