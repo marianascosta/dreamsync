@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Profile(
+    var id: String = "",
     val userName: String = "",
     val userEmail: String = "",
     val userBio: String = "",
@@ -11,5 +12,5 @@ data class Profile(
     val profilePicture: String = "",
     val hikes: List<Hike> = emptyList()
 ) {
-    constructor() : this("", "", "", "", "", emptyList())
+    constructor() : this("", "", "", "", "", "", emptyList())
 }

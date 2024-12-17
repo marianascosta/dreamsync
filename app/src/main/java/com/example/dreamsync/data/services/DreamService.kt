@@ -7,28 +7,12 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.example.dreamsync.data.models.Dream
+import com.example.dreamsync.data.models.DreamCategory
 
-class DreamService {
+open class DreamService {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val dreamsRef: DatabaseReference = database.getReference("dreams")
-
-    fun initDreams() {
-        val dreams = listOf(
-            Dream(title = "Dream 1", description = "Description 1", date = "2021-01-01"),
-            Dream(title = "Dream 2", description = "Description 2", date = "2021-01-02")
-        )
-
-        dreams.forEach { dream ->
-            dreamsRef.push().setValue(dream).addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    Log.d("DreamService", "Dream written successfully.")
-                } else {
-                    Log.e("DreamService", "Failed to write dream.", task.exception)
-                }
-            }
-        }
-    }
 
     fun saveDream(dream: Dream) {
         dreamsRef.push().setValue(dream).addOnCompleteListener { task ->
@@ -38,21 +22,6 @@ class DreamService {
                 Log.e("DreamService", "Failed to write dream.", task.exception)
             }
         }
-    }
-
-    fun getDreams() {
-        dreamsRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                for (dreamSnapshot in snapshot.children) {
-                    val dream = dreamSnapshot.getValue(Dream::class.java)
-                    Log.d("DreamService", "Dream read: ${dream?.title}")
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.w("DreamService", "Failed to read dreams.", error.toException())
-            }
-        })
     }
 
     fun getDreamById(dreamId: String, onDreamFetched: (Dream?) -> Unit) {
