@@ -1,16 +1,21 @@
 package com.example.dreamsync.screens.internal.profile
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import com.example.dreamsync.data.models.Hike
+
 
 @Composable
 fun CreateHikeScreen(onHikeCreated: (Hike) -> Unit) {
-    // State variables for input fields
+
     var hikeName by remember { mutableStateOf("") }
     var hikeDescription by remember { mutableStateOf("") }
     var selectedLayer by remember { mutableIntStateOf(1) }
@@ -29,8 +34,6 @@ fun CreateHikeScreen(onHikeCreated: (Hike) -> Unit) {
             style = MaterialTheme.typography.headlineMedium,
             modifier = Modifier.align(Alignment.Start)
         )
-
-        // Input field for Hike Name
         OutlinedTextField(
             value = hikeName,
             onValueChange = { hikeName = it },
@@ -38,8 +41,6 @@ fun CreateHikeScreen(onHikeCreated: (Hike) -> Unit) {
             placeholder = { Text("Enter the name of your dream hike") },
             modifier = Modifier.fillMaxWidth()
         )
-
-        // Input field for Hike Description
         OutlinedTextField(
             value = hikeDescription,
             onValueChange = { hikeDescription = it },
@@ -50,8 +51,6 @@ fun CreateHikeScreen(onHikeCreated: (Hike) -> Unit) {
                 .height(120.dp),
             maxLines = 5
         )
-
-        // Dropdown menu for selecting layers
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -83,10 +82,27 @@ fun CreateHikeScreen(onHikeCreated: (Hike) -> Unit) {
                 }
             }
         }
-
+        Text(
+            text = "Who's joining the Hike?",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(150.dp)
+                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                .padding(8.dp)
+        ) {
+            Text(
+                text = "Friends",
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Create Hike Button
         Button(
             onClick = {
                 if (hikeName.isNotEmpty() && hikeDescription.isNotEmpty()) {
