@@ -9,15 +9,17 @@ open class ProfileService {
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val profilesRef: DatabaseReference = database.getReference("profiles")
 
-    fun saveProfile(profile: Profile) {
+    fun saveProfile(profile: Profile, onProfileSaved: (String?) -> Unit) {
         val newProfileId = profilesRef.push().key
         if (newProfileId != null) {
             profile.id = newProfileId
         }
         profilesRef.push().setValue(profile).addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                onProfileSaved(newProfileId)
                 Log.d("ProfileService", "Profile written successfully.")
             } else {
+                onProfileSaved(null)
                 Log.e("ProfileService", "Failed to write profile.", task.exception)
             }
         }
