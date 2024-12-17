@@ -7,8 +7,7 @@ class Hike (
     val name: String,
     val description: String,
     val layers: Int,
-    val isComplete: Boolean,
-    val createdBy: String
+    val isComplete: Boolean
 ) {
-    constructor(): this("", "", 0, false, "")
+    constructor(): this("", "", 0, false)
 }

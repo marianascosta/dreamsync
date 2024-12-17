@@ -1,7 +1,6 @@
 package com.example.dreamsync.data.services
 
 import android.util.Log
-import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.Profile
 import com.google.firebase.database.*
 
