@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dreamsync.data.handlers.AccountHandler
+import com.example.dreamsync.data.initialization.adminProfile
 import com.example.dreamsync.data.models.Profile
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,6 +160,30 @@ fun LoginScreen(
             )
         ) {
             Text(text = "Register", fontSize = 16.sp, color = Color.White)
+        }
+
+        // TODO DELETE THIS
+        Text(
+            text = "or",
+            fontSize = 12.sp,
+            color = Color.Gray,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
+        Button(
+            onClick = {
+                onLoginSuccess(adminProfile)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            )
+        ) {
+            Text(text = "Login as admin", fontSize = 16.sp, color = Color.White)
         }
     }
 }
