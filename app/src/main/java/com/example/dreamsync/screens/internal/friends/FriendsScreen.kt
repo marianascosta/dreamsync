@@ -30,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.dreamsync.AppState
+import com.example.dreamsync.AppState.loggedInUser
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.ProfileService
 
@@ -45,7 +45,7 @@ fun FriendsScreen(
 
     LaunchedEffect(Unit) {
         profileService.getFriendsList(
-            profileId = AppState.loggedInUser.value.userName
+            profileId = loggedInUser.value.id
         ) { fetchedFriends ->
             friends.value = fetchedFriends
             isLoading.value = false
@@ -54,20 +54,21 @@ fun FriendsScreen(
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     )  {
         if (friends.value.isEmpty()) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("You have no friends yet.", fontSize = 18.sp, color = Color.Gray)
             }
         } else {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
                 items(friends.value.size) { index ->
                     val friend = friends.value[index]

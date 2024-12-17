@@ -87,13 +87,33 @@ open class ProfileService {
         }
     }
 
-    fun addFriend(profileId: String, friendId: String) {
-        profilesRef.child(profileId).child("friendsIds").push().setValue(friendId)
+    fun addFriend(profile: Profile, friendId: String) {
+        profilesRef.child(profile.id).child("friendsIds").push().setValue(friendId)
             .addOnSuccessListener {
-                Log.d("ProfileService", "Friend added successfully for $profileId")
+                Log.d("ProfileService", "Friend added successfully for ${profile.id}")
             }
             .addOnFailureListener {
-                Log.e("ProfileService", "Failed to add friend for $profileId")
+                Log.e("ProfileService", "Failed to add friend for ${profile.id}", it)
             }
+    }
+
+    fun getAllProfiles(onProfilesFetched: (List<Profile>) -> Unit) {
+        profilesRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val profiles = mutableListOf<Profile>()
+                for (profileSnapshot in snapshot.children) {
+                    val profile = profileSnapshot.getValue(Profile::class.java)
+                    if (profile != null) {
+                        profiles.add(profile)
+                    }
+                }
+                onProfilesFetched(profiles)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("ProfileService", "Error fetching profiles: ${error.message}")
+                onProfilesFetched(emptyList())
+            }
+        })
     }
 }

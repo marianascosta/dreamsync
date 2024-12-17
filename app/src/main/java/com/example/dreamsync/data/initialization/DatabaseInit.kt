@@ -14,14 +14,15 @@ class DatabaseInit {
     val dreamService = DreamService()
     val profileService = ProfileService()
     val accountService = AccountService()
+    var adminFriendIds = emptyList<String>()
 
     fun initRealTimeDatabase() {
         database.reference.removeValue()
 
-        registerAdminUser()
-
         saveProfilesSample(profilesSample)
         saveDreamsSample(dreamsSample)
+
+        registerAdminUser()
     }
 
     fun registerAdminUser() {
@@ -35,12 +36,15 @@ class DatabaseInit {
                         Log.d("DatabaseInit", "Admin account saved: $success")
                     }
                 )
+                adminProfile.id = profileId
+                // adicionar os amigos do admin
+                for (friendId in adminFriendIds) {
+                    profileService.addFriend(adminProfile, friendId)
+                }
             }
         })
-        // adicionar todos os profiles como friends do admin
-        for (profile in profilesSample) {
-            profileService.addFriend(adminProfile.id, profile.id)
-        }
+
+
     }
 
     fun saveDreamsSample(dreams: List<Dream>){
@@ -49,20 +53,17 @@ class DatabaseInit {
         }
     }
 
-    fun saveProfilesSample(profiles: List<Profile>){
+    fun saveProfilesSample(profiles: List<Profile>) {
         profiles.forEach { profile ->
             profileService.saveProfile(profile, onProfileSaved = { profileId ->
                 Log.d("DatabaseInit", "Profile saved: $profileId")
             })
-        }
-        val firstProfile = profiles.first()
-        addFriendsSample(firstProfile.id)
-    }
 
-    fun addFriendsSample(profileId: String){
-        val friendIds = profilesSample.map { it.id }.filter { it != profileId }
-        for (friendId in friendIds){
-            profileService.addFriend(profileId, friendId)
+            if (adminFriendIds.size < 3) {
+                profileService.saveProfile(profile, onProfileSaved = { profileId ->
+                    adminFriendIds += profileId!!
+                })
+            }
         }
     }
 }
