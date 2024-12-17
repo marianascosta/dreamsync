@@ -9,16 +9,18 @@ class ProfileService {
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val profilesRef: DatabaseReference = database.getReference("profiles")
 
-    fun saveProfile(profile: Profile) {
-        profilesRef.push().setValue(profile).addOnCompleteListener { task ->
+    fun saveProfile(profile: Profile, onProfileSaved: (String?) -> Unit) {
+        val newProfileRef = profilesRef.push()
+        newProfileRef.setValue(profile).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d("ProfileService", "Profile written successfully.")
+                onProfileSaved(newProfileRef.key)
             } else {
                 Log.e("ProfileService", "Failed to write profile.", task.exception)
+                onProfileSaved(null)
             }
         }
     }
-
 
     fun getProfileById(profileId: String, onProfileFetched: (Profile?) -> Unit) {
         profilesRef.child(profileId).addListenerForSingleValueEvent(object : ValueEventListener {
@@ -48,10 +50,9 @@ class ProfileService {
             }
     }
 
-    fun deleteProfile(profileId: String, onComplete: (Boolean) -> Unit) {
+    fun deleteProfile(profileId: String) {
         profilesRef.child(profileId).removeValue()
             .addOnCompleteListener { task ->
-                onComplete(task.isSuccessful)
                 if (task.isSuccessful) {
                     Log.d("ProfileService", "Profile deleted: $profileId")
                 } else {

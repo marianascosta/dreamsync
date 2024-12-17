@@ -20,6 +20,7 @@ import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.NavigationDrawer
 import com.example.dreamsync.screens.external.LoginScreen
+import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.friends.FriendsScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
@@ -42,14 +43,27 @@ fun AppNavigation() {
     }
 
     val navGraph = navController.createGraph(startDestination = "login") {
-        composable("login") {
-            LoginScreen(
-                onLoginSuccess = { profile ->
+        composable("register") {
+            RegisterScreen (
+                onRegisterSuccess = { profile ->
                     AppState.updateLoggedInUser(profile)
                     navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
                     }
-                }
+                },
+                onClickLogin = { navController.navigate("login") }
+            )
+        }
+        composable("login") {
+            LoginScreen(
+                onLoginSuccess = { profile ->
+                    AppState.updateLoggedInUser(profile)
+                    println("Logged in user: ${AppState.loggedInUser.value}")
+                    navController.navigate("home") {
+                        popUpTo("login") { inclusive = true }
+                    }
+                },
+                onRegisterClick = { navController.navigate("register") }
             )
         }
         composable("profile") {
@@ -105,7 +119,7 @@ fun AppNavigation() {
                     "explore" -> "Explore"
                     else -> "DreamSync"
                 }
-                if (currentRoute != "login") {
+                if (currentRoute != "login" && currentRoute != "register") {
                     TopAppBar(
                         title = { Text(title) },
                         navigationIcon = {
@@ -117,7 +131,7 @@ fun AppNavigation() {
                 }
             },
             bottomBar = {
-                if (currentRoute != "login") {
+                if (currentRoute != "login" && currentRoute != "register") {
                     BottomNavigationBar(
                         selectedItemIndex = selectedIndex.intValue,
                         onItemSelected = { index ->
