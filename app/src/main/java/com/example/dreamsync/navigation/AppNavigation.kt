@@ -76,6 +76,9 @@ fun AppNavigation() {
                 profile = AppState.loggedInUser.collectAsState().value,
                 roles = roles, // Pass roles here
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
+                onNavigateToHikeInfoScreen = { hike ->
+                    navController.navigate("hike_info/${hike._id}")
+                },
                 onHikeCreated = { newHike ->
                     navController.popBackStack()
                 },
@@ -87,11 +90,6 @@ fun AppNavigation() {
                     AppState.updateLoggedInUser(updatedProfile)
                 },
                 hikeService = hikeService
-                    logged_in_user.value = updatedProfile
-                },
-                onNavigateToHikeInfoScreen = { hike ->
-                    navController.navigate("hike_info/${hike.id}")
-                }
             )
         }
         navigation<FriendsRoute>(startDestination = FriendsHomeRoute) {
@@ -121,6 +119,9 @@ fun AppNavigation() {
                     onNavigateToCreateHikeScreen = {
                         // Do nothing
                     },
+                    onNavigateToHikeInfoScreen = {
+                        // Do nothing
+                    },
                     hikeService = hikeService
                 )
             }
@@ -146,10 +147,12 @@ fun AppNavigation() {
         }
         composable("hike_info/{hikeId}") { backStackEntry ->
             val hikeId = backStackEntry.arguments?.getString("hikeId")
-            val hike = logged_in_user.value.hikes.find { it.id == hikeId }
-            if (hike != null) {
-                HikeInfoScreen(hike = hike, onBack = { navController.popBackStack() })
-            }
+            hikeService.getHikeById(
+                id=hikeId!!,
+                onHikeFetched = { fetchedHike ->
+                    navController.navigate("hike_info/${fetchedHike!!._id}")
+                }
+            )
         }
     }
 
