@@ -19,6 +19,10 @@ class DatabaseInit {
     var profilesList = mutableListOf<Profile>()
     var accountsList = mutableListOf<Profile>()
 
+    constructor() {
+        Log.d("DatabaseInit", "Database URL: ${database.reference}")
+    }
+
     fun initRealTimeDatabase() {
         database.reference.removeValue()
 
