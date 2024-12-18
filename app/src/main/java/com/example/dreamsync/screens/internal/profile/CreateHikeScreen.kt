@@ -1,5 +1,6 @@
 package com.example.dreamsync.screens.internal.profile
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,18 +10,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.services.HikeService
 
 
 @Composable
-fun CreateHikeScreen(onHikeCreated: (Hike) -> Unit) {
+fun CreateHikeScreen(
+    onHikeCreated: (Hike) -> Unit,
+    hikeService: HikeService
+) {
 
     var hikeName by remember { mutableStateOf("") }
     var hikeDescription by remember { mutableStateOf("") }
     var selectedLayer by remember { mutableIntStateOf(1) }
-    val layers = (1..10).toList()
     var dropdownExpanded by remember { mutableStateOf(false) }
+
+    val layers = (1..10).toList()
+    val context = LocalContext.current //for toast
 
     Column(
         modifier = Modifier
@@ -110,9 +119,17 @@ fun CreateHikeScreen(onHikeCreated: (Hike) -> Unit) {
                         name = hikeName,
                         description = hikeDescription,
                         layers = selectedLayer,
-                        isComplete = false
+                        isComplete = false,
+                        createdBy = AppState.loggedInUser.value.id,
+                        invitedFriends = emptyList()
                     )
-                    onHikeCreated(newHike)
+
+                    hikeService.saveHike(newHike) { success ->
+                        if (success) {
+                            Toast.makeText(context, "Hike Created!", Toast.LENGTH_SHORT).show()
+                            onHikeCreated(newHike)
+                        }
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()

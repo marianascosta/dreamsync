@@ -3,11 +3,12 @@ package com.example.dreamsync.data.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-class Hike (
-    val name: String,
-    val description: String,
-    val layers: Int,
-    val isComplete: Boolean
-) {
-    constructor(): this("", "", 0, false)
-}
+data class Hike(
+    val _id: String = "",
+    val name: String = "",
+    val description: String = "",
+    val layers: Int = 0,
+    val isComplete: Boolean = false,
+    val createdBy: String = "",
+    val invitedFriends: List<String> = emptyList()
+)

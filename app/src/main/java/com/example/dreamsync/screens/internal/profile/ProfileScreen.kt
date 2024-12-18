@@ -1,5 +1,6 @@
 package com.example.dreamsync.screens.internal.profile
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -35,23 +36,36 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.services.HikeService
 
 @Composable
 fun ProfileScreen(
     profile: Profile,
     roles: List<String>,
-    onNavigateToFriendsScreen: () -> Unit,
     onNavigateToCreateHikeScreen: () -> Unit,
     onHikeCreated: (Hike) -> Unit,
     onRoleSelected: (String) -> Unit,
-    onProfileUpdated: (Profile) -> Unit
+    onProfileUpdated: (Profile) -> Unit,
+    hikeService: HikeService
 ) {
+    Log.d("ProfileScreen", "Rendering ProfileScreen for profile: $profile")
+
     var expanded by remember { mutableStateOf(false) }
     var updatedProfile by remember { mutableStateOf(profile) }
     var selectedRole by remember { mutableStateOf(profile.preferredRole) }
     var isEditing by remember { mutableStateOf(false) }
     var newEmail by remember { mutableStateOf(profile.userEmail) }
     var newBio by remember { mutableStateOf(profile.userBio) }
+    var hikes by remember { mutableStateOf(emptyList<Hike>()) }
+
+    LaunchedEffect(key1 = profile.id) {
+        hikeService.getHikesByCreatedBy(
+            profile.id,
+            onHikesFetched = { fetchedHikes ->
+                hikes = fetchedHikes
+            }
+        )
+    }
 
     Box(
         modifier = Modifier
@@ -202,7 +216,9 @@ fun ProfileScreen(
                 text = "${profile.userName}'s Dream Hikes",
                 style = MaterialTheme.typography.headlineSmall
             )
-            updatedProfile.hikes.filter { !it.isComplete }.forEach { hike ->
+
+
+            hikes.forEach { hike ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)

@@ -20,6 +20,7 @@ import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.screens.internal.profile.CreateHikeScreen
 import com.example.dreamsync.data.services.DreamService
+import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.FriendsRoute
@@ -31,7 +32,6 @@ import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,16 +39,12 @@ import kotlinx.coroutines.launch
 fun AppNavigation() {
     val navController = rememberNavController()
     val selectedIndex = remember { mutableIntStateOf(1) } // Default: Home
-    val logged_in_user = remember { mutableStateOf(Profile(userName = "")) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val roles = listOf("Manager", "Architect", "Chemist", "Extractor", "Forger")
     val dreamService = DreamService()
     val profileService = ProfileService()
-
-    fun updateProfile(updatedProfile: Profile) {
-        logged_in_user.value = updatedProfile
-    }
+    val hikeService = HikeService()
 
     val navGraph = navController.createGraph(startDestination = "login") {
         composable("register") {
@@ -76,23 +72,20 @@ fun AppNavigation() {
         }
         composable("profile") {
             ProfileScreen(
-                profile = logged_in_user.value,
+                profile = AppState.loggedInUser.collectAsState().value,
                 roles = roles, // Pass roles here
-                onNavigateToFriendsScreen = { navController.navigate("friends") },
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
                 onHikeCreated = { newHike ->
-                    val updatedProfile = logged_in_user.value.copy(
-                        hikes = logged_in_user.value.hikes + newHike
-                    )
-                    logged_in_user.value = updatedProfile
+                    navController.popBackStack()
                 },
                 onRoleSelected = { selectedRole ->
-                    logged_in_user.value = logged_in_user.value.copy(preferredRole = selectedRole)
+                    AppState.updateLoggedInUser(AppState.loggedInUser.value.copy(preferredRole = selectedRole))
                     Log.d("AppNavigation", "Role selected: $selectedRole")
                 },
                 onProfileUpdated = { updatedProfile ->
-                    updateProfile(updatedProfile)
-                }
+                    AppState.updateLoggedInUser(updatedProfile)
+                },
+                hikeService = hikeService
             )
         }
         navigation<FriendsRoute>(startDestination = FriendsHomeRoute) {
@@ -110,14 +103,19 @@ fun AppNavigation() {
                 ProfileScreen (
                     profile = Profile(userName = profileId),
                     roles = roles,
-                    onNavigateToFriendsScreen = { navController.navigate("friends") },
                     onRoleSelected = { selectedRole ->
-                        logged_in_user.value = logged_in_user.value.copy(preferredRole = selectedRole)
                         Log.d("AppNavigation", "Role selected: $selectedRole")
                     },
                     onProfileUpdated = { updatedProfile ->
-                        updateProfile(updatedProfile)
-                    }
+                        AppState.updateLoggedInUser(updatedProfile)
+                    },
+                    onHikeCreated = {
+                        // Do nothing
+                    },
+                    onNavigateToCreateHikeScreen = {
+                        // Do nothing
+                    },
+                    hikeService = hikeService
                 )
             }
         }
@@ -132,13 +130,12 @@ fun AppNavigation() {
             )
         }
         composable("create_hike") {
-            CreateHikeScreen { newHike ->
-                val updatedProfile = logged_in_user.value.copy(
-                    hikes = logged_in_user.value.hikes + newHike
-                )
-                logged_in_user.value = updatedProfile
-                navController.popBackStack()
-            }
+            CreateHikeScreen (
+                onHikeCreated = { newHike ->
+                    navController.popBackStack()
+                },
+                hikeService = hikeService
+            )
         }
     }
 
