@@ -1,5 +1,6 @@
 package com.example.dreamsync.data.handlers
 
+import android.util.Log
 import com.example.dreamsync.data.models.Account
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.AccountService
@@ -18,6 +19,7 @@ class AccountHandler {
             if (account != null && account.password == password) {
                 profileService.getProfileById(account.profileId, onProfileFetched = { profile ->
                     onLoginResult(profile)
+                    Log.d("AccountHandler", "User logged in: $profile")
                 })
             } else {
                 onLoginResult(null)

@@ -10,7 +10,6 @@ data class Profile(
     val userBio: String = "",
     val preferredRole: String = "",
     val profilePicture: String = "",
+    var friendsIds: List<String> = emptyList(),
     val hikes: List<Hike> = emptyList()
-) {
-    constructor() : this("", "", "", "", "", "", emptyList())
-}
+)
