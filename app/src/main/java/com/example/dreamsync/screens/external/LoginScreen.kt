@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dreamsync.data.handlers.AccountHandler
+import com.example.dreamsync.data.initialization.adminAccount
 import com.example.dreamsync.data.initialization.adminProfile
 import com.example.dreamsync.data.models.Profile
 
@@ -171,7 +172,19 @@ fun LoginScreen(
         )
         Button(
             onClick = {
-                onLoginSuccess(adminProfile)
+                accountHandler.loginUser(
+                    email = adminAccount.email,
+                    password = adminAccount.password,
+                    onLoginResult = { profile ->
+                        if (profile != null) {
+                            onLoginSuccess(profile)
+                        } else {
+                            emailErrorState.value = true
+                            passwordErrorState.value = true
+                        }
+                    }
+                )
+
             },
             modifier = Modifier
                 .fillMaxWidth()
