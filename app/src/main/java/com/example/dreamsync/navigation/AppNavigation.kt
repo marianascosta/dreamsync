@@ -33,7 +33,6 @@ import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
-import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -42,7 +41,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val selectedIndex = remember { mutableIntStateOf(1) } // Default: Home
+    val selectedIndex = remember { mutableIntStateOf(1) } // Default: Explore
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val roles = listOf("Manager", "Architect", "Chemist", "Extractor", "Forger")
@@ -55,7 +54,7 @@ fun AppNavigation() {
             RegisterScreen (
                 onRegisterSuccess = { profile ->
                     AppState.updateLoggedInUser(profile)
-                    navController.navigate("home") {
+                    navController.navigate("explore") { // Default: Explore
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -67,7 +66,7 @@ fun AppNavigation() {
                 onLoginSuccess = { profile ->
                     AppState.updateLoggedInUser(profile)
                     println("Logged in user: ${AppState.loggedInUser.value}")
-                    navController.navigate("home") {
+                    navController.navigate("explore") { // Default: Explore
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -130,14 +129,17 @@ fun AppNavigation() {
                 )
             }
         }
-        composable("home") {
-            HomeScreen(
-                dreamService = dreamService
-            )
-        }
         composable("explore") {
             ExploreScreen(
                 dreamService = dreamService
+            )
+        }
+        composable("hikes") {
+            HikesScreen(
+                hikeService = hikeService,
+                onHikeSelected = { hike -> navController.navigate(HikeDetailsRoute(hike._id)) },
+                onAddHike = { navController.navigate("create_hike") },
+                onBackPressed = { navController.popBackStack() }
             )
         }
         composable<HikeDetailsRoute>  { route ->
@@ -173,7 +175,6 @@ fun AppNavigation() {
         Scaffold(
             topBar = {
                 val title = when (currentRoute) {
-                    "home" -> "Home"
                     "profile" -> "Profile"
                     "friends" -> "Friends"
                     "explore" -> "Explore"
@@ -198,9 +199,9 @@ fun AppNavigation() {
                             selectedIndex.intValue = index
                             when (index) {
                                 0 -> navController.navigate("profile")
-                                1 -> navController.navigate("home")
-                                2 -> navController.navigate(FriendsRoute)
-                                3 -> navController.navigate("explore")
+                                1 -> navController.navigate("explore")
+                                2 -> navController.navigate("hikes")
+                                3 -> navController.navigate(FriendsRoute)
                             }
                         }
                     )

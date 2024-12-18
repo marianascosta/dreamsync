@@ -42,8 +42,8 @@ fun HikesListScreen(
     }
 
     Column (
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxSize()
     ) {
         hikes.forEach { hike ->
             HikeCard(hike = hike, onClick = { onHikeClicked(hike) })

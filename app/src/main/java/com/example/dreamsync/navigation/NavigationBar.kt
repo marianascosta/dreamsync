@@ -1,11 +1,15 @@
 package com.example.dreamsync.navigation
 
+import android.R.attr.label
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -30,19 +34,19 @@ private val navItems = listOf(
         unselectedIcon = Icons.Outlined.Person
     ),
     BottomNavItem(
-        label = "Home",
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home
+        label = "Explore",
+        selectedIcon = Icons.Filled.ShoppingCart,
+        unselectedIcon = Icons.Outlined.ShoppingCart
+    ),
+    BottomNavItem(
+        label = "Hikes",
+        selectedIcon = Icons.AutoMirrored.Default.List,
+        unselectedIcon = Icons.AutoMirrored.Default.List
     ),
     BottomNavItem(
         label = "Friends",
         selectedIcon = Icons.Filled.Search,
         unselectedIcon = Icons.Outlined.Search
-    ),
-    BottomNavItem(
-        label = "Explore",
-        selectedIcon = Icons.Filled.ShoppingCart,
-        unselectedIcon = Icons.Outlined.ShoppingCart
     )
 )
 

@@ -23,7 +23,7 @@ fun NavigationDrawer(
             selected = selectedIndex == 1,
             onClick = {
                 onDrawerItemSelected(1)
-                navController.navigate("home")
+                navController.navigate("Hikes")
                 onCloseDrawer()
             }
         )
