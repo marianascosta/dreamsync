@@ -45,6 +45,7 @@ fun ProfileScreen(
     roles: List<String>,
     onNavigateToFriendsScreen: () -> Unit,
     onNavigateToCreateHikeScreen: () -> Unit,
+    onNavigateToHikeInfoScreen: (Hike) -> Unit,
     onHikeCreated: (Hike) -> Unit,
     onRoleSelected: (String) -> Unit,
     onProfileUpdated: (Profile) -> Unit
@@ -214,6 +215,10 @@ fun ProfileScreen(
                         Text(text = "Name: ${hike.name}")
                         Text(text = "Description: ${hike.description}")
                         Text(text = "Layers: ${hike.layers}")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = { onNavigateToHikeInfoScreen(hike) }) {
+                            Text("View")
+                        }
                     }
                 }
             }

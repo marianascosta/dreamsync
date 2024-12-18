@@ -25,6 +25,7 @@ import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.friends.FriendsScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
+import com.example.dreamsync.screens.internal.profile.HikeInfoScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
@@ -70,7 +71,7 @@ fun AppNavigation() {
         composable("profile") {
             ProfileScreen(
                 profile = logged_in_user.value,
-                roles = roles, // Pass roles here
+                roles = roles,
                 onNavigateToFriendsScreen = { navController.navigate("friends") },
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
                 onHikeCreated = { newHike ->
@@ -81,10 +82,12 @@ fun AppNavigation() {
                 },
                 onRoleSelected = { selectedRole ->
                     logged_in_user.value = logged_in_user.value.copy(preferredRole = selectedRole)
-                    Log.d("AppNavigation", "Role selected: $selectedRole")
                 },
                 onProfileUpdated = { updatedProfile ->
-                    updateProfile(updatedProfile)
+                    logged_in_user.value = updatedProfile
+                },
+                onNavigateToHikeInfoScreen = { hike ->
+                    navController.navigate("hike_info/${hike.id}")
                 }
             )
         }
@@ -113,6 +116,13 @@ fun AppNavigation() {
                 )
                 logged_in_user.value = updatedProfile
                 navController.popBackStack()
+            }
+        }
+        composable("hike_info/{hikeId}") { backStackEntry ->
+            val hikeId = backStackEntry.arguments?.getString("hikeId")
+            val hike = logged_in_user.value.hikes.find { it.id == hikeId }
+            if (hike != null) {
+                HikeInfoScreen(hike = hike, onBack = { navController.popBackStack() })
             }
         }
     }
