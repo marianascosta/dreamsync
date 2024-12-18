@@ -32,6 +32,8 @@ import com.example.dreamsync.navigation.NavigationDrawer
 import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
+import com.example.dreamsync.screens.internal.home.HomeScreen
+import com.example.dreamsync.screens.internal.profile.HikeInfoScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.coroutineScope
@@ -78,6 +80,9 @@ fun AppNavigation() {
                 profile = AppState.loggedInUser.collectAsState().value,
                 roles = roles, // Pass roles here
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
+                onNavigateToHikeInfoScreen = { hike ->
+                    navController.navigate("hike_info/${hike._id}")
+                },
                 onHikeCreated = { newHike ->
                     navController.popBackStack()
                 },
@@ -122,6 +127,17 @@ fun AppNavigation() {
                     onNavigateToCreateHikeScreen = {
                         // Do nothing
                     },
+                    onNavigateToHikeInfoScreen = {
+                        // Do nothing
+                    },
+                    hikeService = hikeService
+                )
+            }
+        }
+        composable("home") {
+            HomeScreen(
+                dreamService = dreamService
+            )
                     hikeService = hikeService,
                     onHikeClicked = { hike ->
                         navController.navigate(HikeDetailsRoute(hike._id))
@@ -158,6 +174,15 @@ fun AppNavigation() {
                 },
                 hikeService = hikeService,
                 profileService = profileService
+            )
+        }
+        composable("hike_info/{hikeId}") { backStackEntry ->
+            val hikeId = backStackEntry.arguments?.getString("hikeId")
+            hikeService.getHikeById(
+                id=hikeId!!,
+                onHikeFetched = { fetchedHike ->
+                    navController.navigate("hike_info/${fetchedHike!!._id}")
+                }
             )
         }
     }
