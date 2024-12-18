@@ -1,5 +1,6 @@
 package com.example.dreamsync.screens.internal.profile
 
+import android.R.attr.text
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -227,6 +228,8 @@ fun ProfileScreen(
                         Text(text = "Name: ${hike.name}")
                         Text(text = "Description: ${hike.description}")
                         Text(text = "Layers: ${hike.layers}")
+                        Text(text = "Number of friends invited: ${hike.invitedFriends.size}")
+                        Text(text = "Complete: ${if (hike.isComplete) "Yes" else "No"}")
                     }
                 }
             }

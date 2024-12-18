@@ -134,7 +134,8 @@ fun AppNavigation() {
                 onHikeCreated = { newHike ->
                     navController.popBackStack()
                 },
-                hikeService = hikeService
+                hikeService = hikeService,
+                profileService = profileService
             )
         }
     }

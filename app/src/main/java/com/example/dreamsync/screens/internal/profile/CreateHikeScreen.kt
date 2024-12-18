@@ -3,6 +3,7 @@ package com.example.dreamsync.screens.internal.profile
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.border
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,22 +15,36 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.HikeService
+import com.example.dreamsync.data.services.ProfileService
 
 
 @Composable
 fun CreateHikeScreen(
     onHikeCreated: (Hike) -> Unit,
-    hikeService: HikeService
+    hikeService: HikeService,
+    profileService: ProfileService,
 ) {
 
     var hikeName by remember { mutableStateOf("") }
     var hikeDescription by remember { mutableStateOf("") }
     var selectedLayer by remember { mutableIntStateOf(1) }
     var dropdownExpanded by remember { mutableStateOf(false) }
+    var friends by remember { mutableStateOf(emptyList<Profile>()) }
+    var selectedFriendsIds by remember { mutableStateOf(emptyList<String>()) }
 
     val layers = (1..10).toList()
     val context = LocalContext.current //for toast
+
+    LaunchedEffect(Unit) {
+        profileService.getFriendsList(
+            profileId = AppState.loggedInUser.value.id,
+            onFriendsFetched = { friendsFetched ->
+                friends = friendsFetched
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -104,11 +119,30 @@ fun CreateHikeScreen(
                 .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
                 .padding(8.dp)
         ) {
-            Text(
-                text = "Friends",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.align(Alignment.Center)
-            )
+            LazyColumn {
+                items(friends.size) { friendIndex ->
+                    val friend = friends[friendIndex]
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(friend.userName, style = MaterialTheme.typography.bodyLarge)
+                        Checkbox(
+                            checked = selectedFriendsIds.contains(friend.id),
+                            onCheckedChange = { isChecked ->
+                                selectedFriendsIds = if (isChecked) {
+                                    selectedFriendsIds + friend.id
+                                } else {
+                                    selectedFriendsIds - friend.id
+                                }
+                            }
+                        )
+                    }
+                }
+            }
         }
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -121,7 +155,7 @@ fun CreateHikeScreen(
                         layers = selectedLayer,
                         isComplete = false,
                         createdBy = AppState.loggedInUser.value.id,
-                        invitedFriends = emptyList()
+                        invitedFriends = selectedFriendsIds
                     )
 
                     hikeService.saveHike(newHike) { success ->
