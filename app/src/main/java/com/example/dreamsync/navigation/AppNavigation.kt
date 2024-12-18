@@ -15,6 +15,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Profile
@@ -26,12 +27,15 @@ import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.FriendsRoute
 import com.example.dreamsync.navigation.FriendsRoute.FriendsHomeRoute
 import com.example.dreamsync.navigation.FriendsRoute.FriendsProfileRoute
+import com.example.dreamsync.navigation.HikeDetailsRoute
 import com.example.dreamsync.navigation.NavigationDrawer
 import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
+import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,7 +89,11 @@ fun AppNavigation() {
                 onProfileUpdated = { updatedProfile ->
                     AppState.updateLoggedInUser(updatedProfile)
                 },
-                hikeService = hikeService
+                hikeService = hikeService,
+                onHikeClicked = { hike ->
+                    navController.navigate(HikeDetailsRoute(hike._id))
+                }
+
             )
         }
         navigation<FriendsRoute>(startDestination = FriendsHomeRoute) {
@@ -115,7 +123,10 @@ fun AppNavigation() {
                     onNavigateToCreateHikeScreen = {
                         // Do nothing
                     },
-                    hikeService = hikeService
+                    hikeService = hikeService,
+                    onHikeClicked = { hike ->
+                        navController.navigate(HikeDetailsRoute(hike._id))
+                    }
                 )
             }
         }
@@ -127,6 +138,15 @@ fun AppNavigation() {
         composable("explore") {
             ExploreScreen(
                 dreamService = dreamService
+            )
+        }
+        composable<HikeDetailsRoute>  { route ->
+            val hikeDetailsRoute : HikeDetailsRoute = route.toRoute()
+            val hikeId = hikeDetailsRoute.hikeId
+
+            HikeDetailScreen(
+                hikeService = hikeService,
+                hikeId = hikeId
             )
         }
         composable("create_hike") {

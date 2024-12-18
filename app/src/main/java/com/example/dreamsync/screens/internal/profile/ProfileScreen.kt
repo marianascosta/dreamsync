@@ -36,8 +36,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import com.example.dreamsync.data.initialization.hikes
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.services.HikeService
+import com.example.dreamsync.screens.internal.hikes.HikesListScreen
 
 @Composable
 fun ProfileScreen(
@@ -47,7 +49,8 @@ fun ProfileScreen(
     onHikeCreated: (Hike) -> Unit,
     onRoleSelected: (String) -> Unit,
     onProfileUpdated: (Profile) -> Unit,
-    hikeService: HikeService
+    hikeService: HikeService,
+    onHikeClicked: (Hike) -> Unit
 ) {
     Log.d("ProfileScreen", "Rendering ProfileScreen for profile: $profile")
 
@@ -57,16 +60,6 @@ fun ProfileScreen(
     var isEditing by remember { mutableStateOf(false) }
     var newEmail by remember { mutableStateOf(profile.userEmail) }
     var newBio by remember { mutableStateOf(profile.userBio) }
-    var hikes by remember { mutableStateOf(emptyList<Hike>()) }
-
-    LaunchedEffect(key1 = profile.id) {
-        hikeService.getHikesByCreatedBy(
-            profile.id,
-            onHikesFetched = { fetchedHikes ->
-                hikes = fetchedHikes
-            }
-        )
-    }
 
     Box(
         modifier = Modifier
@@ -218,21 +211,10 @@ fun ProfileScreen(
                 style = MaterialTheme.typography.headlineSmall
             )
 
-
-            hikes.forEach { hike ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Name: ${hike.name}")
-                        Text(text = "Description: ${hike.description}")
-                        Text(text = "Layers: ${hike.layers}")
-                        Text(text = "Number of friends invited: ${hike.invitedFriends.size}")
-                        Text(text = "Complete: ${if (hike.isComplete) "Yes" else "No"}")
-                    }
-                }
-            }
+            HikesListScreen(
+                hikeService = hikeService,
+                onHikeClicked = onHikeClicked
+            )
         }
     }
 }

@@ -8,5 +8,6 @@ import kotlinx.serialization.Serializable;
     @Serializable data class FriendsProfileRoute (val profileId: String)
 }
 
+@Serializable data class HikeDetailsRoute(val hikeId: String)
 
 
