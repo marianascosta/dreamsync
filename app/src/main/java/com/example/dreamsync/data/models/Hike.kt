@@ -2,6 +2,7 @@ package com.example.dreamsync.data.models
 
 import kotlinx.serialization.Serializable
 
+
 @Serializable
 data class Hike(
     val _id: String = "",

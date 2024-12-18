@@ -31,6 +31,7 @@ import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
+import com.example.dreamsync.screens.internal.profile.HikeInfoScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
@@ -86,6 +87,11 @@ fun AppNavigation() {
                     AppState.updateLoggedInUser(updatedProfile)
                 },
                 hikeService = hikeService
+                    logged_in_user.value = updatedProfile
+                },
+                onNavigateToHikeInfoScreen = { hike ->
+                    navController.navigate("hike_info/${hike.id}")
+                }
             )
         }
         navigation<FriendsRoute>(startDestination = FriendsHomeRoute) {
@@ -137,6 +143,13 @@ fun AppNavigation() {
                 hikeService = hikeService,
                 profileService = profileService
             )
+        }
+        composable("hike_info/{hikeId}") { backStackEntry ->
+            val hikeId = backStackEntry.arguments?.getString("hikeId")
+            val hike = logged_in_user.value.hikes.find { it.id == hikeId }
+            if (hike != null) {
+                HikeInfoScreen(hike = hike, onBack = { navController.popBackStack() })
+            }
         }
     }
 
@@ -201,5 +214,3 @@ fun AppNavigation() {
         }
     }
 }
-
-

@@ -1,7 +1,5 @@
 package com.example.dreamsync.screens.internal.profile
 
-import android.R.attr.text
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -26,13 +24,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import com.example.dreamsync.R
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
@@ -44,13 +40,12 @@ fun ProfileScreen(
     profile: Profile,
     roles: List<String>,
     onNavigateToCreateHikeScreen: () -> Unit,
+    onNavigateToHikeInfoScreen: (Hike) -> Unit,
     onHikeCreated: (Hike) -> Unit,
     onRoleSelected: (String) -> Unit,
     onProfileUpdated: (Profile) -> Unit,
     hikeService: HikeService
 ) {
-    Log.d("ProfileScreen", "Rendering ProfileScreen for profile: $profile")
-
     var expanded by remember { mutableStateOf(false) }
     var updatedProfile by remember { mutableStateOf(profile) }
     var selectedRole by remember { mutableStateOf(profile.preferredRole) }
@@ -230,6 +225,10 @@ fun ProfileScreen(
                         Text(text = "Layers: ${hike.layers}")
                         Text(text = "Number of friends invited: ${hike.invitedFriends.size}")
                         Text(text = "Complete: ${if (hike.isComplete) "Yes" else "No"}")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = { onNavigateToHikeInfoScreen(hike) }) {
+                            Text("View")
+                        }
                     }
                 }
             }
