@@ -8,14 +8,14 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
-class HikeService {
+open class HikeService {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val hikesRef: DatabaseReference = database.getReference("hikes")
 
-    fun saveHike(hike: Hike, onHikeSaved: (Boolean) -> Unit) {
+    open fun saveHike(hike: Hike, onHikeSaved: (Boolean) -> Unit) {
         val hikeId = hikesRef.push().key ?: return onHikeSaved(false)
-        val hikeWithId = hike.copy(_id = hikeId)
+        val hikeWithId = hike.copy(id = hikeId)
         hikesRef.child(hikeId).setValue(hikeWithId).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d("HikeService", "Hike written successfully with ID: $hikeId")

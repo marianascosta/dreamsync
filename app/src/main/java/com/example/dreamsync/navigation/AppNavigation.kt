@@ -1,7 +1,6 @@
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,8 +15,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.dreamsync.AppState
-import com.example.dreamsync.data.models.Profile
-import com.example.dreamsync.screens.internal.profile.CreateHikeScreen
 import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
@@ -28,6 +25,7 @@ import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
+import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
@@ -72,7 +70,7 @@ fun AppNavigation() {
                 profileId = AppState.loggedInUser.value.id,
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
                 onNavigateToHikeInfoScreen = { hike ->
-                    navController.navigate("hike_info/${hike._id}")
+                    navController.navigate("hike_info/${hike.id}")
                 },
                 onHikeCreated = { newHike ->
                     navController.popBackStack()
@@ -86,7 +84,7 @@ fun AppNavigation() {
                 },
                 hikeService = hikeService,
                 onHikeClicked = { hike ->
-                    navController.navigate("hike_info/${hike._id}")
+                    navController.navigate("hike_info/${hike.id}")
                 }
 
             )
@@ -139,17 +137,15 @@ fun AppNavigation() {
         composable("hikes") {
             HikesScreen(
                 hikeService = hikeService,
-                onHikeSelected = { hike -> navController.navigate("hike_info/${hike._id}") },
+                onHikeSelected = { hike -> navController.navigate("hike_info/${hike.id}") },
                 onAddHike = { navController.navigate("create_hike") },
             )
         }
         composable("create_hike") {
             CreateHikeScreen (
-                onHikeCreated = { newHike ->
-                    navController.popBackStack()
-                },
                 hikeService = hikeService,
-                profileService = profileService
+                profileService = profileService,
+                onFinish = { navController.popBackStack() }
             )
         }
         composable("hike_info/{hikeId}") { backStackEntry ->

@@ -21,7 +21,7 @@ import com.example.dreamsync.data.services.ProfileService
 
 
 @Composable
-fun CreateHikeScreen(
+fun CreateHikeScreenOld(
     onHikeCreated: (Hike) -> Unit,
     hikeService: HikeService,
     profileService: ProfileService,
