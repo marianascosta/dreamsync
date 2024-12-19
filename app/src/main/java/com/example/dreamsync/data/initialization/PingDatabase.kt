@@ -20,9 +20,9 @@ object PingDatabase {
         val currentTime = System.currentTimeMillis()
         pingRef.setValue(currentTime).addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                Log.d("PingDatabase", "Ping written successfully.")
+                Log.i("PingDatabase", "Ping written successfully. You are connected to the database")
             } else {
-                Log.e("PingDatabase", "Failed to write ping.", task.exception)
+                Log.e("PingDatabase", "Failed to write ping to database.", task.exception)
             }
         }
     }

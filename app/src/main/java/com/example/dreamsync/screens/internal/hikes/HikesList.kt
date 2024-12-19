@@ -1,15 +1,15 @@
 package com.example.dreamsync.screens.internal.hikes
 
-import android.R.attr.text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,36 +17,51 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.dreamsync.AppState
-import com.example.dreamsync.data.initialization.hikes
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.services.HikeService
 
 @Composable
 fun HikesListScreen(
+    profileId: String,
     hikeService: HikeService,
     onHikeClicked: (Hike) -> Unit
 ) {
-
     var hikes by remember { mutableStateOf(emptyList<Hike>()) }
+    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         hikeService.getHikesByCreatedBy(
-            AppState.loggedInUser.value.id,
+            userId = profileId,
             onHikesFetched = { fetchedHikes ->
                 hikes = fetchedHikes
+                isLoading = false
             }
         )
     }
 
-    Column (
+    Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        hikes.forEach { hike ->
-            HikeCard(hike = hike, onClick = { onHikeClicked(hike) })
+        if (isLoading) {
+            CircularProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeWidth = 4.dp)
+        } else if (hikes.isEmpty()) {
+            Text(
+                text = "User has no hikes.",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f) // Gray color
+            )
+        } else {
+            hikes.forEach { hike ->
+                HikeCard(hike = hike, onClick = { onHikeClicked(hike) })
+            }
         }
     }
 }

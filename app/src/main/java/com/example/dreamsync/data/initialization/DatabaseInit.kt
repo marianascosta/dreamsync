@@ -35,13 +35,18 @@ class DatabaseInit {
     var profilesList = mutableListOf<Profile>()
 
     fun initRealTimeDatabase() {
-        databaseReference.removeValue()
+
+        Log.i("DatabaseInit", "Initializing database: ${database.reference.root}")
+
+//        deleteAll()
 
         saveProfilesSample(profilesSample)
         saveDreamsSample(dreamsSample)
         saveAdmin()
+    }
 
-        Log.i("DatabaseInit", "Database initialized successfully")
+    fun deleteAll() {
+        databaseReference.removeValue()
     }
 
     fun saveAdmin() {

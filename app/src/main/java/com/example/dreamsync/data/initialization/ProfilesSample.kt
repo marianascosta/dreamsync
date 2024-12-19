@@ -1,9 +1,9 @@
 package com.example.dreamsync.data.initialization
 
+import com.example.dreamsync.data.models.DEFAULT_PROFILE_PICTURE
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.models.Role
 
-const val DEFAULT_PROFILE_PICTURE = "https://static.vecteezy.com/system/resources/previews/004/511/281/large_2x/default-avatar-photo-placeholder-profile-picture-vector.jpg"
 
 val adminProfile = Profile(
     userName = "John Doe",

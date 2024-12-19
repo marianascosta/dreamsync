@@ -1,5 +1,8 @@
 package com.example.dreamsync.screens.internal.profile
 
+import android.R.attr.contentDescription
+import android.util.Log
+import android.util.Log.i
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -32,16 +35,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberAsyncImagePainter
+import com.example.dreamsync.AppState
 import com.example.dreamsync.data.initialization.hikes
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.Role
 import com.example.dreamsync.data.services.HikeService
+import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.screens.internal.hikes.HikesListScreen
 
 @Composable
 fun ProfileScreen(
-    profile: Profile,
+    profileService: ProfileService,
+    profileId : String,
     onNavigateToCreateHikeScreen: () -> Unit,
     onNavigateToHikeInfoScreen: (Hike) -> Unit,
     onHikeCreated: (Hike) -> Unit,
@@ -50,14 +57,29 @@ fun ProfileScreen(
     hikeService: HikeService,
     onHikeClicked: (Hike) -> Unit
 ) {
+    var profile by remember { mutableStateOf(Profile()) }
     var expanded by remember { mutableStateOf(false) }
     var updatedProfile by remember { mutableStateOf(profile) }
     var selectedRole by remember { mutableStateOf(profile.preferredRole) }
     var isEditing by remember { mutableStateOf(false) }
     var newEmail by remember { mutableStateOf(profile.userEmail) }
     var newBio by remember { mutableStateOf(profile.userBio) }
-
     val roles = Role.entries
+
+    LaunchedEffect(Unit) {
+        profileService.getProfileById(
+            profileId = profileId,
+            onProfileFetched = { fetchedProfile ->
+                profile = fetchedProfile!!
+                updatedProfile = fetchedProfile
+            }
+        )
+    }
+
+    Log.i("ProfileScreen", "Profile: $profile")
+
+    // se o perfil nao for do utilizador logged in, limitar algumas funcionalidades
+    val isCurrentUserProfile = AppState.loggedInUser.collectAsState().value.id == profile.id
 
     Box(
         modifier = Modifier
@@ -72,22 +94,18 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val profilePicResource = if (profile.profilePicture.isEmpty()) {
-                "defaultprofilepic"
-            } else {
-                profile.profilePicture
+            if (!profile.profilePicture.isEmpty()){
+                Image(
+                    painter = rememberAsyncImagePainter(profile.profilePicture),
+                    contentDescription = "Profile Picture",
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
-
-            Image(
-                painter = rememberAsyncImagePainter(profile.profilePicture),
-                contentDescription = "Profile Picture",
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -194,23 +212,26 @@ fun ProfileScreen(
                 style = MaterialTheme.typography.headlineSmall
             )
 
-            Row {
-                Icon(
-                    imageVector = Icons.Default.AddCircle,
-                    contentDescription = "Create Dream Hike",
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { onNavigateToCreateHikeScreen() },
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = "Create Dream Hike",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(top = 3.dp)
-                )
+            if (isCurrentUserProfile) {
+                Row {
+                    Icon(
+                        imageVector = Icons.Default.AddCircle,
+                        contentDescription = "Create Dream Hike",
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clickable { onNavigateToCreateHikeScreen() },
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Create Dream Hike",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 3.dp)
+                    )
+                }
             }
 
             HikesListScreen(
+                profileId = AppState.loggedInUser.collectAsState().value.id, //TODO FIX THIS
                 hikeService = hikeService,
                 onHikeClicked = onHikeClicked
             )

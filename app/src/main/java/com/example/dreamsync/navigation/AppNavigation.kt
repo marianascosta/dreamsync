@@ -68,7 +68,8 @@ fun AppNavigation() {
         }
         composable("profile") {
             ProfileScreen(
-                profile = AppState.loggedInUser.collectAsState().value,
+                profileService = profileService,
+                profileId = AppState.loggedInUser.value.id,
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
                 onNavigateToHikeInfoScreen = { hike ->
                     navController.navigate("hike_info/${hike._id}")
@@ -102,7 +103,8 @@ fun AppNavigation() {
         composable("friends/{friendId}") { route ->
             val friendId = route.arguments?.getString("friendId")
             ProfileScreen (
-                profile = Profile(userName = friendId!!),
+                profileService = profileService,
+                profileId = friendId!!,
                 onRoleSelected = { selectedRole ->
                     Log.d("AppNavigation", "Role selected: $selectedRole")
                 },
