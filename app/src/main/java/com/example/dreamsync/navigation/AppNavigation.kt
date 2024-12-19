@@ -15,7 +15,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.dreamsync.AppState
-import com.example.dreamsync.screens.internal.profile.CreateHikeScreen
 import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
@@ -26,6 +25,7 @@ import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
+import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
@@ -143,11 +143,9 @@ fun AppNavigation() {
         }
         composable("create_hike") {
             CreateHikeScreen (
-                onHikeCreated = { newHike ->
-                    navController.popBackStack()
-                },
                 hikeService = hikeService,
-                profileService = profileService
+                profileService = profileService,
+                onFinish = { navController.popBackStack() }
             )
         }
         composable("hike_info/{hikeId}") { backStackEntry ->

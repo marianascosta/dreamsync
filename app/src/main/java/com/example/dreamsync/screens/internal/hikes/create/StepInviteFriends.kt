@@ -39,10 +39,10 @@ fun StepInviteFriends(
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         //Form
-        LazyColumn (
+        Column (
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(friends) { friend ->
+            friends.forEach { friend ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.medium
@@ -75,7 +75,9 @@ fun StepInviteFriends(
 
         // Finish button
         Button(
-            onClick = { onClickFinish(hike) },
+            onClick = { onClickFinish(
+                hike.copy(invitedFriends = selectedFriends)
+            ) },
             modifier = Modifier.align(Alignment.End).padding(bottom = 16.dp)
         ) {
             Text("Create Hike")

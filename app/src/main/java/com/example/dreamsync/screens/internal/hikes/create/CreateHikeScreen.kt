@@ -3,7 +3,6 @@ package com.example.dreamsync.screens.internal.hikes.create
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -12,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.HikeService
@@ -21,11 +21,12 @@ import com.example.dreamsync.data.services.ProfileService
 fun CreateHikeScreen(
     hikeService: HikeService,
     profileService: ProfileService,
-    onHikeCreated: (Hike) -> Unit
+    onFinish: () -> Unit
 ) {
     var currentStep by remember { mutableIntStateOf(0) }
     val tabs = listOf("Details", "Layers", "Friends")
-    var hike by remember { mutableStateOf(Hike()) }
+    var hike by remember { mutableStateOf(Hike(createdBy = AppState.loggedInUser.value.id)) }
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -37,7 +38,7 @@ fun CreateHikeScreen(
             tabs.forEachIndexed { index, title ->
                 Tab(
                     selected = currentStep == index,
-                    onClick = { currentStep = index },
+                    onClick = { }, // must use the continue button inside each step screen
                     text = { Text(title) }
                 )
             }
@@ -49,17 +50,34 @@ fun CreateHikeScreen(
             0 -> StepHikeDetails(hike = hike, onClickContinue = { updatedHike ->
                 hike = updatedHike
                 currentStep++
+                Log.d("StepHikeDetails", "Hike: $hike")
             })
             1 -> StepCreateLayers(hike = hike, onClickContinue = { updatedHike ->
                 hike = updatedHike
                 currentStep++
+                Log.d("StepCreateLayers", "Hike: $hike")
             })
             2 -> StepInviteFriends(hike = hike, profileService = profileService,
-                onClickFinish = { updatedHike -> hike = updatedHike })
+                onClickFinish = { updatedHike ->
+                    hike = updatedHike
+                    // Save to database
+                    hikeService.saveHike(hike) { success ->
+                        if (success) {
+                            Toast.makeText(context, "Hike created!", Toast.LENGTH_SHORT).show()
+                            onFinish()
+                        } else {
+                            Toast.makeText(context, "Failed to create hike", Toast.LENGTH_SHORT).show()
+                            onFinish()
+                        }
+                    }
+                }
+            )
 
         }
     }
+
 }
+
 
 @Composable
 @Preview
@@ -83,13 +101,9 @@ fun PreviewCreateHikeScreen() {
         }
     }
 
-    val onHikeCreated: (Hike) -> Unit = { createdHike ->
-        Log.i("PreviewCreateHikeScreen", "Hike created: $createdHike")
-    }
-
     CreateHikeScreen(
         hikeService = mockHikeService,
         profileService = mockProfileService,
-        onHikeCreated = onHikeCreated
+        onFinish = { Log.d("CreateHikeScreen", "Hike created!") }
     )
 }
