@@ -8,7 +8,7 @@ import com.example.dreamsync.data.services.HikeService
 
 val hikes = listOf(
     Hike(
-        _id = "1",
+        id = "1",
         name = "Dream Inception",
         description = "A hike inspired by the layers of dreams in Inception.",
         isComplete = false,
@@ -39,7 +39,7 @@ val hikes = listOf(
         )
     ),
     Hike(
-        _id = "2",
+        id = "2",
         name = "Mountain Adventure",
         description = "An exhilarating mountain hike with breathtaking views.",
         isComplete = false,
