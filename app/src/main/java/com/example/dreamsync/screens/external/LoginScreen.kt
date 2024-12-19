@@ -1,6 +1,7 @@
 package com.example.dreamsync.screens.external
 
 import android.provider.Telephony.Carriers.PASSWORD
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -179,8 +180,7 @@ fun LoginScreen(
                         if (profile != null) {
                             onLoginSuccess(profile)
                         } else {
-                            emailErrorState.value = true
-                            passwordErrorState.value = true
+                            Log.e("LoginScreen", "Login failed for admin account")
                         }
                     }
                 )

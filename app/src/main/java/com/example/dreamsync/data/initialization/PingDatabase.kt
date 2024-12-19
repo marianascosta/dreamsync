@@ -22,7 +22,7 @@ object PingDatabase {
             if (task.isSuccessful) {
                 Log.d("PingDatabase", "Ping written successfully: $currentTime")
             } else {
-                Log.e("PingDatabase", "Failed to write ping.", task.exception)
+                Log.e("PingDatabase", "Failed to write ping to database.", task.exception)
             }
         }
     }
