@@ -25,6 +25,8 @@ fun HikeDetailScreen(
     hikeId: String
 ) {
     var hike by remember { mutableStateOf<Hike>(Hike()) }
+    var isLoading by remember { mutableStateOf(true) }
+
     LaunchedEffect(Unit) {
         hikeService.getHikeById(
             id = hikeId,
@@ -32,10 +34,28 @@ fun HikeDetailScreen(
                 if (fetchedHike != null) {
                     hike = fetchedHike
                 }
+                isLoading = false
             }
         )
     }
-    TimelineScreen(layers = hike.layers)
+
+    if (isLoading) {
+        // Show loading effect
+        LoadingIndicator()
+    } else {
+        // Show the timeline screen with layers
+        TimelineScreen(layers = hike.layers)
+    }
+}
+
+@Composable
+fun LoadingIndicator() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
 }
 
 @Composable
@@ -46,21 +66,26 @@ fun TimelineScreen(layers: List<Layer>) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
-        Text("Hike Layers", style = MaterialTheme.typography.headlineMedium)
+        Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
 
-        Column (
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(32.dp)
-        ) {
-            layers.forEachIndexed { index, _ ->
-                val isFirstItem = index == 0
-                val isLastItem = index == layers.size - 1
-                TimelineItem(
-                    label = if (isFirstItem) layers[index].startDate else layers[index].kickDate,
-                    layer = layers[index],
-                    isFirstItem = isFirstItem,
-                    isLastItem = isLastItem
-                )
+        if (layers.isEmpty()) {
+            // Show empty message if no layers
+            Text("No layers available.", style = MaterialTheme.typography.bodyMedium)
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(32.dp)
+            ) {
+                layers.forEachIndexed { index, _ ->
+                    val isFirstItem = index == 0
+                    val isLastItem = index == layers.size - 1
+                    TimelineItem(
+                        label = if (isFirstItem) layers[index].startDate else layers[index].kickDate,
+                        layer = layers[index],
+                        isFirstItem = isFirstItem,
+                        isLastItem = isLastItem
+                    )
+                }
             }
         }
     }

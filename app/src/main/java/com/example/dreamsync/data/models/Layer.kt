@@ -1,13 +1,13 @@
 package com.example.dreamsync.data.models
 
 import kotlinx.serialization.Serializable
-import java.util.UUID
 
 @Serializable
-class Layer (val id: String, val name: String){
-    constructor(
-        name: String
-    ) : this(
-        id = UUID.randomUUID().toString(),
-        name = name)
-}
+data class Layer(
+    val id: String = "",
+    val name: String = "",
+    val description: String = "",
+    val difficulty: String = "",
+    val startDate: String = "",
+    val kickDate: String = "",
+)

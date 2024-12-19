@@ -8,7 +8,17 @@ data class Profile(
     val userName: String = "",
     val userEmail: String = "",
     val userBio: String = "",
-    val preferredRole: String = "",
+    val preferredRole: Role = Role.Dreamer,
     val profilePicture: String = "",
     var friendsIds: List<String> = emptyList(),
 )
+
+@Serializable
+enum class Role {
+    Architect,
+    Dreamer,
+    Extractor,
+    Forger,
+    PointMan,
+    Chemist
+}

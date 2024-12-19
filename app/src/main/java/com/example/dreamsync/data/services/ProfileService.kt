@@ -99,19 +99,20 @@ open class ProfileService {
         val friendsRef = profilesRef.child(profile.id).child("friendsIds")
 
         friendsRef.get().addOnSuccessListener { snapshot ->
-            val currentFriends = snapshot.getValue(List::class.java) as? List<String> ?: emptyList()
-            val updatedFriends = currentFriends.toMutableList().apply { add(friendId) }
-
-            friendsRef.setValue(updatedFriends)
-                .addOnSuccessListener {
-                    Log.d("ProfileService", "Friend added successfully for ${profile.id}")
-                }
-                .addOnFailureListener {
-                    Log.e("ProfileService", "Failed to add friend for ${profile.id}", it)
-                }
-
-        }.addOnFailureListener {
-            Log.e("ProfileService", "Failed to fetch friends list for ${profile.id}", it)
+            val currentFriends = snapshot.getValue(MutableList::class.java) as? MutableList<String>
+                ?: mutableListOf()
+            if (!currentFriends.contains(friendId)) {
+                currentFriends.add(friendId)
+                friendsRef.setValue(currentFriends)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d(
+                                "ProfileService",
+                                "Friend added: $friendId for ${profile.userName}"
+                            )
+                        }
+                    }
+            }
         }
 
     }

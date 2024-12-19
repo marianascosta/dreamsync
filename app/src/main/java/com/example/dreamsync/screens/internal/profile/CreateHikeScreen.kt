@@ -152,7 +152,6 @@ fun CreateHikeScreen(
                     val newHike = Hike(
                         name = hikeName,
                         description = hikeDescription,
-                        layersSize = selectedLayer,
                         isComplete = false,
                         createdBy = AppState.loggedInUser.value.id,
                         invitedFriends = selectedFriendsIds

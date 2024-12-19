@@ -15,11 +15,3 @@ data class Hike(
     val createdBy: String = "",
     val invitedFriends: List<String> = emptyList()
 )
-@Serializable
-data class Layer(
-    val name: String = "",
-    val description: String = "",
-    val difficulty: String = "",
-    val startDate: String = "",
-    val kickDate: String = "",
-)

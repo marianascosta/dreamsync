@@ -1,35 +1,52 @@
 package com.example.dreamsync.data.initialization
 
 import com.example.dreamsync.data.models.Profile
+import com.example.dreamsync.data.models.Role
+
+const val DEFAULT_PROFILE_PICTURE = "https://static.vecteezy.com/system/resources/previews/004/511/281/large_2x/default-avatar-photo-placeholder-profile-picture-vector.jpg"
 
 val adminProfile = Profile(
-    userName = "Admin",
-    userEmail = "admin@email.com",
-    userBio = "Admin user with full access to the app.",
-    preferredRole = "Admin",
-    profilePicture = "https://via.placeholder.com/150"
+    userName = "John Doe",
+    userEmail = "johndoe@example.com",
+    userBio = "Master architect of dreams, expert in navigating the subconscious.",
+    preferredRole = Role.Architect,
+    profilePicture = DEFAULT_PROFILE_PICTURE
 )
 
 val profilesSample = listOf(
     Profile(
-        userName = "Alice Smith",
-        userEmail = "alice.smith@example.com",
-        userBio = "A software engineer passionate about building mobile apps.",
-        preferredRole = "Developer",
-        profilePicture = "https://via.placeholder.com/150"
+        userName = "Jane Smith",
+        userEmail = "janesmith@example.com",
+        userBio = "Point Man who plans the heist and makes sure everything goes according to plan.",
+        preferredRole = Role.PointMan,
+        profilePicture = DEFAULT_PROFILE_PICTURE
     ),
     Profile(
-        userName = "Bob Johnson",
-        userEmail = "bob.johnson@example.com",
-        userBio = "UI/UX designer focused on user-centered design.",
-        preferredRole = "Designer",
-        profilePicture = "https://via.placeholder.com/150"
+        userName = "David Brown",
+        userEmail = "davidbrown@example.com",
+        userBio = "Architect, responsible for designing the dream landscapes.",
+        preferredRole = Role.Architect,
+        profilePicture = DEFAULT_PROFILE_PICTURE
     ),
     Profile(
-        userName = "Charlie Brown",
-        userEmail = "charlie.brown@example.com",
-        userBio = "Product manager who loves to collaborate on tech innovations.",
-        preferredRole = "Product Manager",
-        profilePicture = "https://via.placeholder.com/150"
+        userName = "Emily White",
+        userEmail = "emilywhite@example.com",
+        userBio = "The Dreamer, whose mind is being infiltrated in the mission.",
+        preferredRole = Role.Dreamer,
+        profilePicture = DEFAULT_PROFILE_PICTURE
+    ),
+    Profile(
+        userName = "Michael Green",
+        userEmail = "michaelgreen@example.com",
+        userBio = "Forger, skilled at creating identities in the dream world.",
+        preferredRole = Role.Forger,
+        profilePicture = DEFAULT_PROFILE_PICTURE
+    ),
+    Profile(
+        userName = "Sophia Black",
+        userEmail = "sophiablack@example.com",
+        userBio = "Chemist, who creates the powerful sedative used to keep people asleep during the dream.",
+        preferredRole = Role.Chemist,
+        profilePicture = DEFAULT_PROFILE_PICTURE
     )
 )

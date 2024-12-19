@@ -32,19 +32,20 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import coil.compose.rememberAsyncImagePainter
 import com.example.dreamsync.data.initialization.hikes
 import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.models.Role
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.screens.internal.hikes.HikesListScreen
 
 @Composable
 fun ProfileScreen(
     profile: Profile,
-    roles: List<String>,
     onNavigateToCreateHikeScreen: () -> Unit,
     onNavigateToHikeInfoScreen: (Hike) -> Unit,
     onHikeCreated: (Hike) -> Unit,
-    onRoleSelected: (String) -> Unit,
+    onRoleSelected: (Role) -> Unit,
     onProfileUpdated: (Profile) -> Unit,
     hikeService: HikeService,
     onHikeClicked: (Hike) -> Unit
@@ -55,6 +56,8 @@ fun ProfileScreen(
     var isEditing by remember { mutableStateOf(false) }
     var newEmail by remember { mutableStateOf(profile.userEmail) }
     var newBio by remember { mutableStateOf(profile.userBio) }
+
+    val roles = Role.entries
 
     Box(
         modifier = Modifier
@@ -76,7 +79,7 @@ fun ProfileScreen(
             }
 
             Image(
-                painter = painterResource(id = R.drawable.defaultprofilepic),
+                painter = rememberAsyncImagePainter(profile.profilePicture),
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(120.dp)
@@ -152,7 +155,7 @@ fun ProfileScreen(
                                 onClick = { roleDropdownExpanded = true },
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(text = "Preferred Role: ${selectedRole.ifEmpty { "Choose Role" }}")
+                                Text(text = "Preferred Role: $selectedRole")
                             }
                             DropdownMenu(
                                 expanded = roleDropdownExpanded,
@@ -164,7 +167,7 @@ fun ProfileScreen(
                                             selectedRole = role
                                             roleDropdownExpanded = false
                                         },
-                                        text = role
+                                        text = role.name
                                     )
                                 }
                             }
@@ -179,12 +182,18 @@ fun ProfileScreen(
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Text(
-                            text = "Preferred Role: ${selectedRole.ifEmpty { "None" }}",
+                            text = "Preferred Role: $selectedRole",
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "${profile.userName}'s Dream Hikes",
+                style = MaterialTheme.typography.headlineSmall
+            )
+
             Row {
                 Icon(
                     imageVector = Icons.Default.AddCircle,
@@ -200,11 +209,6 @@ fun ProfileScreen(
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "${profile.userName}'s Dream Hikes",
-                style = MaterialTheme.typography.headlineSmall
-            )
 
             HikesListScreen(
                 hikeService = hikeService,
