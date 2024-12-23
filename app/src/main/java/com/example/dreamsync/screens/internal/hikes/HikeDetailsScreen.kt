@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.Layer
@@ -66,7 +69,28 @@ fun TimelineScreen(layers: List<Layer>) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
-        Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
+            Button(
+                onClick = { /*TODO*/ },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
+                shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
+                modifier = Modifier.padding(start = 16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.PlayArrow,
+                    contentDescription = "Play Icon",
+                    tint = Color.White
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Start Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
+            }
+        }
+
 
         if (layers.isEmpty()) {
             // Show empty message if no layers
