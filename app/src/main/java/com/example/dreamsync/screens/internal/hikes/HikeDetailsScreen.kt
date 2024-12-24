@@ -2,7 +2,6 @@ package com.example.dreamsync.screens.internal.hikes
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -25,7 +24,8 @@ import com.example.dreamsync.data.services.HikeService
 @Composable
 fun HikeDetailScreen(
     hikeService: HikeService,
-    hikeId: String
+    hikeId: String,
+    onClickStartHike : () -> Unit = {}
 ) {
     var hike by remember { mutableStateOf<Hike>(Hike()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -47,7 +47,7 @@ fun HikeDetailScreen(
         LoadingIndicator()
     } else {
         // Show the timeline screen with layers
-        TimelineScreen(layers = hike.layers)
+        TimelineScreen(layers = hike.layers, onClickStartHike = onClickStartHike)
     }
 }
 
@@ -62,7 +62,10 @@ fun LoadingIndicator() {
 }
 
 @Composable
-fun TimelineScreen(layers: List<Layer>) {
+fun TimelineScreen(
+    layers: List<Layer>,
+    onClickStartHike: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +79,7 @@ fun TimelineScreen(layers: List<Layer>) {
         ) {
             Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
             Button(
-                onClick = { /*TODO*/ },
+                onClick = onClickStartHike,
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
                 shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
                 modifier = Modifier.padding(start = 16.dp)
