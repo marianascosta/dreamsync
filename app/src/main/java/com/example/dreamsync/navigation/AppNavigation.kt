@@ -20,6 +20,7 @@ import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.NavigationDrawer
+import com.example.dreamsync.navigation.toggleBottomBarVisibility
 import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
@@ -155,6 +156,7 @@ fun AppNavigation() {
                 hikeService = hikeService,
                 hikeId = hikeId!!,
                 onClickStartHike = {
+                    toggleBottomBarVisibility() // Hide bottom bar
                     println("Starting hike $hikeId")
                     navController.navigate("hike_info/${hikeId}/start") }
             )
