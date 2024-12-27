@@ -42,7 +42,7 @@ class DatabaseInit {
 
         Log.i("DatabaseInit", "Initializing database: ${database.reference.root}")
 
-//        deleteAll()
+        deleteAll()
 
         saveProfilesSample(profilesSample)
         saveDreamsSample(dreamsSample)

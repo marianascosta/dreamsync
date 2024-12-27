@@ -107,7 +107,7 @@ fun TimelineScreen(
                     val isFirstItem = index == 0
                     val isLastItem = index == layers.size - 1
                     TimelineItem(
-                        label = if (isFirstItem) layers[index].startDate else layers[index].kickDate,
+                        label = layers[index].startDate,
                         layer = layers[index],
                         isFirstItem = isFirstItem,
                         isLastItem = isLastItem
