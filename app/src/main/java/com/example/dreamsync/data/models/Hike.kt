@@ -2,6 +2,11 @@ package com.example.dreamsync.data.models
 
 import kotlinx.serialization.Serializable
 
+enum class HikeStatus {
+    COMPLETED,
+    IN_PROGRESS,
+    NOT_STARTED
+}
 
 @Serializable
 data class Hike(
@@ -11,5 +16,6 @@ data class Hike(
     val layers: List<Layer> = emptyList(),
     val isComplete: Boolean = false,
     val createdBy: String = "",
-    val invitedFriends: List<String> = emptyList()
+    val invitedFriends: List<String> = emptyList(),
+    val status : HikeStatus = HikeStatus.NOT_STARTED
 )

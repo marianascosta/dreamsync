@@ -67,18 +67,17 @@ fun FriendsScreen(
         }
 
         for (friend in friends.value) {
-            FriendCard(friend = friend, onFriendClick = onFriendClick)
+            FriendCard(friend = friend)
         }
 
     }
 }
 
 @Composable
-fun FriendCard(friend: Profile, onFriendClick: (Profile) -> Unit) {
+fun FriendCard(friend: Profile) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onFriendClick(friend) }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

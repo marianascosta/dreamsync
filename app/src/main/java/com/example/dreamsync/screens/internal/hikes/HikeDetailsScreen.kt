@@ -2,9 +2,10 @@ package com.example.dreamsync.screens.internal.hikes
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -14,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.Layer
@@ -22,7 +24,8 @@ import com.example.dreamsync.data.services.HikeService
 @Composable
 fun HikeDetailScreen(
     hikeService: HikeService,
-    hikeId: String
+    hikeId: String,
+    onClickStartHike : () -> Unit = {}
 ) {
     var hike by remember { mutableStateOf<Hike>(Hike()) }
     var isLoading by remember { mutableStateOf(true) }
@@ -44,7 +47,7 @@ fun HikeDetailScreen(
         LoadingIndicator()
     } else {
         // Show the timeline screen with layers
-        TimelineScreen(layers = hike.layers)
+        TimelineScreen(layers = hike.layers, onClickStartHike = onClickStartHike)
     }
 }
 
@@ -59,14 +62,38 @@ fun LoadingIndicator() {
 }
 
 @Composable
-fun TimelineScreen(layers: List<Layer>) {
+fun TimelineScreen(
+    layers: List<Layer>,
+    onClickStartHike: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
-        Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
+            Button(
+                onClick = onClickStartHike,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
+                shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
+                modifier = Modifier.padding(start = 16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.PlayArrow,
+                    contentDescription = "Play Icon",
+                    tint = Color.White
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Start Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
+            }
+        }
+
 
         if (layers.isEmpty()) {
             // Show empty message if no layers
@@ -80,7 +107,7 @@ fun TimelineScreen(layers: List<Layer>) {
                     val isFirstItem = index == 0
                     val isLastItem = index == layers.size - 1
                     TimelineItem(
-                        label = if (isFirstItem) layers[index].startDate else layers[index].kickDate,
+                        label = layers[index].startDate,
                         layer = layers[index],
                         isFirstItem = isFirstItem,
                         isLastItem = isLastItem

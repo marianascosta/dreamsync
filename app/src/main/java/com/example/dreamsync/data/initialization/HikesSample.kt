@@ -13,28 +13,25 @@ val hikes = listOf(
         description = "A hike inspired by the layers of dreams in Inception.",
         isComplete = false,
         createdBy = "Dom Cobb",
-        invitedFriends = emptyList(),
+        invitedFriends = listOf(profilesSample[1].id, profilesSample[2].id, profilesSample[3].id),
         layers = listOf(
             Layer(
                 name = "Dream Level 1",
                 description = "The first level of the dream, where everything seems real.",
                 difficulty = "Easy",
                 startDate = "2024-12-18T08:00",
-                kickDate = "2024-12-18T09:00"
             ),
             Layer(
                 name = "Dream Level 2",
                 description = "The second level, where time moves slower and dreams within dreams begin.",
                 difficulty = "Medium",
                 startDate = "2024-12-19T08:00",
-                kickDate = "2024-12-19T09:00"
             ),
             Layer(
                 name = "Dream Level 3",
                 description = "The deepest dream level, where gravity and the environment are distorted.",
                 difficulty = "Hard",
                 startDate = "2024-12-20T08:00",
-                kickDate = "2024-12-20T09:00"
             )
         )
     ),

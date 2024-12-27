@@ -18,7 +18,13 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import com.example.dreamsync.navigation.IS_BOTTOM_BAR_VISIBLE
 
+var IS_BOTTOM_BAR_VISIBLE = true
+
+fun toggleBottomBarVisibility() {
+    IS_BOTTOM_BAR_VISIBLE = !IS_BOTTOM_BAR_VISIBLE
+}
 
 data class BottomNavItem(
     val label: String,
@@ -55,6 +61,9 @@ fun BottomNavigationBar(
     selectedItemIndex: Int,
     onItemSelected: (Int) -> Unit
 ) {
+    if (!IS_BOTTOM_BAR_VISIBLE) {
+        return
+    }
     NavigationBar {
         navItems.forEachIndexed { index, item ->
             NavigationBarItem(

@@ -65,4 +65,16 @@ open class HikeService {
             }
         )
     }
+
+    fun updateHike(hike: Hike, onUpdateComplete: (Boolean) -> Unit) {
+        hikesRef.child(hike.id).setValue(hike).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("HikeService", "Hike updated successfully: ${hike.id}")
+                onUpdateComplete(true)
+            } else {
+                Log.e("HikeService", "Failed to update hike: ${hike.id}", task.exception)
+                onUpdateComplete(false)
+            }
+        }
+    }
 }

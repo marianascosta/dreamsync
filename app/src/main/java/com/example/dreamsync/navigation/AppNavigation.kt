@@ -20,12 +20,14 @@ import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.navigation.BottomNavigationBar
 import com.example.dreamsync.navigation.NavigationDrawer
+import com.example.dreamsync.navigation.toggleBottomBarVisibility
 import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
+import com.example.dreamsync.screens.internal.hikes.insideHike.HikeScreensManager
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
@@ -152,7 +154,21 @@ fun AppNavigation() {
             val hikeId = backStackEntry.arguments?.getString("hikeId")
             HikeDetailScreen(
                 hikeService = hikeService,
-                hikeId = hikeId!!
+                hikeId = hikeId!!,
+                onClickStartHike = {
+                    toggleBottomBarVisibility() // Hide bottom bar
+                    navController.navigate("hike_info/${hikeId}/start") }
+            )
+        }
+        composable("hike_info/{hikeId}/start") { backStackEntry ->
+            val hikeId = backStackEntry.arguments?.getString("hikeId")
+            HikeScreensManager(
+                hikeId = hikeId!!,
+                hikeService = hikeService,
+                onBackToHome = {
+                    toggleBottomBarVisibility() // Show bottom bar
+                    navController.popBackStack()
+                }
             )
         }
     }
