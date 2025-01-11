@@ -41,6 +41,7 @@ fun AppNavigation() {
     val dreamService = DreamService()
     val profileService = ProfileService()
     val hikeService = HikeService()
+    val loggedInUser = AppState.loggedInUser.collectAsState()
 
     val navGraph = navController.createGraph(startDestination = "login") {
         composable("register") {
@@ -69,7 +70,7 @@ fun AppNavigation() {
         composable("profile") {
             ProfileScreen(
                 profileService = profileService,
-                profileId = AppState.loggedInUser.value.id,
+                profileId = loggedInUser.value.id,
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
                 onNavigateToHikeInfoScreen = { hike ->
                     navController.navigate("hike_info/${hike.id}")
