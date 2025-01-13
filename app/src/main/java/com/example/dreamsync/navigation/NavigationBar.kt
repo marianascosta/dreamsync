@@ -7,12 +7,16 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.outlined.Group
+import androidx.compose.material.icons.outlined.PersonSearch
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -41,8 +45,8 @@ private val navItems = listOf(
     ),
     BottomNavItem(
         label = "Explore",
-        selectedIcon = Icons.Filled.ShoppingCart,
-        unselectedIcon = Icons.Outlined.ShoppingCart
+        selectedIcon = Icons.Filled.Search,
+        unselectedIcon = Icons.Outlined.Search
     ),
     BottomNavItem(
         label = "Hikes",
@@ -51,8 +55,8 @@ private val navItems = listOf(
     ),
     BottomNavItem(
         label = "Friends",
-        selectedIcon = Icons.Filled.Search,
-        unselectedIcon = Icons.Outlined.Search
+        selectedIcon = Icons.Filled.PersonSearch,
+        unselectedIcon = Icons.Outlined.PersonSearch
     )
 )
 
