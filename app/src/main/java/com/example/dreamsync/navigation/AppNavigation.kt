@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,7 +20,6 @@ import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.navigation.BottomNavigationBar
-import com.example.dreamsync.navigation.NavigationDrawer
 import com.example.dreamsync.navigation.toggleBottomBarVisibility
 import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
@@ -174,66 +174,55 @@ fun AppNavigation() {
         }
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = { NavigationDrawer(
-            navController,
-            selectedIndex.intValue,
-            { selectedIndex.intValue = it },
-            { coroutineScope.launch { drawerState.close() } }
-        ) }
-    ) {
-        val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-        Scaffold(
-            topBar = {
-                val title = when (currentRoute) {
-                    "profile" -> "Profile"
-                    "friends" -> "Friends"
-                    "explore" -> "Explore"
-                    "hikes" -> "Hikes"
-                    else -> "DreamSync"
-                }
-                if (currentRoute != "login" && currentRoute != "register") {
-                    TopAppBar(
-                        title = { Text(title) },
-                        navigationIcon = {
-                            IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                                Icon(Icons.Filled.Menu, contentDescription = "Open Drawer")
-                            }
-                        }
-                    )
-                }
-            },
-            bottomBar = {
-                if (currentRoute != "login" && currentRoute != "register") {
-                    BottomNavigationBar(
-                        selectedItemIndex = selectedIndex.intValue,
-                        onItemSelected = { index ->
-                            selectedIndex.intValue = index
-                            when (index) {
-                                0 -> navController.navigate("profile")
-                                1 -> navController.navigate("explore")
-                                2 -> navController.navigate("hikes")
-                                3 -> navController.navigate("friends")
-                            }
-                        }
-                    )
-                }
+    Scaffold(
+        topBar = {
+            val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+            val title = when (currentRoute) {
+                "profile" -> "Profile"
+                "friends" -> "Friends"
+                "explore" -> "Explore"
+                "hikes" -> "Hikes"
+                else -> "DreamSync"
             }
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                NavHost(
-                    navController = navController,
-                    graph = navGraph
+            if (currentRoute != "login" && currentRoute != "register") {
+                TopAppBar(
+                    title = { Text(title) },
+                    actions = {
+                        IconButton(onClick = { /* Placeholder for future navigation */ }) {
+                            Icon(Icons.Filled.Inbox, contentDescription = "Inbox")
+                        }
+                    }
+                )
+            }
+        },
+        bottomBar = {
+            val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+            if (currentRoute != "login" && currentRoute != "register") {
+                BottomNavigationBar(
+                    selectedItemIndex = selectedIndex.intValue,
+                    onItemSelected = { index ->
+                        selectedIndex.intValue = index
+                        when (index) {
+                            0 -> navController.navigate("profile")
+                            1 -> navController.navigate("explore")
+                            2 -> navController.navigate("hikes")
+                            3 -> navController.navigate("friends")
+                        }
+                    }
                 )
             }
         }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            NavHost(
+                navController = navController,
+                graph = navGraph
+            )
+        }
     }
 }
-
-
