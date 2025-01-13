@@ -28,6 +28,7 @@ import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.HikeScreensManager
+import com.example.dreamsync.screens.internal.inbox.InboxScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import kotlinx.coroutines.launch
 
@@ -172,6 +173,9 @@ fun AppNavigation() {
                 }
             )
         }
+        composable("inbox") {
+            InboxScreen()
+        }
     }
 
     Scaffold(
@@ -188,7 +192,7 @@ fun AppNavigation() {
                 TopAppBar(
                     title = { Text(title) },
                     actions = {
-                        IconButton(onClick = { /* Placeholder for future navigation */ }) {
+                        IconButton(onClick = {navController.navigate("inbox")}) {
                             Icon(Icons.Filled.Inbox, contentDescription = "Inbox")
                         }
                     }
