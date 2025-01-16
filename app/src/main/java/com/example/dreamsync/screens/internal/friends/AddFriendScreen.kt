@@ -85,8 +85,13 @@ fun AddFriendScreen(profileService: ProfileService) {
         } else if (showNoResults) {
             Text("No results found.", style = MaterialTheme.typography.bodyLarge)
         } else {
+            // Make sure LazyColumn has a size constraint (like fillMaxHeight or height)
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(searchResults) { profile ->
@@ -97,7 +102,7 @@ fun AddFriendScreen(profileService: ProfileService) {
     }
 }
 
-// Perform Search Using ProfileService
+    // Perform Search Using ProfileService
 private fun performSearch(
     searchText: String,
     profileService: ProfileService,

@@ -36,7 +36,6 @@ open class ProfileService {
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("ProfileService", "Failed to fetch profile: $profileId", error.toException())
-
                 onProfileFetched(null)
             }
         })
@@ -99,22 +98,21 @@ open class ProfileService {
         val friendsRef = profilesRef.child(profile.id).child("friendsIds")
 
         friendsRef.get().addOnSuccessListener { snapshot ->
-            val currentFriends = snapshot.getValue(MutableList::class.java) as? MutableList<String>
-                ?: mutableListOf()
-            if (!currentFriends.contains(friendId)) {
-                currentFriends.add(friendId)
-                friendsRef.setValue(currentFriends)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            Log.d(
-                                "ProfileService",
-                                "Friend added: $friendId for ${profile.userName}"
-                            )
-                        }
-                    }
-            }
-        }
+            val currentFriends = snapshot.getValue(object : GenericTypeIndicator<List<String>>() {}) ?: emptyList()
 
+            if (!currentFriends.contains(friendId)) {
+                val updatedFriends = currentFriends.toMutableList().apply { add(friendId) }
+                friendsRef.setValue(updatedFriends).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("ProfileService", "Friend added: $friendId for ${profile.userName}")
+                    } else {
+                        Log.e("ProfileService", "Failed to add friend.")
+                    }
+                }
+            }
+        }.addOnFailureListener { exception ->
+            Log.e("ProfileService", "Failed to fetch friends list", exception)
+        }
     }
 
     fun getAllProfiles(onProfilesFetched: (List<Profile>) -> Unit) {
