@@ -26,7 +26,6 @@ fun AddFriendScreen(profileService: ProfileService) {
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Search Field
         TextField(
             value = searchText,
             onValueChange = { searchText = it },
@@ -50,10 +49,8 @@ fun AddFriendScreen(profileService: ProfileService) {
                 )
             })
         )
-
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Search Button
         Button(
             onClick = {
                 isSearching = true
@@ -76,16 +73,13 @@ fun AddFriendScreen(profileService: ProfileService) {
         ) {
             Text("Search")
         }
-
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Results
         if (isSearching) {
             CircularProgressIndicator()
         } else if (showNoResults) {
             Text("No results found.", style = MaterialTheme.typography.bodyLarge)
         } else {
-            // Make sure LazyColumn has a size constraint (like fillMaxHeight or height)
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -102,7 +96,6 @@ fun AddFriendScreen(profileService: ProfileService) {
     }
 }
 
-    // Perform Search Using ProfileService
 private fun performSearch(
     searchText: String,
     profileService: ProfileService,
