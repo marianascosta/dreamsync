@@ -7,17 +7,43 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.ProfileService
 
 @Composable
-fun AddFriendScreen(profileService: ProfileService) {
+fun AddFriendScreen(
+    profileService: ProfileService,
+    onFriendAdded: (Profile) -> Unit
+) {
+
     var searchText by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<Profile>>(emptyList()) }
-    var isSearching by remember { mutableStateOf(false) }
     var showNoResults by remember { mutableStateOf(false) }
+    var isSearching by remember { mutableStateOf(false) }
+    var inputError by remember { mutableStateOf("") } // For error message
+
+    fun performSearch(searchText: String) {
+        if (searchText.isBlank()) {
+            inputError = "Type the user's name here"
+            searchResults = emptyList()
+            showNoResults = false
+        } else {
+            isSearching = true
+            profileService.searchProfiles(searchText) { results ->
+                isSearching = false
+                if (results.isNotEmpty()) {
+                    searchResults = results
+                    showNoResults = false
+                } else {
+                    searchResults = emptyList()
+                    showNoResults = true
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -28,46 +54,33 @@ fun AddFriendScreen(profileService: ProfileService) {
     ) {
         TextField(
             value = searchText,
-            onValueChange = { searchText = it },
+            onValueChange = {
+                searchText = it
+                inputError = "" // Clear the error message when user starts typing
+            },
             label = { Text("Search by name") },
             placeholder = { Text("Enter a name") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = {
-                performSearch(
-                    searchText = searchText,
-                    profileService = profileService,
-                    onResults = { results ->
-                        searchResults = results
-                        showNoResults = results.isEmpty()
-                    },
-                    onError = {
-                        searchResults = emptyList()
-                        showNoResults = true
-                    }
-                )
-            })
+                performSearch(searchText)
+            }),
+            isError = inputError.isNotEmpty() // Show error if there's a message
         )
+
+        if (inputError.isNotEmpty()) {
+            Text(
+                text = inputError,
+                color = Color.Red,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                isSearching = true
-                performSearch(
-                    searchText = searchText,
-                    profileService = profileService,
-                    onResults = { results ->
-                        isSearching = false
-                        searchResults = results
-                        showNoResults = results.isEmpty()
-                    },
-                    onError = {
-                        isSearching = false
-                        searchResults = emptyList()
-                        showNoResults = true
-                    }
-                )
+                performSearch(searchText)
             },
             enabled = searchText.isNotBlank()
         ) {
@@ -82,8 +95,6 @@ fun AddFriendScreen(profileService: ProfileService) {
         } else {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .fillMaxWidth()
                     .weight(1f)
                     .padding(vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -93,17 +104,5 @@ fun AddFriendScreen(profileService: ProfileService) {
                 }
             }
         }
-    }
-}
-
-private fun performSearch(
-    searchText: String,
-    profileService: ProfileService,
-    onResults: (List<Profile>) -> Unit,
-    onError: () -> Unit
-) {
-    profileService.getAllProfiles { profiles ->
-        val filteredProfiles = profiles.filter { it.userName.contains(searchText, ignoreCase = true) }
-        onResults(filteredProfiles)
     }
 }

@@ -179,7 +179,10 @@ fun AppNavigation() {
             InboxScreen()
         }
         composable("add_friend") {
-            AddFriendScreen(profileService = profileService)
+            AddFriendScreen(
+                profileService = profileService,
+                onFriendAdded = {navController.popBackStack()}
+            )
         }
 
     }

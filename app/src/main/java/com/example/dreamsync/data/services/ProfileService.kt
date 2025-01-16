@@ -115,7 +115,7 @@ open class ProfileService {
         }
     }
 
-    fun getAllProfiles(onProfilesFetched: (List<Profile>) -> Unit) {
+    private fun getAllProfiles(onProfilesFetched: (List<Profile>) -> Unit) {
         profilesRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val profiles = mutableListOf<Profile>()
@@ -134,4 +134,18 @@ open class ProfileService {
             }
         })
     }
+
+    fun searchProfiles(searchText: String, onProfilesFound: (List<Profile>) -> Unit) {
+        getAllProfiles { profiles ->
+            val filteredProfiles = profiles.filter { profile ->
+                profile.userName.contains(searchText, ignoreCase = true)
+            }
+            if (filteredProfiles.isNotEmpty()) {
+                onProfilesFound(filteredProfiles)
+            } else {
+                onProfilesFound(emptyList())
+            }
+        }
+    }
+
 }
