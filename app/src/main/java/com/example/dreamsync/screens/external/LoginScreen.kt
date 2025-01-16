@@ -56,7 +56,7 @@ fun LoginScreen(
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth().padding(32.dp)
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(32.dp))
             OutlinedTextField(
