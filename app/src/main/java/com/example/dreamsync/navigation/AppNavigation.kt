@@ -7,6 +7,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.PersonAddAlt1
+import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -176,6 +178,10 @@ fun AppNavigation() {
         composable("inbox") {
             InboxScreen()
         }
+        composable("add_friend") {
+            AddFriendScreen(profileService = profileService)
+        }
+
     }
 
     Scaffold(
@@ -192,6 +198,11 @@ fun AppNavigation() {
                 TopAppBar(
                     title = { Text(title) },
                     actions = {
+                        if (currentRoute == "friends") {
+                            IconButton(onClick = { navController.navigate("add_friend") }) {
+                                Icon(Icons.Default.PersonAddAlt1, contentDescription = "Add a Friend")
+                            }
+                        }
                         IconButton(onClick = {navController.navigate("inbox")}) {
                             Icon(Icons.Filled.Inbox, contentDescription = "Inbox")
                         }
