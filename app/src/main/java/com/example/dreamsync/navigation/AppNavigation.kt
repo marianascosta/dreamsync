@@ -12,11 +12,13 @@ import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
+import androidx.navigation.navArgument
 import com.example.dreamsync.AppState
 import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.data.services.HikeService
@@ -26,6 +28,7 @@ import com.example.dreamsync.navigation.toggleBottomBarVisibility
 import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
+import com.example.dreamsync.screens.internal.friends.FriendProfileScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
@@ -95,14 +98,20 @@ fun AppNavigation() {
 
             )
         }
-
         composable("friends") {
-                FriendsScreen(
-                    onFriendClick = { friend ->
-                        navController.navigate(route = "friends/${friend.id}")
-                    },
-                    profileService = profileService
-                )
+            FriendsScreen(
+                profileService = profileService,
+                onFriendClick = { friend ->
+                    navController.navigate("friendProfile/${friend.id}")
+                }
+            )
+        }
+        composable(
+            route = "friendProfile/{friendId}",
+            arguments = listOf(navArgument("friendId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val friendId = backStackEntry.arguments?.getString("friendId") ?: return@composable
+            FriendProfileScreen(profileService = profileService, profileId = friendId)
         }
         composable("friends/{friendId}") { route ->
             val friendId = route.arguments?.getString("friendId")

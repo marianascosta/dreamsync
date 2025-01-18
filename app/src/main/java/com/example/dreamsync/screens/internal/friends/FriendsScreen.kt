@@ -66,18 +66,21 @@ fun FriendsScreen(
             }
         }
         for (friend in friends.value) {
-            FriendCard(friend = friend)
+            FriendCard(
+                friend = friend,
+                onClick = { onFriendClick(friend) }
+            )
         }
     }
 }
 
 @Composable
-fun FriendCard(friend: Profile) {
+fun FriendCard(friend: Profile, onClick: ()-> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { /* Handle profile card click */ },
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(

@@ -125,25 +125,26 @@ fun ProfileScreen(
                             text = "${profile.userName}'s Profile",
                             style = MaterialTheme.typography.headlineSmall
                         )
-
-                        IconButton(
-                            onClick = {
-                                if (isEditing) {
-                                    onProfileUpdated(
-                                        profile.copy(
-                                            userEmail = newEmail,
-                                            userBio = newBio,
-                                            preferredRole = selectedRole
+                        if (isCurrentUserProfile) {
+                            IconButton(
+                                onClick = {
+                                    if (isEditing) {
+                                        onProfileUpdated(
+                                            profile.copy(
+                                                userEmail = newEmail,
+                                                userBio = newBio,
+                                                preferredRole = selectedRole
+                                            )
                                         )
-                                    )
+                                    }
+                                    isEditing = !isEditing
                                 }
-                                isEditing = !isEditing
+                            ) {
+                                Icon(
+                                    imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit,
+                                    contentDescription = if (isEditing) "Save Changes" else "Edit Profile Info"
+                                )
                             }
-                        ) {
-                            Icon(
-                                imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit,
-                                contentDescription = if (isEditing) "Save Changes" else "Edit Profile Info"
-                            )
                         }
                     }
                     if (isEditing) {
@@ -231,7 +232,7 @@ fun ProfileScreen(
             }
 
             HikesListScreen(
-                profileId = AppState.loggedInUser.collectAsState().value.id, //TODO FIX THIS
+                profileId = profile.id,
                 hikeService = hikeService,
                 onHikeClicked = onHikeClicked
             )
