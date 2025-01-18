@@ -94,7 +94,7 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (!profile.profilePicture.isEmpty()){
+            if (profile.profilePicture.isNotEmpty()){
                 Image(
                     painter = rememberAsyncImagePainter(profile.profilePicture),
                     contentDescription = "Profile Picture",
@@ -231,7 +231,7 @@ fun ProfileScreen(
             }
 
             HikesListScreen(
-                profileId = AppState.loggedInUser.collectAsState().value.id, //TODO FIX THIS
+                profileId = profile.id,
                 hikeService = hikeService,
                 onHikeClicked = onHikeClicked
             )
