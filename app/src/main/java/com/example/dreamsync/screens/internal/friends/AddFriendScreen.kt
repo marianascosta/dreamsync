@@ -1,3 +1,5 @@
+import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.ProfileService
@@ -93,16 +96,27 @@ fun AddFriendScreen(
         } else if (showNoResults) {
             Text("No results found.", style = MaterialTheme.typography.bodyLarge)
         } else {
-            LazyColumn(
+            Column(
                 modifier = Modifier
-                    .weight(1f)
+                    .fillMaxSize()
                     .padding(vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(searchResults) { profile ->
+                for (profile in searchResults) {
                     FriendCard(friend = profile)
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddFriendScreenPreview() {
+    AddFriendScreen(
+        profileService = ProfileService(),
+        onFriendAdded = { friend ->
+            println("Added friend: ${friend.userName}")
+        }
+    )
 }
