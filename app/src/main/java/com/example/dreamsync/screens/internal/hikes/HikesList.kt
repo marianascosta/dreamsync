@@ -50,9 +50,9 @@ fun HikesListScreen(
             CircularProgressIndicator(modifier = Modifier.fillMaxWidth(), strokeWidth = 4.dp)
         } else if (hikes.isEmpty()) {
             Text(
-                text = "User has no hikes.",
+                text = "No hikes found",
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .padding(16.dp)
                     .align(Alignment.CenterHorizontally),
                 style = MaterialTheme.typography.bodyLarge,

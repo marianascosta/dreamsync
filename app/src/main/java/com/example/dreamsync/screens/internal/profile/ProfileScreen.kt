@@ -231,7 +231,7 @@ fun ProfileScreen(
             }
 
             HikesListScreen(
-                profileId = AppState.loggedInUser.collectAsState().value.id, //TODO FIX THIS
+                profileId = profile.id,
                 hikeService = hikeService,
                 onHikeClicked = onHikeClicked
             )
