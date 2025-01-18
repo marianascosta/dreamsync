@@ -65,11 +65,9 @@ fun FriendsScreen(
                 Text("You have no friends yet.", fontSize = 18.sp, color = Color.Gray)
             }
         }
-
         for (friend in friends.value) {
             FriendCard(friend = friend)
         }
-
     }
 }
 
@@ -78,7 +76,8 @@ fun FriendCard(friend: Profile) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { /* Handle profile card click */ },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
@@ -95,15 +94,4 @@ fun FriendCard(friend: Profile) {
             Text("Tap to view profile", fontSize = 14.sp, color = Color.Gray)
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FriendsScreenPreview() {
-    FriendsScreen(
-        profileService = ProfileService(),
-        onFriendClick = { friend ->
-            println("Clicked on: ${friend.userName}")
-        }
-    )
 }
