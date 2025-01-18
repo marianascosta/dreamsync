@@ -95,7 +95,6 @@ fun AppNavigation() {
 
             )
         }
-
         composable("friends") {
                 FriendsScreen(
                     onClickProfile = { friend ->

@@ -136,16 +136,17 @@ open class ProfileService {
     }
 
     fun searchProfiles(searchText: String, onProfilesFound: (List<Profile>) -> Unit) {
-        getAllProfiles { profiles ->
-            val filteredProfiles = profiles.filter { profile ->
-                profile.userName.contains(searchText, ignoreCase = true)
-            }
-            if (filteredProfiles.isNotEmpty()) {
-                onProfilesFound(filteredProfiles)
-            } else {
-                onProfilesFound(emptyList())
-            }
-        }
-    }
+        profilesRef.orderByChild("userName").startAt(searchText).endAt("$searchText\uf8ff")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val profiles = snapshot.children.mapNotNull { it.getValue(Profile::class.java) }
+                    onProfilesFound(profiles)
+                }
 
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("ProfileService", "Error searching profiles: ${error.message}")
+                    onProfilesFound(emptyList())
+                }
+            })
+    }
 }
