@@ -45,10 +45,12 @@ import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.screens.internal.hikes.HikesListScreen
 
+private val DEFAULT_ROLE = Role.Dreamer
+
 @Composable
 fun ProfileScreen(
     profileService: ProfileService,
-    profileId : String,
+    profileId: String,
     onNavigateToCreateHikeScreen: () -> Unit,
     onNavigateToHikeInfoScreen: (Hike) -> Unit,
     onHikeCreated: (Hike) -> Unit,
@@ -57,185 +59,240 @@ fun ProfileScreen(
     hikeService: HikeService,
     onHikeClicked: (Hike) -> Unit
 ) {
-    var profile by remember { mutableStateOf(Profile()) }
-    var expanded by remember { mutableStateOf(false) }
-    var updatedProfile by remember { mutableStateOf(profile) }
-    var selectedRole by remember { mutableStateOf(profile.preferredRole) }
+    var profile by remember { mutableStateOf<Profile?>(null) }
     var isEditing by remember { mutableStateOf(false) }
-    var newEmail by remember { mutableStateOf(profile.userEmail) }
-    var newBio by remember { mutableStateOf(profile.userBio) }
-    val roles = Role.entries
+    var newEmail by remember { mutableStateOf("") }
+    var newBio by remember { mutableStateOf("") }
+    var selectedRole by remember { mutableStateOf<Role?>(null) }
+    var isLoading by remember { mutableStateOf(true) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(profileId) {
         profileService.getProfileById(
             profileId = profileId,
             onProfileFetched = { fetchedProfile ->
-                profile = fetchedProfile!!
-                updatedProfile = fetchedProfile
+                if (fetchedProfile != null) {
+                    profile = fetchedProfile
+                    newEmail = fetchedProfile.userEmail
+                    newBio = fetchedProfile.userBio
+                    selectedRole = fetchedProfile.preferredRole
+                    errorMessage = null
+                } else {
+                    errorMessage = "Profile not found."
+                }
+                isLoading = false
             }
         )
     }
 
-    Log.i("ProfileScreen", "Profile: $profile")
-
-    // se o perfil nao for do utilizador logged in, limitar algumas funcionalidades
-    val isCurrentUserProfile = AppState.loggedInUser.collectAsState().value.id == profile.id
+    val isCurrentUserProfile = AppState.loggedInUser.collectAsState().value.id == profile?.id
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         contentAlignment = Alignment.TopCenter
-    ){
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (profile.profilePicture.isNotEmpty()){
-                Image(
-                    painter = rememberAsyncImagePainter(profile.profilePicture),
-                    contentDescription = "Profile Picture",
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface)
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator()
+        } else if (errorMessage != null) {
+            Text(errorMessage!!, style = MaterialTheme.typography.headlineSmall)
+        } else if (profile != null) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 32.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ProfileImageSection(profile = profile!!)
+
+                ProfileInfoCard(
+                    profile = profile!!,
+                    isEditing = isEditing,
+                    newEmail = newEmail,
+                    newBio = newBio,
+                    selectedRole = selectedRole,
+                    isCurrentUserProfile = isCurrentUserProfile,
+                    onEditToggled = {
+                        if (isEditing) {
+                            val updatedProfile = profile!!.copy(
+                                userEmail = newEmail,
+                                userBio = newBio,
+                                preferredRole = selectedRole ?: DEFAULT_ROLE
+                            )
+                            profileService.updateProfile(
+                                profileId = updatedProfile.id,
+                                updatedProfile = updatedProfile,
+                                onComplete = { isSuccessful ->
+                                    if (isSuccessful) {
+                                        profileService.getProfileById(
+                                            profileId = updatedProfile.id,
+                                            onProfileFetched = { reloadedProfile ->
+                                                if (reloadedProfile != null) {
+                                                    profile = reloadedProfile
+                                                    onProfileUpdated(reloadedProfile)
+                                                    Log.d("ProfileScreen", "Profile updated and reloaded: $reloadedProfile")
+                                                } else {
+                                                    Log.e("ProfileScreen", "Failed to reload updated profile.")
+                                                }
+                                            }
+                                        )
+                                    } else {
+                                        Log.e("ProfileScreen", "Failed to update profile.")
+                                    }
+                                }
+                            )
+                        }
+                        isEditing = !isEditing
+                    },
+                    onEmailChanged = { newEmail = it },
+                    onBioChanged = { newBio = it },
+                    onRoleChanged = { selectedRole = it }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Text(
+                    text = "${profile!!.userName}'s Dream Hikes",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
+                if (isCurrentUserProfile) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            text = "${profile.userName}'s Profile",
-                            style = MaterialTheme.typography.headlineSmall
+                        Icon(
+                            imageVector = Icons.Default.AddCircle,
+                            contentDescription = "Create Dream Hike",
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clickable { onNavigateToCreateHikeScreen() },
                         )
-                        if (isCurrentUserProfile) {
-                            IconButton(
-                                onClick = {
-                                    if (isEditing) {
-                                        onProfileUpdated(
-                                            profile.copy(
-                                                userEmail = newEmail,
-                                                userBio = newBio,
-                                                preferredRole = selectedRole
-                                            )
-                                        )
-                                    }
-                                    isEditing = !isEditing
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit,
-                                    contentDescription = if (isEditing) "Save Changes" else "Edit Profile Info"
-                                )
-                            }
-                        }
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Create Dream Hike",
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(top = 3.dp)
+                        )
                     }
-                    if (isEditing) {
-                        TextField(
-                            value = newEmail,
-                            onValueChange = { newEmail = it },
-                            label = { Text("Email") },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                        )
-                        TextField(
-                            value = newBio,
-                            onValueChange = { newBio = it },
-                            label = { Text("Bio") },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                        )
-                        var roleDropdownExpanded by remember { mutableStateOf(false) }
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp)
-                        ) {
-                            Button(
-                                onClick = { roleDropdownExpanded = true },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(text = "Preferred Role: $selectedRole")
-                            }
-                            DropdownMenu(
-                                expanded = roleDropdownExpanded,
-                                onDismissRequest = { roleDropdownExpanded = false }
-                            ) {
-                                roles.forEach { role ->
-                                    HighlightDropMenuItem(
-                                        onClick = {
-                                            selectedRole = role
-                                            roleDropdownExpanded = false
-                                        },
-                                        text = role.name
-                                    )
-                                }
-                            }
-                        }
-                    } else {
-                        Text(
-                            text = "Email: ${profile.userEmail.ifEmpty { "N/A" }}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "Bio: ${profile.userBio.ifEmpty { "No bio available." }}",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text = "Preferred Role: $selectedRole",
-                            style = MaterialTheme.typography.bodyLarge
+                }
+
+                HikesListScreen(
+                    profileId = profile!!.id,
+                    hikeService = hikeService,
+                    onHikeClicked = onHikeClicked
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ProfileImageSection(profile: Profile) {
+    if (profile.profilePicture.isNotEmpty()) {
+        Image(
+            painter = rememberAsyncImagePainter(profile.profilePicture),
+            contentDescription = "Profile Picture",
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surface)
+        )
+    }
+}
+
+@Composable
+fun ProfileInfoCard(
+    profile: Profile,
+    isEditing: Boolean,
+    newEmail: String,
+    newBio: String,
+    selectedRole: Role?,
+    isCurrentUserProfile: Boolean,
+    onEditToggled: () -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onBioChanged: (String) -> Unit,
+    onRoleChanged: (Role) -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "${profile.userName}'s Profile",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                if (isCurrentUserProfile) {
+                    IconButton(onClick = onEditToggled) {
+                        Icon(
+                            imageVector = if (isEditing) Icons.Default.Check else Icons.Default.Edit,
+                            contentDescription = if (isEditing) "Save Changes" else "Edit Profile Info"
                         )
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "${profile.userName}'s Dream Hikes",
-                style = MaterialTheme.typography.headlineSmall
-            )
-
-            if (isCurrentUserProfile) {
-                Row {
-                    Icon(
-                        imageVector = Icons.Default.AddCircle,
-                        contentDescription = "Create Dream Hike",
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clickable { onNavigateToCreateHikeScreen() },
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Create Dream Hike",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(top = 3.dp)
-                    )
-                }
+            if (isEditing) {
+                TextField(
+                    value = newEmail,
+                    onValueChange = onEmailChanged,
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                TextField(
+                    value = newBio,
+                    onValueChange = onBioChanged,
+                    label = { Text("Bio") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                DropdownRoleSelector(
+                    selectedRole = selectedRole ?: DEFAULT_ROLE,
+                    onRoleChanged = onRoleChanged
+                )
+            } else {
+                Text("Email: ${profile.userEmail.ifEmpty { "N/A" }}")
+                Text("Bio: ${profile.userBio.ifEmpty { "No bio available." }}")
+                Text("Preferred Role: ${profile.preferredRole}")
             }
+        }
+    }
+}
 
-            HikesListScreen(
-                profileId = profile.id,
-                hikeService = hikeService,
-                onHikeClicked = onHikeClicked
-            )
+@Composable
+fun DropdownRoleSelector(
+    selectedRole: Role,
+    onRoleChanged: (Role) -> Unit
+) {
+    var dropdownExpanded by remember { mutableStateOf(false) }
+    val roles = Role.entries
+
+    Box {
+        Button(onClick = { dropdownExpanded = true }) {
+            Text("Preferred Role: $selectedRole")
+        }
+        DropdownMenu(
+            expanded = dropdownExpanded,
+            onDismissRequest = { dropdownExpanded = false }
+        ) {
+            roles.forEach { role ->
+                DropdownMenuItem(
+                    text = { Text(role.name) },
+                    onClick = {
+                        onRoleChanged(role)
+                        dropdownExpanded = false
+                    }
+                )
+            }
         }
     }
 }
