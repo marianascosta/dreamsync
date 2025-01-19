@@ -1,5 +1,7 @@
 package com.example.dreamsync.screens.internal.home
 
+import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -63,6 +67,7 @@ fun DreamFeedScreen(dreamService: DreamService) {
 
 @Composable
 fun DreamPost(dream: Dream) {
+    Log.d("DreamPost", "Image resource ID: ${dream.imageResId}")
     var isLiked by remember { mutableStateOf(false) }
 
     Card(
@@ -95,12 +100,15 @@ fun DreamPost(dream: Dream) {
                     fontWeight = FontWeight.Bold
                 )
             }
-            Box(
+
+            Image(
+                painter = painterResource(id = dream.imageResId),
+                contentDescription = "${dream.title} Image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color.Gray)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
             )
 
             Text(
