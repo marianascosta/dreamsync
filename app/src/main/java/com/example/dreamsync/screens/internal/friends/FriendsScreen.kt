@@ -1,3 +1,4 @@
+import android.R.attr.onClick
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -38,7 +39,7 @@ import com.example.dreamsync.data.services.ProfileService
 @Composable
 fun FriendsScreen(
     profileService: ProfileService,
-    onFriendClick: (Profile) -> Unit,
+    onClickProfile: (Profile) -> Unit,
 ) {
     val friends = remember { mutableStateOf<List<Profile>>(emptyList()) }
     val isLoading = remember { mutableStateOf(true) }
@@ -66,22 +67,18 @@ fun FriendsScreen(
             }
         }
         for (friend in friends.value) {
-            FriendCard(
-                friend = friend,
-                onClick = { onFriendClick(friend) }
-            )
+            FriendCard(friend = friend, onClickProfile = onClickProfile)
         }
     }
 }
 
 @Composable
-fun FriendCard(friend: Profile, onClick: ()-> Unit) {
+fun FriendCard(friend: Profile, onClickProfile: (Profile) -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onClick() },
-        verticalAlignment = Alignment.CenterVertically
+            .clickable { onClickProfile(friend) },
     ) {
         Image(
             painter = rememberAsyncImagePainter(friend.profilePicture),

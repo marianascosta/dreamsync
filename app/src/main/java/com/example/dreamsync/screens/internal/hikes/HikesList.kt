@@ -21,7 +21,6 @@ fun HikesListScreen(
     var hikes by remember { mutableStateOf(emptyList<Hike>()) }
     var isLoading by remember { mutableStateOf(true) }
 
-    // Fetch hikes for the given profile ID
     LaunchedEffect(profileId) {
         hikeService.getHikesByCreatedBy(
             userId = profileId,
@@ -35,7 +34,6 @@ fun HikesListScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         when {
             isLoading -> {
-                // Centered loading indicator
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),
                     strokeWidth = 4.dp
