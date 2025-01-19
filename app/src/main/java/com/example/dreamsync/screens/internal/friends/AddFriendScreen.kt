@@ -32,6 +32,7 @@ fun AddFriendScreen(
     onFriendAdded: (Profile) -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
+    var lastSearchText by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<Profile>>(emptyList()) }
     var showNoResults by remember { mutableStateOf(false) }
     var isSearching by remember { mutableStateOf(false) }
@@ -44,6 +45,7 @@ fun AddFriendScreen(
             searchResults = emptyList()
             showNoResults = false
         } else {
+            lastSearchText = searchText // Update last submitted query
             isSearching = true
             profileService.searchProfiles(searchText) { results ->
                 isSearching = false
@@ -105,7 +107,7 @@ fun AddFriendScreen(
             }
             showNoResults -> {
                 Text(
-                    text = "No profiles found matching \"$searchText\".",
+                    text = "No profiles found matching \"$lastSearchText\".", // Use last search term
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
@@ -117,9 +119,11 @@ fun AddFriendScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     for (profile in searchResults) {
+                        val isSelf = profile.id == loggedInUser.id
                         ProfileCard(
                             profile = profile,
                             isFriend = loggedInUser.friendsIds.contains(profile.id),
+                            isSelf = isSelf,
                             onAddFriend = {
                                 profileService.addFriend(loggedInUser, profile.id)
                                 onFriendAdded(profile)
@@ -136,6 +140,7 @@ fun AddFriendScreen(
 fun ProfileCard(
     profile: Profile,
     isFriend: Boolean,
+    isSelf: Boolean,
     onAddFriend: () -> Unit
 ) {
     Row(
@@ -143,7 +148,6 @@ fun ProfileCard(
             .fillMaxWidth()
             .padding(8.dp)
             .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-            .clickable { /* Optionally handle profile clicks */ }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -160,16 +164,26 @@ fun ProfileCard(
             Text(profile.userName, fontWeight = FontWeight.Bold, fontSize = 18.sp)
             Text(profile.userBio, fontSize = 14.sp, color = Color.Gray)
         }
-        if (!isFriend) {
-            Button(onClick = { onAddFriend() }) {
-                Text("Add")
+        when {
+            isSelf -> {
+                Text(
+                    text = "You",
+                    color = Color.Gray,
+                    modifier = Modifier.padding(8.dp)
+                )
             }
-        } else {
-            Text(
-                text = "Friend",
-                color = Color.Gray,
-                modifier = Modifier.padding(8.dp)
-            )
+            isFriend -> {
+                Text(
+                    text = "Friend",
+                    color = Color.Gray,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+            else -> {
+                Button(onClick = { onAddFriend() }) {
+                    Text("Add")
+                }
+            }
         }
     }
 }

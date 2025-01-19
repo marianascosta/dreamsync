@@ -6,9 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inbox
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PersonAddAlt1
-import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -32,7 +30,6 @@ import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.HikeScreensManager
 import com.example.dreamsync.screens.internal.inbox.InboxScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -169,7 +166,7 @@ fun AppNavigation() {
                 hikeId = hikeId!!,
                 hikeService = hikeService,
                 onBackToHome = {
-                    toggleBottomBarVisibility() // Show bottom bar
+                    toggleBottomBarVisibility()
                     navController.popBackStack()
                 }
             )
