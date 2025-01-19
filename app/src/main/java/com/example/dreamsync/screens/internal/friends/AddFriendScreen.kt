@@ -111,13 +111,12 @@ fun AddFriendScreen(
                 )
             }
             else -> {
-                LazyColumn(
+                Column(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1f),
+                        .fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(searchResults) { profile ->
+                    for (profile in searchResults) {
                         ProfileCard(
                             profile = profile,
                             isFriend = loggedInUser.friendsIds.contains(profile.id),
@@ -132,7 +131,6 @@ fun AddFriendScreen(
         }
     }
 }
-
 
 @Composable
 fun ProfileCard(

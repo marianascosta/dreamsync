@@ -19,7 +19,8 @@ import kotlin.concurrent.thread
 @Composable
 fun RunDatabaseInit() {
     val databaseInit = DatabaseInit()
-    databaseInit.initRealTimeDatabase()
+    //uncomment to populate database
+    //databaseInit.initRealTimeDatabase()
 }
 
 class DatabaseInit {
