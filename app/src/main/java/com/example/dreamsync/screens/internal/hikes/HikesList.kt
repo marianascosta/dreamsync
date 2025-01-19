@@ -42,7 +42,6 @@ fun HikesListScreen(
                 )
             }
             hikes.isEmpty() -> {
-                // Centered "no hikes" message
                 Text(
                     text = "User has no hikes.",
                     modifier = Modifier.align(Alignment.Center),
@@ -51,13 +50,11 @@ fun HikesListScreen(
                 )
             }
             else -> {
-                // Display the list of hikes
-                LazyColumn(
+                Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(16.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(hikes) { hike ->
+                    for (hike in hikes) {
                         HikeCard(hike = hike, onClick = { onHikeClicked(hike) })
                     }
                 }
