@@ -1,5 +1,6 @@
 package com.example.dreamsync.screens.internal.hikes
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
@@ -17,18 +18,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.models.HikeStatus
 import com.example.dreamsync.data.models.Layer
 import com.example.dreamsync.data.services.HikeService
+import com.example.dreamsync.screens.internal.hikes.insideHike.HikeStagesScreenPreview
 
 @Composable
 fun HikeDetailScreen(
     hikeService: HikeService,
     hikeId: String,
-    onClickStartHike : () -> Unit = {}
+    onClickStartHike : () -> Unit = {},
+    onNavigateToConfirmation : () -> Unit = {}
 ) {
     var hike by remember { mutableStateOf<Hike>(Hike()) }
     var isLoading by remember { mutableStateOf(true) }
+    var isCreator by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         hikeService.getHikeById(
@@ -36,6 +42,9 @@ fun HikeDetailScreen(
             onHikeFetched = { fetchedHike ->
                 if (fetchedHike != null) {
                     hike = fetchedHike
+                    isCreator = fetchedHike.createdBy == hikeService.getCurrentUserId()
+                    Log.d("HikeInfo", "creator 1: ${fetchedHike.createdBy}")
+                    Log.d("HikeInfo", "creator 2: ${hikeService.getCurrentUserId()}")
                 }
                 isLoading = false
             }
@@ -47,7 +56,7 @@ fun HikeDetailScreen(
         LoadingIndicator()
     } else {
         // Show the timeline screen with layers
-        TimelineScreen(layers = hike.layers, onClickStartHike = onClickStartHike)
+        TimelineScreen(layers = hike.layers, isCreator = isCreator, onClickStartHike = onClickStartHike, hike = hike, onNavigateToConfirmation = onNavigateToConfirmation)
     }
 }
 
@@ -64,7 +73,10 @@ fun LoadingIndicator() {
 @Composable
 fun TimelineScreen(
     layers: List<Layer>,
-    onClickStartHike: () -> Unit = {}
+    isCreator: Boolean,
+    onClickStartHike: () -> Unit = {},
+    hike: Hike,
+    onNavigateToConfirmation: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -78,19 +90,37 @@ fun TimelineScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
-            Button(
-                onClick = onClickStartHike,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
-                shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
-                modifier = Modifier.padding(start = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.PlayArrow,
-                    contentDescription = "Play Icon",
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Start Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
+
+            if (isCreator) { // Render the button only if the user is the creator
+                Button(
+                    onClick = onClickStartHike,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
+                    shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
+                    modifier = Modifier.padding(start = 16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.PlayArrow,
+                        contentDescription = "Play Icon",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Start Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
+                }
+            } else if (hike.status == HikeStatus.WAITING) {
+                Button(
+                    onClick = onNavigateToConfirmation,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
+                    shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
+                    modifier = Modifier
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.PlayArrow,
+                        contentDescription = "Play Icon",
+                        tint = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Join Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
+                }
             }
         }
 

@@ -39,6 +39,19 @@ open class ProfileService {
                 onProfileFetched(null)
             }
         })
+//        profilesRef.child(profileId).get()
+//            .addOnSuccessListener { document ->
+//                if (document.exists()) {
+//                    val profile = document.getValue(Profile::class.java)
+//                    onProfileFetched(profile)
+//                } else {
+//                    onProfileFetched(null)
+//                }
+//            }
+//            .addOnFailureListener { exception ->
+//                Log.e("ProfileService", "Error fetching profile", exception)
+//                onProfileFetched(null)
+//            }
     }
 
     fun updateProfile(profileId: String, updatedProfile: Profile, onComplete: (Boolean) -> Unit) {

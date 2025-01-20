@@ -12,12 +12,15 @@ import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.dreamsync.AppState
+import com.example.dreamsync.data.models.HikeStatus
+import com.example.dreamsync.data.models.Status
 import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
@@ -29,9 +32,11 @@ import com.example.dreamsync.screens.internal.explore.ExploreScreen
 import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
+import com.example.dreamsync.screens.internal.hikes.insideHike.ConfirmationScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.HikeScreensManager
 import com.example.dreamsync.screens.internal.inbox.InboxScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
+import com.example.dreamsync.screens.internal.hikes.insideHike.WaitingForOthersScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,18 +161,25 @@ fun AppNavigation() {
         }
         composable("hike_info/{hikeId}") { backStackEntry ->
             val hikeId = backStackEntry.arguments?.getString("hikeId")
+
             HikeDetailScreen(
                 hikeService = hikeService,
                 hikeId = hikeId!!,
                 onClickStartHike = {
                     toggleBottomBarVisibility() // Hide bottom bar
-                    navController.navigate("hike_info/${hikeId}/start") }
+                    hikeService.updateHikeStatus(hikeId, HikeStatus.WAITING)
+                    navController.navigate("waiting_for_others/${hikeId}") },
+                onNavigateToConfirmation = {
+                    navController.navigate("confirmation/${hikeId}")
+                }
             )
         }
         composable("hike_info/{hikeId}/start") { backStackEntry ->
             val hikeId = backStackEntry.arguments?.getString("hikeId")
+            AppState.currentHikeId.value = hikeId
             HikeScreensManager(
                 hikeId = hikeId!!,
+                navController = navController,
                 hikeService = hikeService,
                 onBackToHome = {
                     toggleBottomBarVisibility() // Show bottom bar
@@ -184,7 +196,26 @@ fun AppNavigation() {
                 onFriendAdded = {navController.popBackStack()}
             )
         }
-
+        composable("waiting_for_others/{hikeId}") { backStackEntry ->
+            val hikeId = backStackEntry.arguments?.getString("hikeId")
+            WaitingForOthersScreen(
+                hikeId = hikeId!!,
+                hikeService = hikeService,
+                navController,
+                onStartHike = {
+                    hikeService.updateHikeStatus(hikeId, HikeStatus.IN_PROGRESS)
+                    navController.navigate("hike_info/${hikeId}/start")
+                }
+            )
+        }
+        composable("confirmation/{hikeId}") { backStackEntry ->
+            val hikeId = backStackEntry.arguments?.getString("hikeId")
+            ConfirmationScreen(
+                hikeId = hikeId!!,
+                hikeService = hikeService,
+                navController = navController
+            )
+        }
     }
 
     Scaffold(

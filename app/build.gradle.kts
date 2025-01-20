@@ -62,6 +62,7 @@ dependencies {
     // Feature module support for Fragments
     implementation(libs.androidx.navigation.dynamic.features.fragment)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.auth.ktx)
     // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)
     // JSON serialization library, works with the Kotlin serialization plugin

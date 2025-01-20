@@ -1,14 +1,17 @@
 package com.example.dreamsync
 
+import androidx.compose.runtime.mutableStateOf
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.ProfileService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 object AppState {
+    //val currentHikeId: Any
     private val _loggedInUser = MutableStateFlow(Profile(userName = ""))
     val loggedInUser: StateFlow<Profile> = _loggedInUser
     val profileService = ProfileService()
+    var currentHikeId = mutableStateOf<String?>(null)
 
     fun updateLoggedInUser(profile: Profile) {
         _loggedInUser.value = profile

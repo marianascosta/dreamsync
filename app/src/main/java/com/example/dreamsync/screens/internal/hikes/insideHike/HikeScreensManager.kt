@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
 import com.example.dreamsync.data.models.Profile
@@ -31,6 +32,7 @@ enum class HikeStage {
 @Composable
 fun HikeScreensManager(
     hikeId : String,
+    navController: NavController,
     hikeService: HikeService = HikeService(),
     profileService: ProfileService = ProfileService(),
     onBackToHome : () -> Unit = {}
@@ -101,7 +103,12 @@ fun HikeScreensManager(
         contentAlignment = Alignment.Center
     ) {
         when (stage) {
-            HikeStage.WAITING_FOR_OTHERS -> WaitingForOthersScreen(progress, waitingForOthersTimer)
+            HikeStage.WAITING_FOR_OTHERS -> WaitingForOthersScreen(
+                hikeId = hikeId,
+                hikeService = hikeService,
+                navController = navController,
+                onStartHike = { stage = getNextStage(stage) }
+            )
             HikeStage.ENTERING_OR_LEAVING_LAYER -> TransitionLayerScreenWithAnimation(
                 isVisible = true,
                 label = String.format("Entering %s...", hike.layers[currentLayerIndex].name),
@@ -168,5 +175,5 @@ fun getNextStage(currentStage: HikeStage): HikeStage {
 @Preview
 @Composable
 fun HikeStagesScreenPreview() {
-    HikeScreensManager("hikeId")
+    //HikeScreensManager("hikeId")
 }
