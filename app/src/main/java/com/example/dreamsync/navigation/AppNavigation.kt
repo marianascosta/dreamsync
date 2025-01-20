@@ -28,14 +28,13 @@ import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.HikeScreensManager
-import com.example.dreamsync.screens.internal.inbox.InboxScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val selectedIndex = remember { mutableIntStateOf(1) } // Default: Explore
+    val selectedIndex = remember { mutableIntStateOf(1) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val dreamService = DreamService()
@@ -171,9 +170,6 @@ fun AppNavigation() {
                 }
             )
         }
-        composable("inbox") {
-            InboxScreen()
-        }
         composable("add_friend") {
             AddFriendScreen(
                 profileService = profileService,
@@ -201,9 +197,6 @@ fun AppNavigation() {
                             IconButton(onClick = { navController.navigate("add_friend") }) {
                                 Icon(Icons.Default.PersonAddAlt1, contentDescription = "Add a Friend")
                             }
-                        }
-                        IconButton(onClick = {navController.navigate("inbox")}) {
-                            Icon(Icons.Filled.Inbox, contentDescription = "Inbox")
                         }
                     }
                 )
