@@ -2,6 +2,7 @@ package com.example.dreamsync.data.services
 
 import android.util.Log
 import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.models.HikeStatus
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -74,6 +75,16 @@ open class HikeService {
             } else {
                 Log.e("HikeService", "Failed to update hike: ${hike.id}", task.exception)
                 onUpdateComplete(false)
+            }
+        }
+    }
+
+    fun updateHikeStatus(hikeId: String, newStatus: HikeStatus) {
+        hikesRef.child(hikeId).child("status").setValue(newStatus).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("HikeService", "Hike status updated successfully: $hikeId")
+            } else {
+                Log.e("HikeService", "Failed to update hike status: $hikeId", task.exception)
             }
         }
     }

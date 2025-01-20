@@ -7,3 +7,9 @@ val adminAccount = Account(
     password = "password",
     profileId = "" // This will be set after saving the profile
 )
+
+val sophieAccount = Account(
+    email = "sophiablack@example.com",
+    password = "password",
+    profileId = "" // This will be set after saving the profile
+)

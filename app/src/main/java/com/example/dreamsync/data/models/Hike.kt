@@ -5,7 +5,8 @@ import kotlinx.serialization.Serializable
 enum class HikeStatus {
     COMPLETED,
     IN_PROGRESS,
-    NOT_STARTED
+    NOT_STARTED,
+    WAITING
 }
 
 @Serializable

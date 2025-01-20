@@ -48,6 +48,7 @@ class DatabaseInit {
         saveProfilesSample(profilesSample)
         saveDreamsSample(dreamsSample)
         saveAdmin()
+        saveSophie()
     }
 
     fun deleteAll() {
@@ -76,6 +77,40 @@ class DatabaseInit {
         hikes.forEach { hike ->
             hikesService.saveHike(hike.copy(createdBy = adminProfileId)) { success ->
                 Log.d("DatabaseInit", "Hike saved: $hike")
+            }
+        }
+    }
+
+    fun saveSophie() {
+        profileService.saveProfile(profilesSample[4]) { sophieProfileId ->
+            if (sophieProfileId != null) {
+                saveSophieAccount(sophieProfileId)
+                saveSophieHikes(sophieProfileId)
+                addSophieFriends(sophieProfileId)
+            } else {
+                Log.e("DatabaseInit", "Failed to save shopie profile")
+            }
+        }
+    }
+
+    private fun saveSophieAccount(sophieProfileId: String) {
+        accountService.saveAccount(sophieAccount.copy(profileId = sophieProfileId)) { success ->
+            Log.d("DatabaseInit", "Sophie account saved: $success")
+        }
+    }
+
+    private fun saveSophieHikes(sophieProfileId: String) {
+        hikes.forEach { hike ->
+            hikesService.saveHike(hike.copy(createdBy = sophieProfileId)) { success ->
+                Log.d("DatabaseInit", "Hike saved: $hike")
+            }
+        }
+    }
+
+    private fun addSophieFriends(sophieProfileId: String) {
+        for (profile in profilesList) {
+            if (profile.id != sophieProfileId) {
+                profileService.addFriend(profilesSample[4], profile.id)
             }
         }
     }
