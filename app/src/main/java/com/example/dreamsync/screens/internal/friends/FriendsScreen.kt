@@ -38,7 +38,7 @@ import com.example.dreamsync.data.services.ProfileService
 @Composable
 fun FriendsScreen(
     profileService: ProfileService,
-    onFriendClick: (Profile) -> Unit,
+    onClickProfile: (Profile) -> Unit,
 ) {
     val friends = remember { mutableStateOf<List<Profile>>(emptyList()) }
     val isLoading = remember { mutableStateOf(true) }
@@ -95,15 +95,4 @@ fun FriendCard(friend: Profile) {
             Text("Tap to view profile", fontSize = 14.sp, color = Color.Gray)
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FriendsScreenPreview() {
-    FriendsScreen(
-        profileService = ProfileService(),
-        onFriendClick = { friend ->
-            println("Clicked on: ${friend.userName}")
-        }
-    )
 }
