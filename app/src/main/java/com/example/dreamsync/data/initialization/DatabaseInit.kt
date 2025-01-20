@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dreamsync.AppState.profileService
 import com.example.dreamsync.data.models.Dream
+import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.AccountService
 import com.example.dreamsync.data.services.DreamService
@@ -47,6 +48,7 @@ class DatabaseInit {
         saveProfilesSample(profilesSample)
         saveDreamsSample(dreamsSample)
         saveAdmin()
+        saveHikesSample(hikes)
     }
 
     fun deleteAll() {
@@ -90,6 +92,14 @@ class DatabaseInit {
     fun saveDreamsSample(dreams: List<Dream>) {
         dreams.forEach { dream ->
             dreamService.saveDream(dream)
+        }
+    }
+
+    fun saveHikesSample(hikes: List<Hike>) {
+        hikes.forEach { hike ->
+            hikesService.saveHike(hike) {
+                Log.d("DatabaseInit", "Hike saved: $hike")
+            }
         }
     }
 
