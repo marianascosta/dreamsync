@@ -14,6 +14,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         databaseInit = DatabaseInit()
         //databaseInit.initRealTimeDatabase() // uncomment to populate the database
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {

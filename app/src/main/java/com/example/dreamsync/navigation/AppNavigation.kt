@@ -100,9 +100,10 @@ fun AppNavigation() {
 
             )
         }
+
         composable("friends") {
                 FriendsScreen(
-                    onClickProfile = { friend ->
+                    onFriendClick = { friend ->
                         navController.navigate(route = "friends/${friend.id}")
                     },
                     profileService = profileService
