@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
 import com.example.dreamsync.data.models.Profile
@@ -32,8 +33,11 @@ enum class HikeStage {
 fun HikeScreensManager(
     hikeId : String,
     hikeService: HikeService = HikeService(),
+    navController: NavController,
+    loggedUser: Profile,
     profileService: ProfileService = ProfileService(),
-    onBackToHome : () -> Unit = {}
+    onBackToHome: () -> Unit = {},
+    onStartHike: () -> Unit = {}
 ) {
     var stage by remember { mutableStateOf(HikeStage.WAITING_FOR_OTHERS) }
     var progress by remember { mutableFloatStateOf(0f) }
@@ -101,7 +105,7 @@ fun HikeScreensManager(
         contentAlignment = Alignment.Center
     ) {
         when (stage) {
-            HikeStage.WAITING_FOR_OTHERS -> WaitingForOthersScreen(progress, waitingForOthersTimer)
+            HikeStage.WAITING_FOR_OTHERS -> WaitingForOthersScreen(hikeId, hikeService, profileService, navController, loggedUser, onStartHike)
             HikeStage.ENTERING_OR_LEAVING_LAYER -> TransitionLayerScreenWithAnimation(
                 isVisible = true,
                 label = String.format("Entering %s...", hike.layers[currentLayerIndex].name),
@@ -163,10 +167,4 @@ fun getNextStage(currentStage: HikeStage): HikeStage {
         HikeStage.IN_LAYER -> HikeStage.ENTERING_OR_LEAVING_LAYER
         else -> HikeStage.HIKE_COMPLETE
     }
-}
-
-@Preview
-@Composable
-fun HikeStagesScreenPreview() {
-    HikeScreensManager("hikeId")
 }

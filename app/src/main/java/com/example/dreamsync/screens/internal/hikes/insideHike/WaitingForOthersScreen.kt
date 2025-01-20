@@ -13,6 +13,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,16 +29,97 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.dreamsync.AppState.profileService
+import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.models.HikeStatus
+import com.example.dreamsync.data.models.Profile
+import com.example.dreamsync.data.models.participantStatus
+import com.example.dreamsync.data.services.HikeService
+import com.example.dreamsync.data.services.ProfileService
 
 
 @Composable
-fun WaitingForOthersScreen(progress: Float, timerValue: Int) {
-    CircularTimerWithInnerContent(
-        progress = progress,
-        currentTime = timerValue,
-        label = "Waiting for others to join...",
-        information = "2/3 members have joined"
-    )
+fun WaitingForOthersScreen(
+    hikeId: String,
+    hikeService: HikeService,
+    profileService: ProfileService,
+    navController: NavController,
+    loggedUser: Profile,
+    onStartHike: () -> Unit
+) {
+    var isCreator by remember { mutableStateOf(false) }
+    var hike by remember { mutableStateOf<Hike?>(null) }
+    var participants by remember { mutableStateOf(mapOf<String, Profile>()) }
+    var allParticipantsReady by remember { mutableStateOf(false) }
+    var readyCount by remember { mutableStateOf(0) }
+
+    LaunchedEffect(hikeId) {
+        hikeService.getHikeById(hikeId) { fetchedHike ->
+            hike = fetchedHike
+            isCreator = fetchedHike?.createdBy == loggedUser.id
+        }
+    }
+
+//    LaunchedEffect(hikeId) {
+//        hikeService.getParticipants(hikeId) { fetchedParticipants ->
+//            participants = fetchedParticipants
+//            readyCount = participants.count { it.value.hikeStatuses.find { it.hikeId == hikeId }?.status == participantStatus.READY }
+//            allParticipantsReady = readyCount == participants.size
+//        }
+//    }
+    LaunchedEffect(hikeId) {
+        hikeService.getParticipants(hikeId) { participantIds ->
+            val participantProfiles = mutableMapOf<String, Profile>()
+
+            participantIds.forEach { userId ->
+                profileService.getProfileById(userId) { profile ->
+                    if (profile != null) {
+                        participantProfiles[userId] = profile
+                        participants = participantProfiles.toMap()  // Update state
+                        readyCount = participants.count { it.value.hikeStatuses.find { it.hikeId == hikeId }?.status == participantStatus.READY }
+                        allParticipantsReady = readyCount == participants.size
+                    }
+                }
+            }
+        }
+    }
+
+
+    if (hike == null) {
+        Text("Loading hike details...")
+    } else {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("Waiting for Participants... ($readyCount/${participants.size} ready)")
+            participants.forEach { (id, participant) ->
+                val statusForHike = participant.hikeStatuses.find { it.hikeId == hikeId }?.status ?: participantStatus.NOT_READY
+                Text("${participant.userName}: ${statusForHike.name}")
+            }
+
+            if (isCreator && allParticipantsReady) {
+                Button(onClick = {
+                    hikeService.updateHikeStatus(hikeId, HikeStatus.IN_PROGRESS)
+                    onStartHike()
+                }) {
+                    Text("Start Hike")
+                }
+            } else {
+                Button(enabled = false, onClick = {}) {
+                    Text("Waiting for participants")
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(hikeId) {
+        hikeService.getHikeById(hikeId) { fetchedHike ->
+            hike = fetchedHike
+            // Listen for hike status changes
+            if (fetchedHike?.status == HikeStatus.IN_PROGRESS) {
+                navController.navigate("hike_info/${hikeId}/start")
+            }
+        }
+    }
 }
 
 

@@ -18,5 +18,12 @@ data class Hike(
     val isComplete: Boolean = false,
     val createdBy: String = "",
     val invitedFriends: List<String> = emptyList(),
+    val participantStatus: List<ParticipantStatusEntry> = emptyList(),
     val status : HikeStatus = HikeStatus.NOT_STARTED
+)
+
+@Serializable
+data class ParticipantStatusEntry(
+    val id: String,                        //participant's id
+    val participation: participantStatus   //model in Profile.kt
 )
