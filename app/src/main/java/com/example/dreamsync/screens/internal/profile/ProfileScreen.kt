@@ -1,8 +1,8 @@
 package com.example.dreamsync.screens.internal.profile
 
-import android.R.attr.contentDescription
 import android.util.Log
-import android.util.Log.i
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -66,6 +66,13 @@ fun ProfileScreen(
     var selectedRole by remember { mutableStateOf<Role?>(null) }
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var selectedImageUri by remember { mutableStateOf<String?>(null) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        selectedImageUri = uri?.toString()
+    }
 
     LaunchedEffect(profileId) {
         profileService.getProfileById(
@@ -76,6 +83,7 @@ fun ProfileScreen(
                     newEmail = fetchedProfile.userEmail
                     newBio = fetchedProfile.userBio
                     selectedRole = fetchedProfile.preferredRole
+                    selectedImageUri = fetchedProfile.profilePicture
                     errorMessage = null
                 } else {
                     errorMessage = "Profile not found."
@@ -105,7 +113,12 @@ fun ProfileScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                ProfileImageSection(profile = profile!!)
+                ProfileImageSection(
+                    profile = profile!!,
+                    isEditing = isEditing,
+                    selectedImageUri = selectedImageUri,
+                    onImageSelected = { imagePickerLauncher.launch("image/*") }
+                )
 
                 ProfileInfoCard(
                     profile = profile!!,
@@ -119,6 +132,7 @@ fun ProfileScreen(
                             val updatedProfile = profile!!.copy(
                                 userEmail = newEmail,
                                 userBio = newBio,
+                                profilePicture = selectedImageUri ?: profile!!.profilePicture,
                                 preferredRole = selectedRole ?: DEFAULT_ROLE
                             )
                             profileService.updateProfile(
@@ -189,18 +203,49 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileImageSection(profile: Profile) {
-    if (profile.profilePicture.isNotEmpty()) {
-        Image(
-            painter = rememberAsyncImagePainter(profile.profilePicture),
-            contentDescription = "Profile Picture",
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface)
-        )
+fun ProfileImageSection(
+    profile: Profile,
+    isEditing: Boolean,
+    selectedImageUri: String?,
+    onImageSelected: () -> Unit
+) {
+    Box(contentAlignment = Alignment.Center) {
+        if (isEditing && selectedImageUri != null) {
+            Image(
+                painter = rememberAsyncImagePainter(selectedImageUri),
+                contentDescription = "Selected Profile Picture",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .clickable { onImageSelected() }
+            )
+        } else {
+            Image(
+                painter = rememberAsyncImagePainter(
+                    model = selectedImageUri ?: profile.profilePicture
+                ),
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .clickable(enabled = isEditing) { onImageSelected() }
+            )
+        }
+
+        if (isEditing) {
+            Icon(
+                imageVector = Icons.Default.AddCircle,
+                contentDescription = "Add New Profile Picture",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .size(40.dp)
+                    .align(Alignment.Center)
+                    .clickable { onImageSelected() }
+            )
+        }
     }
 }
+
 
 @Composable
 fun ProfileInfoCard(
@@ -295,28 +340,4 @@ fun DropdownRoleSelector(
             }
         }
     }
-}
-
-@Composable
-fun HighlightDropMenuItem(
-    text: String,
-    onClick: () -> Unit
-) {
-    var isHovered by remember { mutableStateOf(false) }
-
-    DropdownMenuItem(
-        modifier = Modifier
-            .background(if (isHovered) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = {
-                        isHovered = true
-                        tryAwaitRelease()
-                        isHovered = false
-                    }
-                )
-            },
-        onClick = onClick,
-        text = { Text(text) }
-    )
 }
