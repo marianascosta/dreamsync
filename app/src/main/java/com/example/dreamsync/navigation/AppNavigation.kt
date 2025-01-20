@@ -6,9 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Inbox
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PersonAddAlt1
-import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -34,7 +32,6 @@ import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.ConfirmationScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.HikeScreensManager
-import com.example.dreamsync.screens.internal.inbox.InboxScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.WaitingForOthersScreen
 import kotlinx.coroutines.launch
@@ -43,7 +40,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val selectedIndex = remember { mutableIntStateOf(1) } // Default: Explore
+    val selectedIndex = remember { mutableIntStateOf(1) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val dreamService = DreamService()
@@ -100,10 +97,9 @@ fun AppNavigation() {
 
             )
         }
-
         composable("friends") {
                 FriendsScreen(
-                    onFriendClick = { friend ->
+                    onClickProfile = { friend ->
                         navController.navigate(route = "friends/${friend.id}")
                     },
                     profileService = profileService
@@ -161,7 +157,6 @@ fun AppNavigation() {
         }
         composable("hike_info/{hikeId}") { backStackEntry ->
             val hikeId = backStackEntry.arguments?.getString("hikeId")
-
             HikeDetailScreen(
                 hikeService = hikeService,
                 hikeId = hikeId!!,
@@ -182,13 +177,10 @@ fun AppNavigation() {
                 navController = navController,
                 hikeService = hikeService,
                 onBackToHome = {
-                    toggleBottomBarVisibility() // Show bottom bar
+                    toggleBottomBarVisibility()
                     navController.popBackStack()
                 }
             )
-        }
-        composable("inbox") {
-            InboxScreen()
         }
         composable("add_friend") {
             AddFriendScreen(
@@ -236,9 +228,6 @@ fun AppNavigation() {
                             IconButton(onClick = { navController.navigate("add_friend") }) {
                                 Icon(Icons.Default.PersonAddAlt1, contentDescription = "Add a Friend")
                             }
-                        }
-                        IconButton(onClick = {navController.navigate("inbox")}) {
-                            Icon(Icons.Filled.Inbox, contentDescription = "Inbox")
                         }
                     }
                 )

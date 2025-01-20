@@ -1,13 +1,15 @@
 package com.example.dreamsync.data.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class Dream(
     val title: String = "",
     val description: String = "",
     val date: String = "",
-    var dreamCategories: List<DreamCategory> = listOf()
+    var dreamCategories: List<DreamCategory> = listOf(),
+    @Transient val imageResId: Int = 0
 )
 
 enum class DreamCategory(val displayName: String) {

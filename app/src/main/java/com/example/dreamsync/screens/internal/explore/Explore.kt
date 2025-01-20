@@ -70,7 +70,7 @@ fun ExploreScreen(dreamService: DreamService) {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 val filteredDreams = dreams.filter { dream ->
-                    (selectedCategories.isEmpty() || dream.dreamCategories.all { it in selectedCategories }) &&
+                    (selectedCategories.isEmpty() || selectedCategories.all { it in dream.dreamCategories }) &&
                             (searchText.isEmpty() || dream.title.contains(searchText, ignoreCase = true))
                 }
 
