@@ -85,7 +85,7 @@ fun StepInviteFriends(
                 }
                 val stage = HikeStage.NOT_STARTED
                 onClickFinish(
-                hike.copy(invitedFriends = selectedFriends, participantStatus = participantStatus, stage = stage)
+                hike.copy(invitedFriends = selectedFriends, participantStatus = participantStatus, stage = stage, currentLayerIndex = 0)
             ) },
             modifier = Modifier.align(Alignment.End).padding(bottom = 16.dp)
         ) {

@@ -138,13 +138,6 @@ open class HikeService {
     }
 
     fun updateParticipantStatus(hikeId: String, userId: String, newStatus: ParticipantStatus) {
-        hikesRef.child(hikeId).child("invitedFriends").child(userId).child("status").setValue(newStatus).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Log.d("HikeService", "Participant status updated successfully: $hikeId, $userId")
-                } else {
-                Log.e("HikeService", "Failed to update participant status: $hikeId, $userId", task.exception)
-            }
-        }
         hikesRef.child(hikeId).child("participantStatus").get().addOnSuccessListener { dataSnapshot ->
             var found = false
             for (participantSnapshot in dataSnapshot.children) {
@@ -172,31 +165,24 @@ open class HikeService {
 
     fun observeParticipantStatus(hikeId: String, onStatusChanged: (List<ParticipantStatusEntry>) -> Unit) {
         val database = FirebaseDatabase.getInstance().reference
-        database.child("hikes").child(hikeId).child("invitedFriends")
+        database.child("hikes").child(hikeId).child("participantStatus")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    // Ensure snapshot exists
                     if (snapshot.exists()) {
-                        // Extract all user IDs from the array-like structure
-                        val participantIds = snapshot.children.mapNotNull { child ->
-                            if (child.key?.toIntOrNull() != null) {
-                                child.getValue(String::class.java)
+                        // Extract participant statuses
+                        val statuses = snapshot.children.mapNotNull { child ->
+                            val userId = child.child("id").getValue(String::class.java)
+                            val status = child.child("participation").getValue(String::class.java)
+
+                            if (userId != null && status != null) {
+                                ParticipantStatusEntry(
+                                    id = userId,
+                                    participation = ParticipantStatus.valueOf(status)
+                                )
                             } else null
                         }
-
-                        // Extract statuses for participants (if available)
-                        val statuses = participantIds.map { userId ->
-                            val status = snapshot.child(userId).child("status").getValue(String::class.java)
-                            ParticipantStatusEntry(
-                                id = userId,
-                                participation = if (status != null) ParticipantStatus.valueOf(status) else ParticipantStatus.NOT_READY
-                            )
-                        }
-
-                        // Pass the list to the callback
                         onStatusChanged(statuses)
                     } else {
-                        // No participants found
                         onStatusChanged(emptyList())
                     }
                 }
@@ -205,6 +191,11 @@ open class HikeService {
                     Log.e("Firebase", "Failed to read participant statuses", error.toException())
                 }
             })
+    }
+
+    fun updateCurrentLayerIndex(hikeId: String, layerIndex: Int) {
+        val hikeRef = FirebaseDatabase.getInstance().getReference("hikes").child(hikeId)
+        hikeRef.child("currentLayerIndex").setValue(layerIndex)
     }
 
     fun updateHikeStage(hikeId: String, newStage: HikeStage) {

@@ -28,26 +28,48 @@ import com.example.dreamsync.data.models.ParticipantStatus
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 @Composable
 fun ConfirmationScreen(
     hikeId: String,
     hikeService: HikeService,
-    navController: NavHostController,
+    //navController: NavHostController,
     loggedUser: Profile
 ) {
     var isConfirmed by remember { mutableStateOf(false) }
     var readyCount by remember { mutableStateOf(0) }
     var totalParticipants by remember { mutableStateOf(0) }
+    var stage by remember { mutableStateOf(HikeStage.NOT_STARTED) } // Initial stage
+
+    LaunchedEffect(hikeId) {  // Listen to hikeId changes
+        val hikeRef = FirebaseDatabase.getInstance().getReference("hikes").child(hikeId).child("stage")
+
+        hikeRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val updatedStage = snapshot.getValue(String::class.java)
+                if (updatedStage != null) {
+                    // Sync the stage from the Firebase data
+                    stage = HikeStage.valueOf(updatedStage)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HikeDebug", "Failed to listen for stage updates: ", error.toException())
+            }
+        })
+    }
 
     LaunchedEffect(Unit) {
         hikeService.observeParticipantStatus(hikeId) { statuses ->
 //            Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
 //            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
-            totalParticipants = statuses.size
             Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
-            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
-            totalParticipants = statuses.size
+            readyCount = statuses.count { it.participation == ParticipantStatus.READY } + 1
+            totalParticipants = statuses.size + 1
         }
     }
 
@@ -56,7 +78,17 @@ fun ConfirmationScreen(
             hikeService.updateParticipantStatus(hikeId, loggedUser.id, ParticipantStatus.READY)
         }
     }
-
+    when(stage) {
+        HikeStage.NOT_STARTED -> {
+            // Display waiting screen for participants
+            // Show the 'Start' button for the creator, but participants will stay on the confirmation screen
+        }
+        HikeStage.ENTERING_OR_LEAVING_LAYER -> {
+            // Transition to the next screen (Layer screen)
+            // E.g., navigate to HikeScreen or similar
+        }
+        else -> {}
+    }
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center

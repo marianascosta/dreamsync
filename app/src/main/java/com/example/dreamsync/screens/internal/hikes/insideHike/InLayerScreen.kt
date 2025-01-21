@@ -39,6 +39,8 @@ import com.example.dreamsync.data.models.Profile
 fun InLayerScreen(
     layer: Layer,
     friends: List<Profile>,
+    loggedUser: Profile,
+    isCreator: Boolean,
     onClickNextLayer: () -> Unit,
     onLeaveLayer: () -> Unit
 ) {
@@ -204,20 +206,20 @@ fun formatTime(seconds: Long): String {
     return "%02d:%02d:%02d".format(hours, minutes, secs)
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true)
-@Composable
-fun InLayerScreenPreview() {
-    InLayerScreen(
-        layer = Layer(
-            name = "Dream Layer 1",
-            description = "A challenging layer requiring utmost focus.",
-            difficulty = "Hard",
-        ),
-        friends = listOf(
-            profilesSample[0], profilesSample[1], profilesSample[2]
-        ),
-        onClickNextLayer = {},
-        onLeaveLayer = {}
-    )
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview(showBackground = true)
+//@Composable
+//fun InLayerScreenPreview() {
+//    InLayerScreen(
+//        layer = Layer(
+//            name = "Dream Layer 1",
+//            description = "A challenging layer requiring utmost focus.",
+//            difficulty = "Hard",
+//        ),
+//        friends = listOf(
+//            profilesSample[0], profilesSample[1], profilesSample[2]
+//        ),
+//        onClickNextLayer = {},
+//        onLeaveLayer = {}
+//    )
+//}

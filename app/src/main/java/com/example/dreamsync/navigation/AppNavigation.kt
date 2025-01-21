@@ -174,9 +174,11 @@ fun AppNavigation() {
                     hikeService.updateHikeStatus(hikeId, HikeStatus.WAITING)
                     hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
                     //navController.navigate("waiting_for_others/${hikeId}") }
-                    navController.navigate("hike_info/${hikeId}/start") },
+                    navController.navigate("hike_info/${hikeId}/start")
+                },
                 onNavigateToConfirmation = {
-                    navController.navigate("confirmation/${hikeId}")
+                    //navController.navigate("confirmation/${hikeId}")
+                    navController.navigate("hike_info/${hikeId}/start")
                 }
             )
         }
@@ -218,7 +220,7 @@ fun AppNavigation() {
                 hikeId = hikeId!!,
                 hikeService = hikeService,
                 //profileService = profileService,
-                navController = navController,
+                //navController = navController,
                 loggedUser = loggedInUser.value
             )
         }

@@ -58,8 +58,8 @@ fun WaitingForOthersScreen(
         hikeService.observeParticipantStatus(hikeId) { statuses ->
 //            Log.d("ParticipantStatus", "In waiting Statuses updated: $statuses")
 //            participantStatuses = statuses//.toList()
-            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
-            totalParticipants = statuses.size
+            readyCount = statuses.count { it.participation == ParticipantStatus.READY } + 1
+            totalParticipants = statuses.size + 1
 //            allReady = readyCount == totalParticipants
             participantStatuses = statuses
             allReady = statuses.all { it.participation == ParticipantStatus.READY }
