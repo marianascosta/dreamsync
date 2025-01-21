@@ -38,7 +38,8 @@ fun ConfirmationScreen(
     hikeId: String,
     hikeService: HikeService,
     //navController: NavHostController,
-    loggedUser: Profile
+    loggedUser: Profile,
+    leavingLayer: Boolean
 ) {
     var isConfirmed by remember { mutableStateOf(false) }
     var readyCount by remember { mutableStateOf(0) }
@@ -77,17 +78,6 @@ fun ConfirmationScreen(
         if (isConfirmed) {
             hikeService.updateParticipantStatus(hikeId, loggedUser.id, ParticipantStatus.READY)
         }
-    }
-    when(stage) {
-        HikeStage.NOT_STARTED -> {
-            // Display waiting screen for participants
-            // Show the 'Start' button for the creator, but participants will stay on the confirmation screen
-        }
-        HikeStage.ENTERING_OR_LEAVING_LAYER -> {
-            // Transition to the next screen (Layer screen)
-            // E.g., navigate to HikeScreen or similar
-        }
-        else -> {}
     }
     Box(
         modifier = Modifier.fillMaxSize(),

@@ -47,12 +47,14 @@ fun WaitingForOthersScreen(
     profileService: ProfileService,
     navController: NavController,
     loggedUser: Profile,
+    leavingLayer: Boolean,
     onStartHike: () -> Unit
 ) {
     var allReady by remember { mutableStateOf(false) }
     var participantStatuses by remember { mutableStateOf(emptyList<ParticipantStatusEntry>()) }
     var readyCount by remember { mutableStateOf(0) }
     var totalParticipants by remember { mutableStateOf(0) }
+    var currentLayer by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         hikeService.observeParticipantStatus(hikeId) { statuses ->
@@ -64,7 +66,10 @@ fun WaitingForOthersScreen(
             participantStatuses = statuses
             allReady = statuses.all { it.participation == ParticipantStatus.READY }
             Log.d("ParticipantStatus", "Total: ${statuses.size}, Ready: ${statuses.count { it.participation == ParticipantStatus.READY }}")
-
+            hikeService.getCurrentLayerIndex(hikeId) { currentIndex ->
+                Log.d("HikeDebug", "Fetched layer index: $currentIndex")
+                currentLayer = currentIndex
+            }
         }
     }
 
@@ -83,7 +88,13 @@ fun WaitingForOthersScreen(
 
             if (allReady) {
                 Button(onClick = { onStartHike() }) {
-                    Text(text = "Start Hike")
+                    if (currentLayer == 0 && !leavingLayer) {
+                        Text(text = "Start Hike")
+                    } else if (leavingLayer) {
+                        Text(text = "Leave Layer")
+                    } else {
+                        Text(text = "Enter Layer")
+                    }
                 }
             }
         }

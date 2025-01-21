@@ -41,6 +41,8 @@ fun InLayerScreen(
     friends: List<Profile>,
     loggedUser: Profile,
     isCreator: Boolean,
+    currentLayerIndex: Int,
+    totalLayers: Int,
     onClickNextLayer: () -> Unit,
     onLeaveLayer: () -> Unit
 ) {
@@ -118,26 +120,26 @@ fun InLayerScreen(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-
-                Button(
-                    onClick = onLeaveLayer,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
-                    contentPadding = PaddingValues(12.dp)
-                ) {
-                    Text("Leave Layer")
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-
-                Button(
-                    onClick = onClickNextLayer,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-                    contentPadding = PaddingValues(12.dp)
-                ) {
-                    Text("Next Layer")
+                if (isCreator) {
+                    Button(
+                        onClick = onLeaveLayer,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.error),
+                        contentPadding = PaddingValues(12.dp)
+                    ) {
+                        Text("Leave Layer")
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    if (currentLayerIndex < totalLayers) {
+                        Button(
+                            onClick = onClickNextLayer,
+                            modifier = Modifier.weight(1f),
+                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
+                            contentPadding = PaddingValues(12.dp)
+                        ) {
+                            Text("Next Layer")
+                        }
+                    }
                 }
             }
         }

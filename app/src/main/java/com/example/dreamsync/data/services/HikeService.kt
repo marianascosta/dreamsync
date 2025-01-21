@@ -198,6 +198,17 @@ open class HikeService {
         hikeRef.child("currentLayerIndex").setValue(layerIndex)
     }
 
+    fun getCurrentLayerIndex(hikeId: String, onCurrentLayerIndexFetched: (Int) -> Unit) {
+        val hikeRef = FirebaseDatabase.getInstance().getReference("hikes").child(hikeId)
+        hikeRef.child("currentLayerIndex").get().addOnSuccessListener { snapshot ->
+            val currentLayerIndex = snapshot.getValue(Int::class.java) ?: 0
+            onCurrentLayerIndexFetched(currentLayerIndex) // Correctly pass the value to the callback
+            Log.d("HikeDebug", "Current layer index fetched: $currentLayerIndex")
+        }.addOnFailureListener { e ->
+            Log.e("HikeDebug", "Failed to fetch current layer index: ", e)
+        }
+    }
+
     fun updateHikeStage(hikeId: String, newStage: HikeStage) {
         val hikeRef = hikesRef.child(hikeId)
 

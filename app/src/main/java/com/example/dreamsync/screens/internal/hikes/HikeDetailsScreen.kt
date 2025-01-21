@@ -89,7 +89,7 @@ fun TimelineScreen(
         ) {
             Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
 
-            if (isCreator) {
+            if (isCreator && hike.status == HikeStatus.NOT_STARTED) {
                 Button(
                     onClick = onClickStartHike,
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),

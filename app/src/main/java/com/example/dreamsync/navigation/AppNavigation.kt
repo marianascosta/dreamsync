@@ -177,6 +177,7 @@ fun AppNavigation() {
                     navController.navigate("hike_info/${hikeId}/start")
                 },
                 onNavigateToConfirmation = {
+                    toggleBottomBarVisibility()
                     //navController.navigate("confirmation/${hikeId}")
                     navController.navigate("hike_info/${hikeId}/start")
                 }
@@ -208,6 +209,7 @@ fun AppNavigation() {
                 profileService = profileService,
                 navController = navController,
                 loggedUser = loggedInUser.value,
+                leavingLayer = false,
                 onStartHike = {
                     hikeService.updateHikeStatus(hikeId, HikeStatus.IN_PROGRESS)
                     navController.navigate("hike_info/${hikeId}/start")
@@ -221,7 +223,8 @@ fun AppNavigation() {
                 hikeService = hikeService,
                 //profileService = profileService,
                 //navController = navController,
-                loggedUser = loggedInUser.value
+                loggedUser = loggedInUser.value,
+                leavingLayer = false
             )
         }
         composable("add_friend") {

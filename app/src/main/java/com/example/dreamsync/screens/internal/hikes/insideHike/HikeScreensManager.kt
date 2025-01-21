@@ -1,6 +1,7 @@
 package com.example.dreamsync.screens.internal.hikes.insideHike
 
 import InLayerScreen
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -15,6 +17,7 @@ import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
 import com.example.dreamsync.data.models.ParticipantStatus
 import com.example.dreamsync.data.models.Profile
+import com.example.dreamsync.data.sensors.detectKick
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.google.firebase.database.DataSnapshot
@@ -53,6 +56,9 @@ fun HikeScreensManager(
     var allParticipantsReady by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(true) }
     var isCreator by remember { mutableStateOf(true) }
+    var leavingLayer by remember { mutableStateOf(false) }  //if false, then they're entering a layer
+    var kickDetected  by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     // Load hike data and create friends list
     LaunchedEffect(Unit) {
@@ -119,14 +125,36 @@ fun HikeScreensManager(
         })
     }
 
+    LaunchedEffect(kickDetected) {
+        if (kickDetected) {
+            if (currentLayerIndex > 0) {
+                currentLayerIndex--
+                hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
+                hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
+                stage = HikeStage.WAITING_FOR_OTHERS
+                stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+            } else {
+                currentLayerIndex = -1
+                hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
+                hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
+                stage = HikeStage.HIKE_COMPLETE
+            }
+            kickDetected = false // Reset for future detections
+        }
+    }
+
     // Handle stage transitions
     LaunchedEffect(stage) {
         when (stage) {
             HikeStage.ENTERING_OR_LEAVING_LAYER -> {
-                startStageCountdown(ENTERING_LAYER_TIME) { timeLeft ->
-                    if (timeLeft == 0) {
-                        stage = getNextStage(stage)
-                        hikeService.updateHikeStage(hikeId, stage)
+                if (leavingLayer) {
+                    Log.d("HikeDebug", "Waiting for kick to leave layer...")
+                } else {
+                    startStageCountdown(ENTERING_LAYER_TIME) { timeLeft ->
+                        if (timeLeft == 0) {
+                            stage = getNextStage(stage)
+                            hikeService.updateHikeStage(hikeId, stage)
+                        }
                     }
                 }
             }
@@ -148,14 +176,20 @@ fun HikeScreensManager(
             HikeStage.WAITING_FOR_OTHERS ->
                 if(isCreator) {
                     WaitingForOthersScreen(
-                        hikeId, hikeService, profileService, navController, loggedUser,
+                        hikeId, hikeService, profileService, navController, loggedUser, leavingLayer,
                         onStartHike = {
-                            hikeService.updateHikeStage(hikeId, HikeStage.ENTERING_OR_LEAVING_LAYER)
-                            stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+                            if (currentLayerIndex == -1) {
+                                hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
+                                hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
+                                stage = HikeStage.HIKE_COMPLETE
+                            } else {
+                                hikeService.updateHikeStage(hikeId, HikeStage.ENTERING_OR_LEAVING_LAYER)
+                                stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+                            }
                         }
                     )
                 } else {
-                    ConfirmationScreen(hikeId, hikeService, loggedUser)
+                    ConfirmationScreen(hikeId, hikeService, loggedUser, leavingLayer)
                 }
             HikeStage.ENTERING_OR_LEAVING_LAYER -> TransitionLayerScreenWithAnimation(
                 isVisible = true,
@@ -166,25 +200,31 @@ fun HikeScreensManager(
                 friends = invitedFriends,
                 loggedUser = loggedUser,
                 isCreator = isCreator,
+                currentLayerIndex = currentLayerIndex,
+                totalLayers = hike.layers.size,
                 onLeaveLayer = {
-                    currentLayerIndex--
-                    hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
-                    hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
-                    stage = HikeStage.WAITING_FOR_OTHERS
-                    stage = if (currentLayerIndex >= 0) HikeStage.ENTERING_OR_LEAVING_LAYER else HikeStage.HIKE_COMPLETE
+                    leavingLayer = true
+                    if (currentLayerIndex >= 0) {
+                        currentLayerIndex--
+                        hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
+                        hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
+                        stage = HikeStage.WAITING_FOR_OTHERS
+                        //stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+                    } else {
+//                        currentLayerIndex = -1
+//                        hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
+//                        hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
+//                        stage = HikeStage.HIKE_COMPLETE
+
+                    }
+
                 },
                 onClickNextLayer = {
+                    leavingLayer = false
                     currentLayerIndex++
                     hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
                     hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
                     stage = HikeStage.WAITING_FOR_OTHERS
-                    if (loggedUser.id == hike.createdBy && allParticipantsReady) {
-                        if (currentLayerIndex < hike.layers.size) {
-                            stage = HikeStage.WAITING_FOR_OTHERS
-                        } else {
-                            stage = HikeStage.HIKE_COMPLETE
-                        }
-                    }
                 }
             )
             HikeStage.HIKE_COMPLETE -> HikeCompletedScreen(
@@ -204,7 +244,10 @@ fun HikeScreensManager(
 
 
 
-suspend fun startStageCountdown(initialTime: Int, onTick: (Int) -> Unit) {
+suspend fun startStageCountdown(
+    initialTime: Int,
+    onTick: (Int) -> Unit
+) {
     var timeLeft = initialTime
     while (timeLeft > 0) {
         delay(1000L)
