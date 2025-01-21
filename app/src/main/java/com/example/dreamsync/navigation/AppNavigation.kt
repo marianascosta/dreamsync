@@ -30,6 +30,7 @@ import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.ConfirmationScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.HikeScreensManager
+import com.example.dreamsync.screens.internal.hikes.insideHike.HikeStage
 import com.example.dreamsync.screens.internal.hikes.insideHike.WaitingForOthersScreen
 import com.example.dreamsync.screens.internal.profile.ProfileScreen
 
@@ -171,7 +172,9 @@ fun AppNavigation() {
                 onClickStartHike = {
                     toggleBottomBarVisibility() // Hide bottom bar
                     hikeService.updateHikeStatus(hikeId, HikeStatus.WAITING)
-                    navController.navigate("waiting_for_others/${hikeId}") },
+                    hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
+                    //navController.navigate("waiting_for_others/${hikeId}") }
+                    navController.navigate("hike_info/${hikeId}/start") },
                 onNavigateToConfirmation = {
                     navController.navigate("confirmation/${hikeId}")
                 }

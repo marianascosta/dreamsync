@@ -1,5 +1,6 @@
 package com.example.dreamsync.screens.internal.hikes.insideHike
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,6 +42,10 @@ fun ConfirmationScreen(
 
     LaunchedEffect(Unit) {
         hikeService.observeParticipantStatus(hikeId) { statuses ->
+//            Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
+//            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
+            totalParticipants = statuses.size
+            Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
             readyCount = statuses.count { it.participation == ParticipantStatus.READY }
             totalParticipants = statuses.size
         }

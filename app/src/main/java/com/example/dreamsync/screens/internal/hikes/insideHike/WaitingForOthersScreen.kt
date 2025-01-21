@@ -1,5 +1,6 @@
 package com.example.dreamsync.screens.internal.hikes.insideHike
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,16 +50,21 @@ fun WaitingForOthersScreen(
     onStartHike: () -> Unit
 ) {
     var allReady by remember { mutableStateOf(false) }
-    var participantStatuses by remember { mutableStateOf<List<ParticipantStatusEntry>>(emptyList()) }
+    var participantStatuses by remember { mutableStateOf(emptyList<ParticipantStatusEntry>()) }
     var readyCount by remember { mutableStateOf(0) }
     var totalParticipants by remember { mutableStateOf(0) }
 
     LaunchedEffect(Unit) {
         hikeService.observeParticipantStatus(hikeId) { statuses ->
-            participantStatuses = statuses
+//            Log.d("ParticipantStatus", "In waiting Statuses updated: $statuses")
+//            participantStatuses = statuses//.toList()
             readyCount = statuses.count { it.participation == ParticipantStatus.READY }
             totalParticipants = statuses.size
-            allReady = readyCount == totalParticipants
+//            allReady = readyCount == totalParticipants
+            participantStatuses = statuses
+            allReady = statuses.all { it.participation == ParticipantStatus.READY }
+            Log.d("ParticipantStatus", "Total: ${statuses.size}, Ready: ${statuses.count { it.participation == ParticipantStatus.READY }}")
+
         }
     }
 

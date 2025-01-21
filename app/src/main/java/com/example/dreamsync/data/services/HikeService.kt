@@ -5,6 +5,7 @@ import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
 import com.example.dreamsync.data.models.ParticipantStatusEntry
 import com.example.dreamsync.data.models.ParticipantStatus
+import com.example.dreamsync.screens.internal.hikes.insideHike.HikeStage
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -144,62 +145,79 @@ open class HikeService {
                 Log.e("HikeService", "Failed to update participant status: $hikeId, $userId", task.exception)
             }
         }
-    }
-
-    fun getParticipants(hikeId: String, onResult: (List<String>) -> Unit) {
-        val database = FirebaseDatabase.getInstance().reference
-        val hikeRef = database.child("hikes").child(hikeId)
-
-        hikeRef.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.exists()) {
-                    onResult(emptyList())
-                    return
+        hikesRef.child(hikeId).child("participantStatus").get().addOnSuccessListener { dataSnapshot ->
+            var found = false
+            for (participantSnapshot in dataSnapshot.children) {
+                val participantId = participantSnapshot.child("id").getValue(String::class.java)
+                if (participantId == userId) {
+                    val participantRef = participantSnapshot.ref
+                    participantRef.child("participation").setValue(newStatus).addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("HikeService", "Participant status updated successfully: $hikeId, $userId")
+                        } else {
+                            Log.e("HikeService", "Failed to update participant status: $hikeId, $userId", task.exception)
+                        }
+                    }
+                    found = true
+                    break
                 }
-
-                val participants = mutableListOf<String>()
-
-                // Add the creator
-                val createdBy = snapshot.child("createdBy").getValue(String::class.java)
-                createdBy?.let { participants.add(it) }
-
-                // Add invited friends
-                val invitedFriendsSnapshot = snapshot.child("invitedFriends")
-                for (friendSnapshot in invitedFriendsSnapshot.children) {
-                    val friendId = friendSnapshot.getValue(String::class.java)
-                    friendId?.let { participants.add(it) }
-                }
-
-                onResult(participants)
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("getParticipants", "Error fetching participants: ${error.message}")
-                onResult(emptyList())
+            if (!found) {
+                Log.e("HikeService", "Participant not found: $hikeId, $userId")
             }
-        })
+        }.addOnFailureListener {
+            Log.e("HikeService", "Failed to get participant status: $hikeId, $userId", it)
+        }
     }
 
     fun observeParticipantStatus(hikeId: String, onStatusChanged: (List<ParticipantStatusEntry>) -> Unit) {
-        val hikeRef = hikesRef.child(hikeId).child("participantStatus")
+        val database = FirebaseDatabase.getInstance().reference
+        database.child("hikes").child(hikeId).child("invitedFriends")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    // Ensure snapshot exists
+                    if (snapshot.exists()) {
+                        // Extract all user IDs from the array-like structure
+                        val participantIds = snapshot.children.mapNotNull { child ->
+                            if (child.key?.toIntOrNull() != null) {
+                                child.getValue(String::class.java)
+                            } else null
+                        }
 
-        hikeRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val statusList = mutableListOf<ParticipantStatusEntry>()
-                for (statusSnapshot in snapshot.children) {
-                    val status = statusSnapshot.getValue(ParticipantStatusEntry::class.java) // Ensure correct type here
-                    if (status != null) {
-                        statusList.add(status)
+                        // Extract statuses for participants (if available)
+                        val statuses = participantIds.map { userId ->
+                            val status = snapshot.child(userId).child("status").getValue(String::class.java)
+                            ParticipantStatusEntry(
+                                id = userId,
+                                participation = if (status != null) ParticipantStatus.valueOf(status) else ParticipantStatus.NOT_READY
+                            )
+                        }
+
+                        // Pass the list to the callback
+                        onStatusChanged(statuses)
+                    } else {
+                        // No participants found
+                        onStatusChanged(emptyList())
                     }
                 }
-                // Pass the updated list to the callback
-                onStatusChanged(statusList)
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("HikeService", "Failed to observe participant status: ${error.message}")
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "Failed to read participant statuses", error.toException())
+                }
+            })
+    }
+
+    fun updateHikeStage(hikeId: String, newStage: HikeStage) {
+        val hikeRef = hikesRef.child(hikeId)
+
+        // Update the 'stage' field in the 'hikes' node
+        hikeRef.updateChildren(mapOf("stage" to newStage.name))
+            .addOnSuccessListener {
+                Log.d("HikeDebug", "Hike stage updated to $newStage")
             }
-        })
+            .addOnFailureListener { e ->
+                Log.e("HikeDebug", "Failed to update hike stage: ", e)
+            }
     }
 
 

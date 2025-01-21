@@ -1,5 +1,6 @@
 package com.example.dreamsync.data.models
 
+import com.example.dreamsync.screens.internal.hikes.insideHike.HikeStage
 import kotlinx.serialization.Serializable
 
 enum class HikeStatus {
@@ -19,11 +20,12 @@ data class Hike(
     val createdBy: String = "",
     val invitedFriends: List<String> = emptyList(),
     val participantStatus: List<ParticipantStatusEntry> = emptyList(),
+    val stage: HikeStage = HikeStage.WAITING_FOR_OTHERS,
     val status : HikeStatus = HikeStatus.NOT_STARTED
 )
 
 @Serializable
 data class ParticipantStatusEntry(
-    val id: String,                        //participant's id
-    val participation: ParticipantStatus   //model in Profile.kt
+    val id: String = "",                        //participant's id
+    val participation: ParticipantStatus = ParticipantStatus.NOT_READY     //model in Profile.kt
 )

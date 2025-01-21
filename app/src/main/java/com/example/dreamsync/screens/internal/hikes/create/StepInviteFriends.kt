@@ -22,6 +22,7 @@ import com.example.dreamsync.data.models.ParticipantStatus
 import com.example.dreamsync.data.models.ParticipantStatusEntry
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.ProfileService
+import com.example.dreamsync.screens.internal.hikes.insideHike.HikeStage
 
 @Composable
 fun StepInviteFriends(
@@ -82,9 +83,9 @@ fun StepInviteFriends(
                 val participantStatus = selectedFriends.map { friendId ->
                     ParticipantStatusEntry(id = friendId, participation = ParticipantStatus.NOT_READY)
                 }
-
+                val stage = HikeStage.NOT_STARTED
                 onClickFinish(
-                hike.copy(invitedFriends = selectedFriends, participantStatus = participantStatus)
+                hike.copy(invitedFriends = selectedFriends, participantStatus = participantStatus, stage = stage)
             ) },
             modifier = Modifier.align(Alignment.End).padding(bottom = 16.dp)
         ) {

@@ -17,6 +17,10 @@ import com.example.dreamsync.data.models.ParticipantStatus
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.delay
 
 const val CIRCLE_SIZE = 300
@@ -24,6 +28,7 @@ const val WAITING_FOR_OTHERS_TIME = 5
 const val ENTERING_LAYER_TIME = 3
 
 enum class HikeStage {
+    NOT_STARTED,
     WAITING_FOR_OTHERS,
     ENTERING_OR_LEAVING_LAYER,
     IN_LAYER,
@@ -174,11 +179,13 @@ fun HikeScreensManager(
     var currentLayerIndex by remember { mutableIntStateOf(0) }
     var readyCount by remember { mutableStateOf(0) }
     var allParticipantsReady by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
         hikeService.getHikeById(hikeId) { fetchedHike ->
             if (fetchedHike != null) {
                 hike = fetchedHike
+                isLoading = false
                 fetchedHike.invitedFriends.forEach { friendId ->
                     profileService.getProfileById(friendId) { friend ->
                         if (friend != null) {
@@ -195,18 +202,52 @@ fun HikeScreensManager(
         allParticipantsReady = readyCount == hike.participantStatus.size
     }
 
+    LaunchedEffect(hikeId) {
+        val hikeStageRef = FirebaseDatabase.getInstance().getReference("hikes").child(hikeId).child("stage")
+
+        hikeStageRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // Check if the stage field exists and update it
+                val updatedStage = snapshot.getValue(String::class.java)
+                if (updatedStage != null) {
+                    // Sync the stage from the Firebase data
+                    stage = HikeStage.valueOf(updatedStage)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HikeDebug", "Failed to listen for stage updates: ", error.toException())
+            }
+        })
+    }
+
+
+    LaunchedEffect(stage) {
+        when (stage) {
+            HikeStage.ENTERING_OR_LEAVING_LAYER -> {
+                startStageCountdown(ENTERING_LAYER_TIME) { timeLeft ->
+                    if (timeLeft == 0) {
+                        stage = getNextStage(stage)
+                    }
+                }
+            }
+            else -> {}
+        }
+    }
+
     // UI layout
     Box(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         when (stage) {
             HikeStage.WAITING_FOR_OTHERS -> WaitingForOthersScreen(
                 hikeId, hikeService, profileService, navController, loggedUser,
                 onStartHike = {
-                    if (allParticipantsReady) {
-                        stage = HikeStage.ENTERING_OR_LEAVING_LAYER
-                    }
+                    hikeService.updateHikeStage(hikeId, HikeStage.ENTERING_OR_LEAVING_LAYER)
+                    stage = HikeStage.ENTERING_OR_LEAVING_LAYER
                 }
             )
             HikeStage.ENTERING_OR_LEAVING_LAYER -> TransitionLayerScreenWithAnimation(
@@ -221,9 +262,13 @@ fun HikeScreensManager(
                     stage = if (currentLayerIndex >= 0) HikeStage.ENTERING_OR_LEAVING_LAYER else HikeStage.HIKE_COMPLETE
                 },
                 onClickNextLayer = {
-                    if (loggedUser.id == hike.createdBy) {
-                        stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+                    if (loggedUser.id == hike.createdBy && allParticipantsReady) {
                         currentLayerIndex++
+                        if (currentLayerIndex < hike.layers.size) {
+                            stage = HikeStage.WAITING_FOR_OTHERS
+                        } else {
+                            stage = HikeStage.HIKE_COMPLETE
+                        }
                     }
                 }
             )
@@ -236,6 +281,8 @@ fun HikeScreensManager(
                     ) { onBackToHome() }
                 }
             )
+
+            HikeStage.NOT_STARTED -> {}
         }
     }
 }
