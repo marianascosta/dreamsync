@@ -214,7 +214,7 @@ fun AppNavigation() {
             ConfirmationScreen(
                 hikeId = hikeId!!,
                 hikeService = hikeService,
-                profileService = profileService,
+                //profileService = profileService,
                 navController = navController,
                 loggedUser = loggedInUser.value
             )

@@ -3,8 +3,8 @@ package com.example.dreamsync.data.services
 import android.util.Log
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
-import com.example.dreamsync.data.models.Profile
-import com.example.dreamsync.data.models.participantStatus
+import com.example.dreamsync.data.models.ParticipantStatusEntry
+import com.example.dreamsync.data.models.ParticipantStatus
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -46,28 +46,6 @@ open class HikeService {
         )
     }
 
-//    fun getHikesByCreatedBy(userId: String, onHikesFetched: (List<Hike>) -> Unit) {
-//        hikesRef.orderByChild("createdBy").equalTo(userId).addListenerForSingleValueEvent(
-//            object : ValueEventListener {
-//                override fun onDataChange(snapshot: DataSnapshot) {
-//                    val hikes = mutableListOf<Hike>()
-//                    for (hikeSnapshot in snapshot.children) {
-//                        val hike = hikeSnapshot.getValue(Hike::class.java)
-//                        if (hike != null) {
-//                            hikes.add(hike)
-//                        }
-//                    }
-//                    Log.d("HikeService", "Fetched ${hikes.size} hikes by createdBy: $userId")
-//                    onHikesFetched(hikes)
-//                }
-//
-//                override fun onCancelled(error: DatabaseError) {
-//                    Log.e("HikeService", "Failed to fetch hikes by createdBy: $userId", error.toException())
-//                    onHikesFetched(emptyList())
-//                }
-//            }
-//        )
-//    }
     fun getHikesByUser(userId: String, onHikesFetched: (List<Hike>) -> Unit) {
         hikesRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -89,6 +67,50 @@ open class HikeService {
             }
         })
     }
+//    fun getHikesByUser(userId: String, onHikesFetched: (List<Hike>) -> Unit) {
+//        val hikes = mutableListOf<Hike>()
+//        val hikesRef = FirebaseDatabase.getInstance().getReference("hikes")
+//
+//        // Query for hikes created by the user
+//        val createdByQuery = hikesRef.orderByChild("createdBy").equalTo(userId)
+//
+//        // Listen for createdByQuery
+//        createdByQuery.addListenerForSingleValueEvent(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                val createdByHikes = snapshot.children.mapNotNull { it.getValue(Hike::class.java) }
+//                hikes.addAll(createdByHikes)
+//
+//                // Now check for invitedFriends
+//                hikesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+//                    override fun onDataChange(allHikesSnapshot: DataSnapshot) {
+//                        for (hikeSnapshot in allHikesSnapshot.children) {
+//                            val invitedFriends = hikeSnapshot.child("invitedFriends").children.mapNotNull { it.value as? String }
+//                            if (invitedFriends.contains(userId)) {
+//                                val hike = hikeSnapshot.getValue(Hike::class.java)
+//                                if (hike != null) {
+//                                    hikes.add(hike)
+//                                }
+//                            }
+//                        }
+//
+//                        // Return combined results
+//                        onHikesFetched(hikes)
+//                    }
+//
+//                    override fun onCancelled(error: DatabaseError) {
+//                        Log.e("HikeService", "Failed to fetch invited hikes", error.toException())
+//                        onHikesFetched(emptyList())
+//                    }
+//                })
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                Log.e("HikeService", "Failed to fetch createdBy hikes", error.toException())
+//                onHikesFetched(emptyList())
+//            }
+//        })
+//    }
+
 
 
 
@@ -114,7 +136,7 @@ open class HikeService {
         }
     }
 
-    fun updateParticipantStatus(hikeId: String, userId: String, newStatus: participantStatus) {
+    fun updateParticipantStatus(hikeId: String, userId: String, newStatus: ParticipantStatus) {
         hikesRef.child(hikeId).child("invitedFriends").child(userId).child("status").setValue(newStatus).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d("HikeService", "Participant status updated successfully: $hikeId, $userId")
@@ -154,6 +176,28 @@ open class HikeService {
             override fun onCancelled(error: DatabaseError) {
                 Log.e("getParticipants", "Error fetching participants: ${error.message}")
                 onResult(emptyList())
+            }
+        })
+    }
+
+    fun observeParticipantStatus(hikeId: String, onStatusChanged: (List<ParticipantStatusEntry>) -> Unit) {
+        val hikeRef = hikesRef.child(hikeId).child("participantStatus")
+
+        hikeRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val statusList = mutableListOf<ParticipantStatusEntry>()
+                for (statusSnapshot in snapshot.children) {
+                    val status = statusSnapshot.getValue(ParticipantStatusEntry::class.java) // Ensure correct type here
+                    if (status != null) {
+                        statusList.add(status)
+                    }
+                }
+                // Pass the updated list to the callback
+                onStatusChanged(statusList)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HikeService", "Failed to observe participant status: ${error.message}")
             }
         })
     }

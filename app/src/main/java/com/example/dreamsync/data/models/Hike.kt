@@ -25,5 +25,5 @@ data class Hike(
 @Serializable
 data class ParticipantStatusEntry(
     val id: String,                        //participant's id
-    val participation: participantStatus   //model in Profile.kt
+    val participation: ParticipantStatus   //model in Profile.kt
 )

@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
+import com.example.dreamsync.data.models.ParticipantStatus
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
@@ -29,39 +30,159 @@ enum class HikeStage {
     HIKE_COMPLETE
 }
 
+//@Composable
+//fun HikeScreensManager(
+//    hikeId : String,
+//    hikeService: HikeService = HikeService(),
+//    navController: NavController,
+//    loggedUser: Profile,
+//    profileService: ProfileService = ProfileService(),
+//    onBackToHome: () -> Unit = {},
+//    onStartHike: () -> Unit = {}
+//) {
+//    var stage by remember { mutableStateOf(HikeStage.WAITING_FOR_OTHERS) }
+//    var progress by remember { mutableFloatStateOf(0f) }
+//    var showEnteringLayerScreen by remember { mutableStateOf(false) }
+//
+//    var waitingForOthersTimer by remember { mutableIntStateOf(WAITING_FOR_OTHERS_TIME) }
+//    var enteringLayerTimer by remember { mutableIntStateOf(ENTERING_LAYER_TIME) }
+//
+//    var hike by remember { mutableStateOf(Hike()) }
+//    var invitedFriends by remember { mutableStateOf<List<Profile>>(emptyList()) }
+//    var currentLayerIndex by remember { mutableIntStateOf(0) }
+//
+//    var readyCount by remember { mutableStateOf(0) }
+//    var allParticipantsReady by remember { mutableStateOf(false) }
+//
+//    LaunchedEffect(Unit) {
+//        hikeService.getHikeById(hikeId) { fetchedHike ->
+//            if (fetchedHike != null) {
+//                hike = fetchedHike
+//                Log.d("InsideHikeScreensManager", "Fetched hike: $fetchedHike")
+//
+//                // fetch the friends invited to the hike
+//                for (friendId in fetchedHike.invitedFriends) {
+//                    profileService.getProfileById(friendId) { friend ->
+//                        if (friend != null) {
+//                            invitedFriends += friend
+//                            Log.d("InsideHikeScreensManager", "Fetched friend: $friend")
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
+//
+//    LaunchedEffect(hike.participantStatus) {
+//        readyCount = hike.participantStatus.count { it.participation == ParticipantStatus.READY }
+//        allParticipantsReady = readyCount == hike.participantStatus.size
+//    }
+//
+//    LaunchedEffect(stage) {
+//        when (stage) {
+//            HikeStage.WAITING_FOR_OTHERS -> {
+//                startStageCountdown(WAITING_FOR_OTHERS_TIME) { timeLeft ->
+//                    waitingForOthersTimer = timeLeft
+//                    progress = 1f - timeLeft / WAITING_FOR_OTHERS_TIME.toFloat()
+//                    if (timeLeft == 0) {
+//                        stage = getNextStage(stage)
+//                    }
+//                }
+//            }
+//            HikeStage.ENTERING_OR_LEAVING_LAYER -> {
+//                startStageCountdown(ENTERING_LAYER_TIME) { timeLeft ->
+//                    enteringLayerTimer = timeLeft
+//                    if (timeLeft == 0) {
+//                        showEnteringLayerScreen = false
+//                        stage = getNextStage(stage)
+//                    }
+//                }
+//            }
+//            else -> {} // No transition countdown for HIKE_COMPLETE and IN_LAYER stages
+//        }
+//    }
+//
+//    LaunchedEffect(invitedFriends) {
+//        Log.d("InsideHikeScreensManager", "Invited friends: $invitedFriends")
+//    }
+//
+//    // UI layout
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(24.dp),
+//        contentAlignment = Alignment.Center
+//    ) {
+//        when (stage) {
+//            HikeStage.WAITING_FOR_OTHERS -> WaitingForOthersScreen(hikeId, hikeService, profileService, navController, loggedUser, onStartHike)
+//            HikeStage.ENTERING_OR_LEAVING_LAYER -> TransitionLayerScreenWithAnimation(
+//                isVisible = true,
+//                label = String.format("Entering %s...", hike.layers[currentLayerIndex].name),
+//            )
+//            HikeStage.IN_LAYER -> InLayerScreen(
+//                layer = hike.layers[currentLayerIndex],
+//                friends = invitedFriends,
+//                onLeaveLayer = {
+//                    currentLayerIndex--
+//                    stage = if (currentLayerIndex >= 0) {
+//                        HikeStage.ENTERING_OR_LEAVING_LAYER
+//                    } else {
+//                        HikeStage.HIKE_COMPLETE
+//                    }
+//
+//                },
+//                onClickNextLayer = {
+//                    currentLayerIndex++
+//                    if (currentLayerIndex < hike.layers.size) {
+//                        showEnteringLayerScreen = true
+//                        stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+//                    } else {
+//                        stage = HikeStage.HIKE_COMPLETE
+//                    }
+//                }
+//            )
+//            HikeStage.HIKE_COMPLETE -> {
+//                HikeCompletedScreen(
+//                    layers = hike.layers.map { it.name to "00:30:00" },
+//                    friends = invitedFriends,
+//                    onBackToHome = {
+//                        hikeService.updateHike(
+//                            hike = hike.copy(status = HikeStatus.COMPLETED),
+//                            onUpdateComplete = {
+//                                onBackToHome()
+//                            }
+//                        )
+//                    }
+//                )
+//            }
+//        }
+//    }
+//}
 @Composable
 fun HikeScreensManager(
-    hikeId : String,
-    hikeService: HikeService = HikeService(),
+    hikeId: String,
+    hikeService: HikeService,
     navController: NavController,
     loggedUser: Profile,
-    profileService: ProfileService = ProfileService(),
+    profileService: ProfileService,
     onBackToHome: () -> Unit = {},
     onStartHike: () -> Unit = {}
 ) {
     var stage by remember { mutableStateOf(HikeStage.WAITING_FOR_OTHERS) }
-    var progress by remember { mutableFloatStateOf(0f) }
-    var showEnteringLayerScreen by remember { mutableStateOf(false) }
-
-    var waitingForOthersTimer by remember { mutableIntStateOf(WAITING_FOR_OTHERS_TIME) }
-    var enteringLayerTimer by remember { mutableIntStateOf(ENTERING_LAYER_TIME) }
-
     var hike by remember { mutableStateOf(Hike()) }
     var invitedFriends by remember { mutableStateOf<List<Profile>>(emptyList()) }
     var currentLayerIndex by remember { mutableIntStateOf(0) }
+    var readyCount by remember { mutableStateOf(0) }
+    var allParticipantsReady by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         hikeService.getHikeById(hikeId) { fetchedHike ->
             if (fetchedHike != null) {
                 hike = fetchedHike
-                Log.d("InsideHikeScreensManager", "Fetched hike: $fetchedHike")
-
-                // fetch the friends invited to the hike
-                for (friendId in fetchedHike.invitedFriends) {
+                fetchedHike.invitedFriends.forEach { friendId ->
                     profileService.getProfileById(friendId) { friend ->
                         if (friend != null) {
                             invitedFriends += friend
-                            Log.d("InsideHikeScreensManager", "Fetched friend: $friend")
                         }
                     }
                 }
@@ -69,86 +190,56 @@ fun HikeScreensManager(
         }
     }
 
-    LaunchedEffect(stage) {
-        when (stage) {
-            HikeStage.WAITING_FOR_OTHERS -> {
-                startStageCountdown(WAITING_FOR_OTHERS_TIME) { timeLeft ->
-                    waitingForOthersTimer = timeLeft
-                    progress = 1f - timeLeft / WAITING_FOR_OTHERS_TIME.toFloat()
-                    if (timeLeft == 0) {
-                        stage = getNextStage(stage)
-                    }
-                }
-            }
-            HikeStage.ENTERING_OR_LEAVING_LAYER -> {
-                startStageCountdown(ENTERING_LAYER_TIME) { timeLeft ->
-                    enteringLayerTimer = timeLeft
-                    if (timeLeft == 0) {
-                        showEnteringLayerScreen = false
-                        stage = getNextStage(stage)
-                    }
-                }
-            }
-            else -> {} // No transition countdown for HIKE_COMPLETE and IN_LAYER stages
-        }
-    }
-
-    LaunchedEffect(invitedFriends) {
-        Log.d("InsideHikeScreensManager", "Invited friends: $invitedFriends")
+    LaunchedEffect(hike.participantStatus) {
+        readyCount = hike.participantStatus.count { it.participation == ParticipantStatus.READY }
+        allParticipantsReady = readyCount == hike.participantStatus.size
     }
 
     // UI layout
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
         when (stage) {
-            HikeStage.WAITING_FOR_OTHERS -> WaitingForOthersScreen(hikeId, hikeService, profileService, navController, loggedUser, onStartHike)
+            HikeStage.WAITING_FOR_OTHERS -> WaitingForOthersScreen(
+                hikeId, hikeService, profileService, navController, loggedUser,
+                onStartHike = {
+                    if (allParticipantsReady) {
+                        stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+                    }
+                }
+            )
             HikeStage.ENTERING_OR_LEAVING_LAYER -> TransitionLayerScreenWithAnimation(
                 isVisible = true,
-                label = String.format("Entering %s...", hike.layers[currentLayerIndex].name),
+                label = "Entering ${hike.layers[currentLayerIndex].name}...",
             )
             HikeStage.IN_LAYER -> InLayerScreen(
                 layer = hike.layers[currentLayerIndex],
                 friends = invitedFriends,
                 onLeaveLayer = {
                     currentLayerIndex--
-                    stage = if (currentLayerIndex >= 0) {
-                        HikeStage.ENTERING_OR_LEAVING_LAYER
-                    } else {
-                        HikeStage.HIKE_COMPLETE
-                    }
-
+                    stage = if (currentLayerIndex >= 0) HikeStage.ENTERING_OR_LEAVING_LAYER else HikeStage.HIKE_COMPLETE
                 },
                 onClickNextLayer = {
-                    currentLayerIndex++
-                    if (currentLayerIndex < hike.layers.size) {
-                        showEnteringLayerScreen = true
+                    if (loggedUser.id == hike.createdBy) {
                         stage = HikeStage.ENTERING_OR_LEAVING_LAYER
-                    } else {
-                        stage = HikeStage.HIKE_COMPLETE
+                        currentLayerIndex++
                     }
                 }
             )
-            HikeStage.HIKE_COMPLETE -> {
-                HikeCompletedScreen(
-                    layers = hike.layers.map { it.name to "00:30:00" },
-                    friends = invitedFriends,
-                    onBackToHome = {
-                        hikeService.updateHike(
-                            hike = hike.copy(status = HikeStatus.COMPLETED),
-                            onUpdateComplete = {
-                                onBackToHome()
-                            }
-                        )
-                    }
-                )
-            }
+            HikeStage.HIKE_COMPLETE -> HikeCompletedScreen(
+                layers = hike.layers.map { it.name to "00:30:00" },
+                friends = invitedFriends,
+                onBackToHome = {
+                    hikeService.updateHike(
+                        hike.copy(status = HikeStatus.COMPLETED)
+                    ) { onBackToHome() }
+                }
+            )
         }
     }
 }
+
 
 
 suspend fun startStageCountdown(initialTime: Int, onTick: (Int) -> Unit) {

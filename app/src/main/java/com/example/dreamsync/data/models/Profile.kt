@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 const val DEFAULT_PROFILE_PICTURE = "https://static.vecteezy.com/system/resources/previews/004/511/281/large_2x/default-avatar-photo-placeholder-profile-picture-vector.jpg"
 
 @Serializable
-enum class participantStatus {
+enum class ParticipantStatus {
     READY,
     NOT_READY
 }
@@ -19,13 +19,13 @@ data class Profile(
     val preferredRole: Role = Role.Dreamer,
     val profilePicture: String = DEFAULT_PROFILE_PICTURE,
     var friendsIds: List<String> = emptyList(),
-    var hikeStatuses: List<HikeParticipation> = emptyList()
+    //var hikeStatuses: List<HikeParticipation> = emptyList()
 )
 
 @Serializable
 class HikeParticipation(
     val hikeId: String = "",
-    val status: participantStatus = participantStatus.NOT_READY
+    val status: ParticipantStatus = ParticipantStatus.NOT_READY
 )
 
 
