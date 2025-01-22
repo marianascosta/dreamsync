@@ -9,6 +9,7 @@ data class Dream(
     val description: String = "",
     val date: String = "",
     var dreamCategories: List<DreamCategory> = listOf(),
+    var likedByProfiles: List<String> = listOf(),
     @Transient val imageResId: Int = 0
 )
 

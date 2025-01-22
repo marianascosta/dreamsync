@@ -19,8 +19,7 @@ import kotlin.concurrent.thread
 @Composable
 fun RunDatabaseInit() {
     val databaseInit = DatabaseInit()
-    //uncomment to populate database
-    //databaseInit.initRealTimeDatabase()
+    databaseInit.initRealTimeDatabase()
 }
 
 class DatabaseInit {
@@ -45,10 +44,14 @@ class DatabaseInit {
 
         deleteAll()
 
-        saveProfilesSample(profilesSample)
-        saveDreamsSample(dreamsSample)
-        saveAdmin()
-        saveSophie()
+        saveProfilesSample(
+            profiles = profilesSample,
+            onProfilesSaved = { profiles ->
+                profilesList = profiles.toMutableList()
+                saveAdmin()
+                saveDreamsSample(dreamsSample)
+            }
+        )
     }
 
     fun deleteAll() {
@@ -81,40 +84,6 @@ class DatabaseInit {
         }
     }
 
-    fun saveSophie() {
-        profileService.saveProfile(profilesSample[4]) { sophieProfileId ->
-            if (sophieProfileId != null) {
-                saveSophieAccount(sophieProfileId)
-                saveSophieHikes(sophieProfileId)
-                addSophieFriends(sophieProfileId)
-            } else {
-                Log.e("DatabaseInit", "Failed to save shopie profile")
-            }
-        }
-    }
-
-    private fun saveSophieAccount(sophieProfileId: String) {
-        accountService.saveAccount(sophieAccount.copy(profileId = sophieProfileId)) { success ->
-            Log.d("DatabaseInit", "Sophie account saved: $success")
-        }
-    }
-
-    private fun saveSophieHikes(sophieProfileId: String) {
-        hikes.forEach { hike ->
-            hikesService.saveHike(hike.copy(createdBy = sophieProfileId)) { success ->
-                Log.d("DatabaseInit", "Hike saved: $hike")
-            }
-        }
-    }
-
-    private fun addSophieFriends(sophieProfileId: String) {
-        for (profile in profilesList) {
-            if (profile.id != sophieProfileId) {
-                profileService.addFriend(profilesSample[4], profile.id)
-            }
-        }
-    }
-
     private fun addAdminFriends(adminProfileId: String) {
         for (profile in profilesList) {
             if (profile.id != adminProfileId) {
@@ -125,16 +94,23 @@ class DatabaseInit {
 
     fun saveDreamsSample(dreams: List<Dream>) {
         dreams.forEach { dream ->
-            dreamService.saveDream(dream)
+            var randomLikedBy : List<String> = profilesList.shuffled().take(3).map { it.id }
+            dreamService.saveDream(
+                dream.copy(likedByProfiles = randomLikedBy)
+            )
         }
     }
 
-    fun saveProfilesSample(profiles: List<Profile>) {
+    fun saveProfilesSample(profiles: List<Profile>, onProfilesSaved: (List<Profile>) -> Unit) {
+        var counter = 0
         profiles.forEach { profile ->
             profileService.saveProfile(profile) { profileId ->
-                profile.id = profileId!!
-                profilesList.add(profile)
-                Log.d("DatabaseInit", "Profile saved: $profile")
+                if (profileId != null) {
+                    counter += 1
+                    if (counter == profiles.size) {
+                        onProfilesSaved(profiles)
+                    }
+                }
             }
         }
     }

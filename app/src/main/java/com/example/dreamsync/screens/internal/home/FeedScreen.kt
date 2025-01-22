@@ -1,6 +1,7 @@
 package com.example.dreamsync.screens.internal.home
 
 import android.util.Log
+import android.util.Log.d
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,8 +19,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.dreamsync.AppState.loggedInUser
 import com.example.dreamsync.data.models.Dream
+import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.DreamService
+import com.example.dreamsync.data.services.ProfileService
 
 @Composable
 fun DreamFeedScreen(dreamService: DreamService) {
@@ -66,9 +70,23 @@ fun DreamFeedScreen(dreamService: DreamService) {
 }
 
 @Composable
-fun DreamPost(dream: Dream) {
+fun DreamPost(
+    dream: Dream,
+    profileService: ProfileService = ProfileService()
+) {
     Log.d("DreamPost", "Image resource ID: ${dream.imageResId}")
     var isLiked by remember { mutableStateOf(false) }
+
+    var likedByProfiles : List<Profile> by remember { mutableStateOf(emptyList()) }
+
+    LaunchedEffect(Unit) {
+        for (likedId in dream.likedByProfiles) {
+            profileService.getProfileById(likedId) { profile ->
+                likedByProfiles += profile
+            }
+        }
+    }
+
 
     Card(
         modifier = Modifier
@@ -146,7 +164,8 @@ fun DreamPost(dream: Dream) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(
-                    onClick = { isLiked = !isLiked },
+                    onClick = {
+                        isLiked = !isLiked },
                     modifier = Modifier.size(24.dp)
                 ) {
                     Icon(
@@ -155,6 +174,11 @@ fun DreamPost(dream: Dream) {
                         tint = if (isLiked) Color.Red else Color.Gray
                     )
                 }
+                Text(
+                    text = "${dream.likedByProfiles.size} likes",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                )
             }
         }
     }

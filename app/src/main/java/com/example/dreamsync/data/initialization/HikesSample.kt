@@ -34,15 +34,6 @@ val hikes = listOf(
                 startDate = "2024-12-20T08:00",
             )
         )
-    ),
-    Hike(
-        id = "2",
-        name = "Mountain Adventure",
-        description = "An exhilarating mountain hike with breathtaking views.",
-        isComplete = false,
-        createdBy = "John Doe",
-        invitedFriends = emptyList(),
-        layers = emptyList()
     )
 )
 
