@@ -5,6 +5,7 @@ import kotlinx.serialization.Transient
 
 @Serializable
 data class Dream(
+    var id: String = "",
     val title: String = "",
     val description: String = "",
     val date: String = "",

@@ -82,12 +82,6 @@ fun HikeScreensManager(
                         }
                     }
                 }
-                val creator = fetchedHike.createdBy
-                profileService.getProfileById(creator) { creatorProfile ->
-                    if (loggedUser != creatorProfile) {
-                        invitedFriends += creatorProfile
-                    }
-                }
             }
         }
     }
@@ -223,7 +217,7 @@ fun HikeScreensManager(
             HikeStage.IN_LAYER -> InLayerScreen(
                 layer = hike.layers[currentLayerIndex],
                 friends = invitedFriends,
-                loggedUser = loggedUser,
+                loggedUser = loggedUserState,
                 isCreator = isCreator,
                 currentLayerIndex = currentLayerIndex,
                 totalLayers = hike.layers.size,
