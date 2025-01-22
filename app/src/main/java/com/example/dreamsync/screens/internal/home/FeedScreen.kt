@@ -128,7 +128,7 @@ fun DreamPost(
             }
 
             Image(
-                painter = painterResource(id = dream.imageResId),
+                painter = painterResource(id = R.drawable.love_stars), //TODO temporary fix the resource cant be the id because thats updated with the db and the actual ids depend on each build
                 contentDescription = "${dream.title} Image",
                 modifier = Modifier
                     .fillMaxWidth()
