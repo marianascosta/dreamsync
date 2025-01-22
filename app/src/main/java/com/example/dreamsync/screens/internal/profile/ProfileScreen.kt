@@ -1,5 +1,6 @@
 package com.example.dreamsync.screens.internal.profile
 
+import android.R.attr.contentDescription
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,6 +45,10 @@ import com.example.dreamsync.data.models.Role
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.screens.internal.hikes.HikesListScreen
+import android.content.Context
+import androidx.compose.ui.platform.LocalContext
+import com.example.dreamsync.data.models.AvatarImage
+
 
 private val DEFAULT_ROLE = Role.Dreamer
 
@@ -207,12 +212,12 @@ fun ProfileImageSection(
     profile: Profile,
     isEditing: Boolean,
     selectedImageUri: String?,
-    onImageSelected: () -> Unit
+    onImageSelected: () -> Unit,
 ) {
     Box(contentAlignment = Alignment.Center) {
         if (isEditing && selectedImageUri != null) {
             Image(
-                painter = painterResource(id = profile.imageResId),
+                painter =rememberAsyncImagePainter(model = "file:///android_asset/${profile.avatarImage.fileName}"),
                 contentDescription = "Selected Profile Picture",
                 modifier = Modifier
                     .size(120.dp)
@@ -221,7 +226,7 @@ fun ProfileImageSection(
             )
         } else {
             Image(
-                painter = painterResource(id = profile.imageResId),
+                painter =rememberAsyncImagePainter(model = "file:///android_asset/${profile.avatarImage.fileName}"),
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(120.dp)

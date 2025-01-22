@@ -80,7 +80,7 @@ fun FriendCard(friend: Profile, onClickProfile: (Profile) -> Unit = {}) {
             .clickable { onClickProfile(friend) },
     ) {
         Image(
-            painter = rememberAsyncImagePainter(friend.profilePicture),
+            painter =rememberAsyncImagePainter(model = "file:///android_asset/${friend.avatarImage.fileName}"),
             contentDescription = "${friend.userName}'s profile picture",
             modifier = Modifier
                 .size(48.dp)

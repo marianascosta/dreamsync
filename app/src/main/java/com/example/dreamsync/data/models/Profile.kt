@@ -20,7 +20,7 @@ data class Profile(
     val preferredRole: Role = Role.Dreamer,
     val profilePicture: String = "",
     var friendsIds: List<String> = emptyList(),
-    @Transient val imageResId: Int = 0
+    var avatarImage : AvatarImage = AvatarImage.AVATAR_MALE_1
     //var hikeStatuses: List<HikeParticipation> = emptyList()
 )
 
@@ -39,4 +39,14 @@ enum class Role {
     Forger,
     PointMan,
     Chemist
+}
+
+/**
+ * Enum class for profile pictures available in assets.
+ */
+enum class AvatarImage(val fileName: String) {
+    AVATAR_MALE_1("default_profile_male_1.jpg"),
+    AVATAR_MALE_2("default_profile_male_2.jpg"),
+    AVATAR_FEMALE_1("default_profile_female_1.jpg"),
+    AVATAR_FEMALE_2("default_profile_female_2.jpg")
 }

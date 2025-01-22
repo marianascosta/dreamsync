@@ -155,7 +155,7 @@ fun ProfileCard(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(id = profile.imageResId),
+            painter =rememberAsyncImagePainter(model = "file:///android_asset/${profile.avatarImage.fileName}"),
             contentDescription = "${profile.userName}'s profile picture",
             modifier = Modifier
                 .size(48.dp)
