@@ -15,7 +15,8 @@ open class DreamService {
     private val dreamsRef: DatabaseReference = database.getReference("dreams")
 
     fun saveDream(dream: Dream) {
-        dreamsRef.push().setValue(dream).addOnCompleteListener { task ->
+        val dreamWithId = dream.copy(id = dreamsRef.push().key ?: "")
+        dreamsRef.child(dreamWithId.id).setValue(dreamWithId).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d("DreamService", "Dream written successfully.")
             } else {
@@ -52,5 +53,15 @@ open class DreamService {
                 onDreamsFetched(emptyList())
             }
         })
+    }
+
+    fun updateDream(dreamId : String, dream: Dream) {
+        dreamsRef.child(dreamId).setValue(dream).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d("DreamService", "Dream updated successfully.")
+            } else {
+                Log.e("DreamService", "Failed to update dream.", task.exception)
+            }
+        }
     }
 }

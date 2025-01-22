@@ -22,7 +22,7 @@ fun HikesListScreen(
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(profileId) {
-        hikeService.getHikesByCreatedBy(
+        hikeService.getHikesByUser(
             userId = profileId,
             onHikesFetched = { fetchedHikes ->
                 hikes = fetchedHikes

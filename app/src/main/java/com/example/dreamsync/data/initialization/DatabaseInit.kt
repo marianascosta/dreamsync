@@ -12,15 +12,12 @@ import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.Transaction
-import kotlin.concurrent.thread
 
 @Preview
 @Composable
 fun RunDatabaseInit() {
     val databaseInit = DatabaseInit()
-    //uncomment to populate database
-    //databaseInit.initRealTimeDatabase()
+    databaseInit.initRealTimeDatabase()
 }
 
 class DatabaseInit {
@@ -45,9 +42,14 @@ class DatabaseInit {
 
         deleteAll()
 
-        saveProfilesSample(profilesSample)
-        saveDreamsSample(dreamsSample)
-        saveAdmin()
+        saveProfilesSample(
+            profiles = profilesSample,
+            onProfilesSaved = { profiles ->
+                profilesList = profiles.toMutableList()
+                saveAdmin()
+                saveDreamsSample(dreamsSample)
+            }
+        )
     }
 
     fun deleteAll() {
@@ -90,16 +92,23 @@ class DatabaseInit {
 
     fun saveDreamsSample(dreams: List<Dream>) {
         dreams.forEach { dream ->
-            dreamService.saveDream(dream)
+            var randomLikedBy : List<String> = profilesList.shuffled().take(3).map { it.id }
+            dreamService.saveDream(
+                dream.copy(likedByProfiles = randomLikedBy)
+            )
         }
     }
 
-    fun saveProfilesSample(profiles: List<Profile>) {
+    fun saveProfilesSample(profiles: List<Profile>, onProfilesSaved: (List<Profile>) -> Unit) {
+        var counter = 0
         profiles.forEach { profile ->
             profileService.saveProfile(profile) { profileId ->
-                profile.id = profileId!!
-                profilesList.add(profile)
-                Log.d("DatabaseInit", "Profile saved: $profile")
+                if (profileId != null) {
+                    counter += 1
+                    if (counter == profiles.size) {
+                        onProfilesSaved(profiles)
+                    }
+                }
             }
         }
     }

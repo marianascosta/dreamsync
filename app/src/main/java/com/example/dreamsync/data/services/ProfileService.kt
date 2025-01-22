@@ -27,16 +27,18 @@ open class ProfileService {
         }
     }
 
-    fun getProfileById(profileId: String, onProfileFetched: (Profile?) -> Unit) {
+    fun getProfileById(profileId: String, onProfileFetched: (Profile) -> Unit) {
         profilesRef.child(profileId).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val profile = snapshot.getValue(Profile::class.java)
-                onProfileFetched(profile)
+                if (profile != null) {
+                    onProfileFetched(profile)
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("ProfileService", "Failed to fetch profile: $profileId", error.toException())
-                onProfileFetched(null)
+                //onProfileFetched(null)
             }
         })
     }

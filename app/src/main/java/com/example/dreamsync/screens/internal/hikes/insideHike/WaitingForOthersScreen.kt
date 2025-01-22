@@ -1,10 +1,13 @@
 package com.example.dreamsync.screens.internal.hikes.insideHike
 
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerSize
@@ -13,6 +16,11 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,16 +32,78 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.example.dreamsync.data.models.ParticipantStatus
+import com.example.dreamsync.data.models.ParticipantStatusEntry
+import com.example.dreamsync.data.models.Profile
+import com.example.dreamsync.data.services.HikeService
+import com.example.dreamsync.data.services.ProfileService
 
 
 @Composable
-fun WaitingForOthersScreen(progress: Float, timerValue: Int) {
-    CircularTimerWithInnerContent(
-        progress = progress,
-        currentTime = timerValue,
-        label = "Waiting for others to join...",
-        information = "2/3 members have joined"
-    )
+fun WaitingForOthersScreen(
+    hikeId: String,
+    hikeService: HikeService,
+    profileService: ProfileService,
+    navController: NavController,
+    loggedUser: Profile,
+    leavingLayer: Boolean,
+    onStartHike: () -> Unit
+) {
+    var allReady by remember { mutableStateOf(false) }
+    var participantStatuses by remember { mutableStateOf(emptyList<ParticipantStatusEntry>()) }
+    var readyCount by remember { mutableStateOf(0) }
+    var totalParticipants by remember { mutableStateOf(0) }
+    var currentLayer by remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        hikeService.observeParticipantStatus(hikeId) { statuses ->
+//            Log.d("ParticipantStatus", "In waiting Statuses updated: $statuses")
+//            participantStatuses = statuses//.toList()
+            readyCount = statuses.count { it.participation == ParticipantStatus.READY } + 1
+            totalParticipants = statuses.size + 1
+//            allReady = readyCount == totalParticipants
+            participantStatuses = statuses
+            allReady = statuses.all { it.participation == ParticipantStatus.READY }
+            Log.d("ParticipantStatus", "Total: ${statuses.size}, Ready: ${statuses.count { it.participation == ParticipantStatus.READY }}")
+            hikeService.getCurrentLayerIndex(hikeId) { currentIndex ->
+                Log.d("HikeDebug", "Fetched layer index: $currentIndex")
+                currentLayer = currentIndex
+            }
+        }
+    }
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = "Waiting for participants to confirm...")
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(text = "$readyCount / $totalParticipants ready")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            //if (allReady) {
+                Button(onClick = { onStartHike() }, enabled = allReady) {
+                    if (currentLayer == 0 && !leavingLayer) {
+                        Text(text = "Start Hike")
+                    } else if (leavingLayer) {
+                        Text(text = "Leave Layer")
+                    } else if (!allReady) {
+                        Text(text = "Waiting for participants")
+                    } else {
+                        Text(text = "Enter Layer")
+                    }
+                }
+            //}
+            if (leavingLayer) {
+                Text("Waiting for Kick")
+            }
+        }
+    }
 }
 
 

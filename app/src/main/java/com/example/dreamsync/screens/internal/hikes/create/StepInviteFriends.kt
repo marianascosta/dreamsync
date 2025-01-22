@@ -17,8 +17,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.models.HikeParticipation
+import com.example.dreamsync.data.models.ParticipantStatus
+import com.example.dreamsync.data.models.ParticipantStatusEntry
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.ProfileService
+import com.example.dreamsync.screens.internal.hikes.insideHike.HikeStage
 
 @Composable
 fun StepInviteFriends(
@@ -75,8 +79,13 @@ fun StepInviteFriends(
 
         // Finish button
         Button(
-            onClick = { onClickFinish(
-                hike.copy(invitedFriends = selectedFriends)
+            onClick = {
+                val participantStatus = selectedFriends.map { friendId ->
+                    ParticipantStatusEntry(id = friendId, participation = ParticipantStatus.NOT_READY)
+                }
+                val stage = HikeStage.NOT_STARTED
+                onClickFinish(
+                hike.copy(invitedFriends = selectedFriends, participantStatus = participantStatus, stage = stage, currentLayerIndex = 0)
             ) },
             modifier = Modifier.align(Alignment.End).padding(bottom = 16.dp)
         ) {

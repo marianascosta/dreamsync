@@ -5,10 +5,12 @@ import kotlinx.serialization.Transient
 
 @Serializable
 data class Dream(
+    var id: String = "",
     val title: String = "",
     val description: String = "",
     val date: String = "",
     var dreamCategories: List<DreamCategory> = listOf(),
+    var likedByProfiles: List<String> = listOf(),
     @Transient val imageResId: Int = 0
 )
 

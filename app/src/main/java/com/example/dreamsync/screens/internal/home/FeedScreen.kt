@@ -1,6 +1,8 @@
 package com.example.dreamsync.screens.internal.home
 
 import android.util.Log
+import android.util.Log.d
+import com.example.dreamsync.R
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,8 +20,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.dreamsync.AppState.loggedInUser
 import com.example.dreamsync.data.models.Dream
+import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.DreamService
+import com.example.dreamsync.data.services.ProfileService
 
 @Composable
 fun DreamFeedScreen(dreamService: DreamService) {
@@ -59,16 +64,37 @@ fun DreamFeedScreen(dreamService: DreamService) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             dreams.value.forEach { dream ->
-                DreamPost(dream = dream)
+                DreamPost(
+                    dream = dream
+                )
             }
         }
     }
 }
 
+
 @Composable
-fun DreamPost(dream: Dream) {
-    Log.d("DreamPost", "Image resource ID: ${dream.imageResId}")
-    var isLiked by remember { mutableStateOf(false) }
+fun DreamPost(
+    dream: Dream,
+    dreamService: DreamService = DreamService()
+) {
+    var isLiked by remember { mutableStateOf(dream.likedByProfiles.contains(loggedInUser.value.id)) }
+    var amountLikes by remember { mutableIntStateOf(dream.likedByProfiles.size) }
+
+    fun onLikeButtonClicked() {
+        if (dream.likedByProfiles.contains(loggedInUser.value.id)) {
+            dream.likedByProfiles = dream.likedByProfiles.toMutableList().apply {
+                remove(loggedInUser.value.id)
+            }
+        } else {
+            dream.likedByProfiles = dream.likedByProfiles.toMutableList().apply {
+                add(loggedInUser.value.id)
+            }
+        }
+        amountLikes = dream.likedByProfiles.size
+        isLiked = dream.likedByProfiles.contains(loggedInUser.value.id)
+        dreamService.updateDream(dream.id, dream)
+    }
 
     Card(
         modifier = Modifier
@@ -102,7 +128,7 @@ fun DreamPost(dream: Dream) {
             }
 
             Image(
-                painter = painterResource(id = dream.imageResId),
+                painter = painterResource(id = R.drawable.love_stars), //TODO temporary fix the resource cant be the id because thats updated with the db and the actual ids depend on each build
                 contentDescription = "${dream.title} Image",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -146,7 +172,7 @@ fun DreamPost(dream: Dream) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(
-                    onClick = { isLiked = !isLiked },
+                    onClick = { onLikeButtonClicked() },
                     modifier = Modifier.size(24.dp)
                 ) {
                     Icon(
@@ -155,6 +181,11 @@ fun DreamPost(dream: Dream) {
                         tint = if (isLiked) Color.Red else Color.Gray
                     )
                 }
+                Text(
+                    text = "$amountLikes likes",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                )
             }
         }
     }
