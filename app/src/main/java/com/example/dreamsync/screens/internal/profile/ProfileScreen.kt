@@ -212,7 +212,7 @@ fun ProfileImageSection(
     Box(contentAlignment = Alignment.Center) {
         if (isEditing && selectedImageUri != null) {
             Image(
-                painter = rememberAsyncImagePainter(selectedImageUri),
+                painter = painterResource(id = profile.imageResId),
                 contentDescription = "Selected Profile Picture",
                 modifier = Modifier
                     .size(120.dp)
@@ -221,9 +221,7 @@ fun ProfileImageSection(
             )
         } else {
             Image(
-                painter = rememberAsyncImagePainter(
-                    model = selectedImageUri ?: profile.profilePicture
-                ),
+                painter = painterResource(id = profile.imageResId),
                 contentDescription = "Profile Picture",
                 modifier = Modifier
                     .size(120.dp)
