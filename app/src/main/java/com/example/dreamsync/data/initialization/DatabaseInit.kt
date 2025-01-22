@@ -12,8 +12,6 @@ import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.Transaction
-import kotlin.concurrent.thread
 
 @Preview
 @Composable
