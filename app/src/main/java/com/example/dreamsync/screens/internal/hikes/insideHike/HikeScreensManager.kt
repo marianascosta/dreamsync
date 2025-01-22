@@ -128,25 +128,7 @@ fun HikeScreensManager(
             }
         })
     }
-
-//    LaunchedEffect(kickDetected) {
-//        if (kickDetected) {
-//            if (currentLayerIndex > 0) {
-////                currentLayerIndex--
-////                hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
-////                hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
-////                stage = HikeStage.WAITING_FOR_OTHERS
-//                stage = HikeStage.ENTERING_OR_LEAVING_LAYER
-//            } else {
-////                currentLayerIndex = -1
-//                hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
-//                hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
-//                stage = HikeStage.HIKE_COMPLETE
-//            }
-//            kickDetected = false // Reset for future detections
-//        }
-//    }
-
+    
     // Handle stage transitions
     LaunchedEffect(stage) {
         when (stage) {
