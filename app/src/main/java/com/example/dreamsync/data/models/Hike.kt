@@ -28,5 +28,6 @@ data class Hike(
 @Serializable
 data class ParticipantStatusEntry(
     val id: String = "",                        //participant's id
-    val participation: ParticipantStatus = ParticipantStatus.NOT_READY     //model in Profile.kt
+    val participation: ParticipantStatus = ParticipantStatus.NOT_READY,     //model in Profile.kt
+    val kicked: Boolean = false
 )

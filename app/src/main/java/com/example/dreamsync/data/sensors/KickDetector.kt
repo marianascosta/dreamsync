@@ -84,7 +84,7 @@ suspend fun detectKick(context: Context, onResult: (Boolean) -> Unit) {
         return
     }
 
-    val threshold = 15f // Adjust kick detection threshold as needed
+    val threshold = 10f // Adjust kick detection threshold as needed
     val kickDetected = CompletableDeferred<Boolean>()
 
     val listener = object : SensorEventListener {
@@ -108,7 +108,7 @@ suspend fun detectKick(context: Context, onResult: (Boolean) -> Unit) {
 
     // Register the listener
     sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
-
+    Log.d("KickDetection", "Listener registered for accelerometer.")
     // Use a try-finally block to ensure cleanup
     try {
         // Wait for kick or timeout

@@ -13,3 +13,9 @@ val sophieAccount = Account(
     password = "password",
     profileId = "" // This will be set after saving the profile
 )
+
+val michaelAccount = Account(
+    email = "michaelgreen@example.com",
+    password = "password",
+    profileId = "" // This will be set after saving the profile
+)

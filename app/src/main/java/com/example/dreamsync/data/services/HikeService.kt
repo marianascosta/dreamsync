@@ -173,11 +173,13 @@ open class HikeService {
                         val statuses = snapshot.children.mapNotNull { child ->
                             val userId = child.child("id").getValue(String::class.java)
                             val status = child.child("participation").getValue(String::class.java)
+                            val kicked = child.child("kicked").getValue(Boolean::class.java)
 
-                            if (userId != null && status != null) {
+                            if (userId != null && status != null && kicked != null) {
                                 ParticipantStatusEntry(
                                     id = userId,
-                                    participation = ParticipantStatus.valueOf(status)
+                                    participation = ParticipantStatus.valueOf(status),
+                                    kicked = kicked
                                 )
                             } else null
                         }
@@ -194,12 +196,12 @@ open class HikeService {
     }
 
     fun updateCurrentLayerIndex(hikeId: String, layerIndex: Int) {
-        val hikeRef = FirebaseDatabase.getInstance().getReference("hikes").child(hikeId)
+        val hikeRef = hikesRef.child(hikeId)
         hikeRef.child("currentLayerIndex").setValue(layerIndex)
     }
 
     fun getCurrentLayerIndex(hikeId: String, onCurrentLayerIndexFetched: (Int) -> Unit) {
-        val hikeRef = FirebaseDatabase.getInstance().getReference("hikes").child(hikeId)
+        val hikeRef =hikesRef.child(hikeId)
         hikeRef.child("currentLayerIndex").get().addOnSuccessListener { snapshot ->
             val currentLayerIndex = snapshot.getValue(Int::class.java) ?: 0
             onCurrentLayerIndexFetched(currentLayerIndex) // Correctly pass the value to the callback
@@ -222,5 +224,29 @@ open class HikeService {
             }
     }
 
-
+    fun updateParticipantKickStatus(hikeId: String, userId: String, kicked: Boolean) {
+        hikesRef.child(hikeId).child("participantStatus").get().addOnSuccessListener { dataSnapshot ->
+            var found = false
+            for (participantSnapshot in dataSnapshot.children) {
+                val participantId = participantSnapshot.child("id").getValue(String::class.java)
+                if (participantId == userId) {
+                    val participantRef = participantSnapshot.ref
+                    participantRef.child("kicked").setValue(kicked).addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Log.d("HikeService", "Participant status updated successfully: $hikeId, $userId")
+                        } else {
+                            Log.e("HikeService", "Failed to update participant status: $hikeId, $userId", task.exception)
+                        }
+                    }
+                    found = true
+                    break
+                }
+            }
+            if (!found) {
+                Log.e("HikeService", "Participant not found: $hikeId, $userId")
+            }
+        }.addOnFailureListener {
+            Log.e("HikeService", "Failed to get participant status: $hikeId, $userId", it)
+        }
+    }
 }

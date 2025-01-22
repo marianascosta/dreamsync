@@ -37,8 +37,10 @@ const val ENTERING_LAYER_TIME = 3
 enum class HikeStage {
     NOT_STARTED,
     WAITING_FOR_OTHERS,
+    WAITING_FOR_KICK,
     ENTERING_OR_LEAVING_LAYER,
     IN_LAYER,
+    STUCK,
     HIKE_COMPLETE
 }
 
@@ -62,6 +64,8 @@ fun HikeScreensManager(
     var isCreator by remember { mutableStateOf(true) }
     var leavingLayer by remember { mutableStateOf(false) }  //if false, then they're entering a layer
     var kickDetected  by remember { mutableStateOf(false) }
+    var loggedUserState by remember { mutableStateOf(loggedUser) }
+    var stuckInLimbo by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     // Load hike data and create friends list
@@ -108,6 +112,12 @@ fun HikeScreensManager(
     LaunchedEffect(hike.participantStatus) {
         readyCount = hike.participantStatus.count { it.participation == ParticipantStatus.READY }
         allParticipantsReady = readyCount == hike.participantStatus.size
+
+        hikeService.getHikeById(hikeId) { updatedHike ->
+            if (updatedHike != null) {
+                hike = updatedHike
+            }
+        }
     }
     //Track Stage
     LaunchedEffect(hikeId) {
@@ -119,7 +129,9 @@ fun HikeScreensManager(
                 val updatedStage = snapshot.getValue(String::class.java)
                 if (updatedStage != null) {
                     // Sync the stage from the Firebase data
-                    stage = HikeStage.valueOf(updatedStage)
+                    if (stage != HikeStage.STUCK) {
+                        stage = HikeStage.valueOf(updatedStage)
+                    }
                 }
             }
 
@@ -147,8 +159,36 @@ fun HikeScreensManager(
             HikeStage.IN_LAYER -> {
                 hikeService.updateParticipantStatus(hikeId, loggedUser.id, ParticipantStatus.NOT_READY)
             }
+            HikeStage.WAITING_FOR_KICK -> {
+                if (leavingLayer) {
+                    Log.d("HikeDebug", "Waiting for kick to leave layer...")
+                }
+            }
             else -> {}
         }
+    }
+
+    LaunchedEffect(hikeId) {
+        val participantStatusRef = FirebaseDatabase.getInstance()
+            .getReference("hikes").child(hikeId).child("participantStatus")
+
+        participantStatusRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // Find the logged user's status
+                val loggedUserStatus = snapshot.children.find { it.child("id").getValue(String::class.java) == loggedUser.id }
+                val kicked = loggedUserStatus?.child("kicked")?.getValue(Boolean::class.java) ?: false
+
+                // Update stage based on the kicked status
+                if (stage == HikeStage.WAITING_FOR_KICK) {
+                    stage = if (kicked) HikeStage.ENTERING_OR_LEAVING_LAYER else HikeStage.STUCK
+                    stuckInLimbo = !kicked
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HikeDebug", "Failed to listen for participant status updates: ", error.toException())
+            }
+        })
     }
 
     // UI layout
@@ -162,36 +202,11 @@ fun HikeScreensManager(
             HikeStage.WAITING_FOR_OTHERS ->
                 if(isCreator) {
                     WaitingForOthersScreen(
-                        hikeId, hikeService, profileService, navController, loggedUser, leavingLayer,
+                        hikeId, hikeService, profileService, navController, loggedUserState, leavingLayer,
                         onStartHike = {
                             if (leavingLayer) {
-                                CoroutineScope(Dispatchers.Default).launch {
-                                    while (!kickDetected) {
-                                        try {
-                                            detectKick(context) { detected ->
-                                                if (detected) {
-                                                    kickDetected = true
-
-                                                    CoroutineScope(Dispatchers.Main).launch {
-                                                        if (currentLayerIndex == -1) {
-                                                            leavingLayer = false
-                                                            hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
-                                                            hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
-                                                            stage = HikeStage.HIKE_COMPLETE
-                                                        } else {
-                                                            leavingLayer = false
-                                                            hikeService.updateHikeStage(hikeId, HikeStage.ENTERING_OR_LEAVING_LAYER)
-                                                            stage = HikeStage.ENTERING_OR_LEAVING_LAYER
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        } catch (e: Exception) {
-                                            Log.e("HikeDebug", "Error in kick detection: ${e.message}")
-                                        }
-                                        delay(1000)
-                                    }
-                                }
+                                hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_KICK)
+                                stage = HikeStage.WAITING_FOR_KICK
                             } else if (currentLayerIndex == -1) {
                                 hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
                                 hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
@@ -203,8 +218,26 @@ fun HikeScreensManager(
                         }
                     )
                 } else {
-                    ConfirmationScreen(hikeId, hikeService, loggedUser, leavingLayer)
+                    ConfirmationScreen(hikeId, hikeService, loggedUserState, leavingLayer)
                 }
+            HikeStage.WAITING_FOR_KICK -> KickTimerScreen(
+                hikeId = hike.id,
+                participantId = loggedUserState.id,
+                hikeService = hikeService,
+                onTransitionToLayer = {
+                    // Transition this user to the next layer
+                    stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+                    stuckInLimbo = false
+                },
+                onTransitionToStuckScreen = {
+                    // Transition this user to the stuck screen
+                    stage = HikeStage.STUCK
+                    stuckInLimbo = true
+                }
+            )
+
+            HikeStage.STUCK -> StuckScreen()
+
             HikeStage.ENTERING_OR_LEAVING_LAYER -> TransitionLayerScreenWithAnimation(
                 isVisible = true,
                 label = "Entering ${hike.layers[currentLayerIndex].name}...",
@@ -218,6 +251,9 @@ fun HikeScreensManager(
                 totalLayers = hike.layers.size,
                 onLeaveLayer = {
                     leavingLayer = true
+                    hike.invitedFriends.forEach { friendId ->
+                        hikeService.updateParticipantKickStatus(hikeId, friendId, false)
+                    }
                     if (currentLayerIndex >= 0) {
                         kickDetected = false
                         currentLayerIndex--
@@ -239,6 +275,10 @@ fun HikeScreensManager(
                     kickDetected = false
                     currentLayerIndex++
                     hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
+                    //iterate over invitedFriends IDs and use updateParticipantKickStatus on them
+                    hike.invitedFriends.forEach { friendId ->
+                        hikeService.updateParticipantKickStatus(hikeId, friendId, false)
+                    }
                     hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
                     stage = HikeStage.WAITING_FOR_OTHERS
                 }
@@ -274,6 +314,7 @@ suspend fun startStageCountdown(
 
 fun getNextStage(currentStage: HikeStage): HikeStage {
     return when (currentStage) {
+        HikeStage.STUCK -> HikeStage.STUCK
         HikeStage.WAITING_FOR_OTHERS -> HikeStage.ENTERING_OR_LEAVING_LAYER
         HikeStage.ENTERING_OR_LEAVING_LAYER -> HikeStage.IN_LAYER
         HikeStage.IN_LAYER -> HikeStage.ENTERING_OR_LEAVING_LAYER
