@@ -1,31 +1,53 @@
 package com.example.dreamsync.screens.internal.explore
 
+import FriendCard
+import android.R.attr.text
+import android.service.dreams.DreamService
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.dreamsync.data.models.Dream
-import com.example.dreamsync.data.models.DreamCategory
-import com.example.dreamsync.data.services.DreamService
-import com.example.dreamsync.screens.internal.home.DreamPost
+import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import com.example.dreamsync.AppState.loggedInUser
+import com.example.dreamsync.R
+import com.example.dreamsync.data.models.Category
+import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.models.Profile
+import com.example.dreamsync.data.services.HikeService
+import com.example.dreamsync.data.services.ProfileService
 
 @Composable
-fun ExploreScreen(dreamService: DreamService) {
-    val allCategories = DreamCategory.entries
-    var selectedCategories by remember { mutableStateOf(setOf<DreamCategory>()) }
+fun ExploreScreen(
+    hikeService: HikeService,
+) {
+    val allCategories = Category.entries
+    var selectedCategories by remember { mutableStateOf(setOf<Category>()) }
     var searchText by remember { mutableStateOf("") }
-    var dreams by remember { mutableStateOf<List<Dream>>(emptyList()) }
+    var hikes by remember { mutableStateOf<List<Hike>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(Unit) {
-        dreamService.getDreamsList { fetchedDreams ->
-            dreams = fetchedDreams
+        hikeService.getAllHikes { fetchedHikes ->
+            hikes = fetchedHikes
             isLoading = false
         }
     }
@@ -69,13 +91,13 @@ fun ExploreScreen(dreamService: DreamService) {
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                val filteredDreams = dreams.filter { dream ->
-                    (selectedCategories.isEmpty() || selectedCategories.all { it in dream.dreamCategories }) &&
-                            (searchText.isEmpty() || dream.title.contains(searchText, ignoreCase = true))
+                val filteredDreams = hikes.filter { hike ->
+                    (selectedCategories.isEmpty() || selectedCategories.all { it in hike.categories }) &&
+                            (searchText.isEmpty() || hike.name.contains(searchText, ignoreCase = true))
                 }
 
-                filteredDreams.forEach { dream ->
-                    DreamPost(dream = dream)
+                filteredDreams.forEach { hike ->
+                    HikePost(hike = hike)
                 }
             }
         }
@@ -84,9 +106,9 @@ fun ExploreScreen(dreamService: DreamService) {
 
 @Composable
 fun CategoriesRow(
-    categories: List<DreamCategory>,
-    selectedCategories: Set<DreamCategory>,
-    onCategorySelected: (DreamCategory) -> Unit
+    categories: List<Category>,
+    selectedCategories: Set<Category>,
+    onCategorySelected: (Category) -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -106,3 +128,131 @@ fun CategoriesRow(
         }
     }
 }
+
+@Composable
+fun HikePost(
+    hike: Hike,
+    hikeService: HikeService = HikeService(),
+    profileService: ProfileService = ProfileService()
+) {
+    var isLiked by remember { mutableStateOf(hike.likedByProfiles.contains(loggedInUser.value.id)) }
+    var amountLikes by remember { mutableIntStateOf(hike.likedByProfiles.size) }
+    val user by remember { mutableStateOf(loggedInUser.value) }
+    var author by remember { mutableStateOf(Profile()) }
+
+    LaunchedEffect(hike.createdBy) {
+        profileService.getProfileById(hike.createdBy) { fetchedProfile ->
+            author = fetchedProfile
+        }
+    }
+
+    fun onLikeButtonClicked() {
+        if (hike.likedByProfiles.contains(loggedInUser.value.id)) {
+            hike.likedByProfiles = hike.likedByProfiles.toMutableList().apply {
+                remove(loggedInUser.value.id)
+            }
+        } else {
+            hike.likedByProfiles = hike.likedByProfiles.toMutableList().apply {
+                add(loggedInUser.value.id)
+            }
+        }
+        hikeService.updateHike(hike, onUpdateComplete = {
+            amountLikes = hike.likedByProfiles.size
+            isLiked = hike.likedByProfiles.contains(loggedInUser.value.id)
+
+        })
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            ) {
+                Image(
+                    painter =rememberAsyncImagePainter(model = "file:///android_asset/${author.avatarImage.fileName}"),
+                    contentDescription = "${author.userName}'s profile picture",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(author.userName, fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.align(Alignment.CenterVertically))
+            }
+
+            Image(
+                painter = painterResource(id = R.drawable.love_stars), //TODO temporary fix the resource cant be the id because thats updated with the db and the actual ids depend on each build
+                contentDescription = "${hike.name} Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+
+            Text(
+                text = hike.name,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
+
+            Text(
+                text = hike.description,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Time: 10:00 PM",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                )
+
+                Text(
+                    text = "Location: New York",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                )
+            }
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(
+                    onClick = { onLikeButtonClicked() },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Favorite,
+                        contentDescription = "Like",
+                        tint = if (isLiked) Color.Red else Color.Gray
+                    )
+                }
+                Text(
+                    text = "$amountLikes likes",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                )
+            }
+        }
+    }
+}
+

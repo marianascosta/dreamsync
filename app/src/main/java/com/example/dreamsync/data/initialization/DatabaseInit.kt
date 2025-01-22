@@ -1,13 +1,12 @@
 package com.example.dreamsync.data.initialization
 
+import android.service.dreams.DreamService
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dreamsync.AppState.profileService
-import com.example.dreamsync.data.models.Dream
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.AccountService
-import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.google.firebase.database.FirebaseDatabase
@@ -24,7 +23,6 @@ class DatabaseInit {
 
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val databaseReference: DatabaseReference = database.reference
-    val dreamService = DreamService()
     val profileService = ProfileService()
     val accountService = AccountService()
     val hikesService = HikeService()
@@ -49,7 +47,6 @@ class DatabaseInit {
                 saveAdmin()
                 saveSophia()
                 saveMichael()
-                saveDreamsSample(dreamsSample)
             }
         )
     }
@@ -157,15 +154,6 @@ class DatabaseInit {
             if (profile.id != adminProfileId) {
                 profileService.addFriend(adminProfile, profile.id)
             }
-        }
-    }
-
-    fun saveDreamsSample(dreams: List<Dream>) {
-        dreams.forEach { dream ->
-            var randomLikedBy : List<String> = profilesList.shuffled().take(3).map { it.id }
-            dreamService.saveDream(
-                dream.copy(likedByProfiles = randomLikedBy)
-            )
         }
     }
 

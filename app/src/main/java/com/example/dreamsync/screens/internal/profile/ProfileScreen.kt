@@ -46,6 +46,7 @@ import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.screens.internal.hikes.HikesListScreen
 import android.content.Context
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import com.example.dreamsync.data.models.AvatarImage
 
@@ -231,7 +232,8 @@ fun ProfileImageSection(
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .clickable(enabled = isEditing) { onImageSelected() }
+                    .clickable(enabled = isEditing) { onImageSelected() },
+                contentScale = ContentScale.FillWidth
             )
         }
 

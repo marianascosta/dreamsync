@@ -1,3 +1,4 @@
+import android.service.dreams.DreamService
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +18,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.HikeStatus
-import com.example.dreamsync.data.services.DreamService
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.navigation.BottomNavigationBar
@@ -25,7 +25,6 @@ import com.example.dreamsync.navigation.toggleBottomBarVisibility
 import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
-import com.example.dreamsync.screens.internal.home.HomeScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.ConfirmationScreen
@@ -129,14 +128,9 @@ fun AppNavigation() {
                 hikeService = hikeService
             )
         }
-        composable("home") {
-            HomeScreen(
-                dreamService = dreamService
-            )
-        }
         composable("explore") {
             ExploreScreen(
-                dreamService = dreamService
+                hikeService = hikeService
             )
         }
         composable("hikes") {

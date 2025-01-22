@@ -47,6 +47,20 @@ open class HikeService {
         )
     }
 
+    fun getAllHikes(onHikesFetched: (List<Hike>) -> Unit) {
+        hikesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val hikes = snapshot.children.mapNotNull { it.getValue(Hike::class.java) }
+                onHikesFetched(hikes)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("HikeService", "Failed to fetch hikes", error.toException())
+                onHikesFetched(emptyList())
+            }
+        })
+    }
+
     fun getHikesByUser(userId: String, onHikesFetched: (List<Hike>) -> Unit) {
         hikesRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

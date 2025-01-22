@@ -45,8 +45,8 @@ enum class Role {
  * Enum class for profile pictures available in assets.
  */
 enum class AvatarImage(val fileName: String) {
-    AVATAR_MALE_1("default_profile_male_1.jpg"),
-    AVATAR_MALE_2("default_profile_male_2.jpg"),
-    AVATAR_FEMALE_1("default_profile_female_1.jpg"),
-    AVATAR_FEMALE_2("default_profile_female_2.jpg")
+    AVATAR_MALE_1("default_profile_male_1.png"),
+    AVATAR_MALE_2("default_profile_male_2.png"),
+    AVATAR_FEMALE_1("default_profile_female_1.png"),
+    AVATAR_FEMALE_2("default_profile_female_2.png")
 }

@@ -85,7 +85,7 @@ fun FriendCard(friend: Profile, onClickProfile: (Profile) -> Unit = {}) {
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.FillWidth
         )
         Spacer(modifier = Modifier.width(16.dp))
         Column {
