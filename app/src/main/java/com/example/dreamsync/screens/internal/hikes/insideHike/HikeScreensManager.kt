@@ -202,7 +202,10 @@ fun HikeScreensManager(
                 onTransitionToLayer = {
                     // Transition this user to the next layer
                     stuckInLimbo = false
-                    stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+                    stage = if (currentLayerIndex == -1) HikeStage.HIKE_COMPLETE else HikeStage.ENTERING_OR_LEAVING_LAYER
+                    if (stage == HikeStage.HIKE_COMPLETE) {
+                        hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
+                    }
                     //hikeService.updateHikeStage(hikeId, HikeStage.ENTERING_OR_LEAVING_LAYER)
                 },
                 onTransitionToStuckScreen = {
@@ -236,13 +239,10 @@ fun HikeScreensManager(
                         hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
                         hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
                         stage = HikeStage.WAITING_FOR_OTHERS
-                        //stage = HikeStage.ENTERING_OR_LEAVING_LAYER
                     } else {
-//                        currentLayerIndex = -1
                         hikeService.updateCurrentLayerIndex(hikeId, currentLayerIndex)
                         hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
                         stage = HikeStage.HIKE_COMPLETE
-
                     }
 
                 },
