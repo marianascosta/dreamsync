@@ -117,26 +117,6 @@ open class ProfileService {
         }
     }
 
-    private fun getAllProfiles(onProfilesFetched: (List<Profile>) -> Unit) {
-        profilesRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val profiles = mutableListOf<Profile>()
-                for (profileSnapshot in snapshot.children) {
-                    val profile = profileSnapshot.getValue(Profile::class.java)
-                    if (profile != null) {
-                        profiles.add(profile)
-                    }
-                }
-                onProfilesFetched(profiles)
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("ProfileService", "Error fetching profiles: ${error.message}")
-                onProfilesFetched(emptyList())
-            }
-        })
-    }
-
     fun searchProfiles(searchText: String, onProfilesFound: (List<Profile>) -> Unit) {
         profilesRef.orderByChild("userName").startAt(searchText).endAt("$searchText\uf8ff")
             .addListenerForSingleValueEvent(object : ValueEventListener {

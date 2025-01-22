@@ -153,16 +153,6 @@ fun AppNavigation() {
                 onFinish = { navController.popBackStack() }
             )
         }
-//        composable("hike_info/{hikeId}") { backStackEntry ->
-//            val hikeId = backStackEntry.arguments?.getString("hikeId")
-//            HikeDetailScreen(
-//                hikeService = hikeService,
-//                hikeId = hikeId!!,
-//                onClickStartHike = {
-//                    toggleBottomBarVisibility() // Hide bottom bar
-//                    navController.navigate("hike_info/${hikeId}/start") }
-//            )
-//        }
         composable("hike_info/{hikeId}") { backStackEntry ->
             val hikeId = backStackEntry.arguments?.getString("hikeId")
             HikeDetailScreen(
@@ -173,12 +163,10 @@ fun AppNavigation() {
                     toggleBottomBarVisibility() // Hide bottom bar
                     hikeService.updateHikeStatus(hikeId, HikeStatus.WAITING)
                     hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
-                    //navController.navigate("waiting_for_others/${hikeId}") }
                     navController.navigate("hike_info/${hikeId}/start")
                 },
                 onNavigateToConfirmation = {
                     toggleBottomBarVisibility()
-                    //navController.navigate("confirmation/${hikeId}")
                     navController.navigate("hike_info/${hikeId}/start")
                 }
             )
@@ -193,7 +181,7 @@ fun AppNavigation() {
                 loggedUser = loggedInUser.value,
                 onBackToHome = {
                     toggleBottomBarVisibility()
-                    navController.popBackStack()
+                    navController.navigate("hikes")
                 },
                 onStartHike = {
                     hikeService.updateHikeStatus(hikeId, HikeStatus.IN_PROGRESS)
@@ -221,8 +209,6 @@ fun AppNavigation() {
             ConfirmationScreen(
                 hikeId = hikeId!!,
                 hikeService = hikeService,
-                //profileService = profileService,
-                //navController = navController,
                 loggedUser = loggedInUser.value,
                 leavingLayer = false
             )
