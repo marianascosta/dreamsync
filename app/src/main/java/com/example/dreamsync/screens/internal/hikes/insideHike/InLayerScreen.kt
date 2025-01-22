@@ -130,7 +130,7 @@ fun InLayerScreen(
                         Text("Leave Layer")
                     }
                     Spacer(modifier = Modifier.width(16.dp))
-                    if (currentLayerIndex < totalLayers) {
+                    if (currentLayerIndex < totalLayers - 1) {
                         Button(
                             onClick = onClickNextLayer,
                             modifier = Modifier.weight(1f),

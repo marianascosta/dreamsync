@@ -86,16 +86,21 @@ fun WaitingForOthersScreen(
             Text(text = "$readyCount / $totalParticipants ready")
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (allReady) {
-                Button(onClick = { onStartHike() }) {
+            //if (allReady) {
+                Button(onClick = { onStartHike() }, enabled = allReady) {
                     if (currentLayer == 0 && !leavingLayer) {
                         Text(text = "Start Hike")
                     } else if (leavingLayer) {
                         Text(text = "Leave Layer")
+                    } else if (!allReady) {
+                        Text(text = "Waiting for participants")
                     } else {
                         Text(text = "Enter Layer")
                     }
                 }
+            //}
+            if (leavingLayer) {
+                Text("Waiting for Kick")
             }
         }
     }

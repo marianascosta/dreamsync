@@ -97,7 +97,7 @@ suspend fun detectKick(context: Context, onResult: (Boolean) -> Unit) {
                 )
                 if (magnitude > threshold) {
                     Log.d("KickDetection", "Kick detected: magnitude=$magnitude")
-                    sensorManager.unregisterListener(this)
+                    sensorManager.unregisterListener(this) // Ensure listener is removed
                     kickDetected.complete(true)
                 }
             }
@@ -106,17 +106,23 @@ suspend fun detectKick(context: Context, onResult: (Boolean) -> Unit) {
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
     }
 
+    // Register the listener
     sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
 
-    // Wait for the kick or timeout
-    withTimeoutOrNull(5000L) { // Timeout in milliseconds
-        kickDetected.await()
-    } ?: run {
-        Log.e("KickDetection", "Kick not detected within timeout.")
+    // Use a try-finally block to ensure cleanup
+    try {
+        // Wait for kick or timeout
+        val result = withTimeoutOrNull(5000L) { // Timeout in milliseconds
+            kickDetected.await()
+        }
+        if (result == true) {
+            onResult(true)
+        } else {
+            Log.e("KickDetection", "Kick not detected within timeout.")
+            onResult(false)
+        }
+    } finally {
         sensorManager.unregisterListener(listener)
-        onResult(false)
-        return
     }
-
-    onResult(true)
 }
+
