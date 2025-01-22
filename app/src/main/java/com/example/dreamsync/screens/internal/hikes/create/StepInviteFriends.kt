@@ -30,8 +30,8 @@ fun StepInviteFriends(
     onClickFinish: (Hike) -> Unit
 ) {
     var friends by remember { mutableStateOf(emptyList<Profile>()) }
-    var selectedFriends by remember { mutableStateOf(hike.invitedFriends) }
-
+    var selectedFriends by remember { mutableStateOf(hike.invitedFriends + hike.createdBy) }
+    //selectedFriends.add(hike.createdBy)
     LaunchedEffect(Unit) {
         profileService.getFriendsList(AppState.loggedInUser.value.id) { fetchedFriends ->
             friends = fetchedFriends
@@ -80,7 +80,11 @@ fun StepInviteFriends(
         Button(
             onClick = {
                 val participantStatus = selectedFriends.map { friendId ->
-                    ParticipantStatusEntry(id = friendId, participation = ParticipantStatus.NOT_READY, kicked = false)
+                    if (friendId == hike.createdBy) {
+                        return@map ParticipantStatusEntry(id = friendId, participation = ParticipantStatus.READY, kicked = false)
+                    } else {
+                        return@map ParticipantStatusEntry(id = friendId, participation = ParticipantStatus.NOT_READY, kicked = false)
+                    }
                 }
                 val stage = HikeStage.NOT_STARTED
                 onClickFinish(

@@ -157,7 +157,9 @@ fun HikeScreensManager(
                 }
             }
             HikeStage.IN_LAYER -> {
-                hikeService.updateParticipantStatus(hikeId, loggedUser.id, ParticipantStatus.NOT_READY)
+                if (hike.createdBy != loggedUser.id) {
+                    hikeService.updateParticipantStatus(hikeId, loggedUser.id, ParticipantStatus.NOT_READY)
+                }
             }
             HikeStage.WAITING_FOR_KICK -> {
                 if (leavingLayer) {
@@ -168,28 +170,28 @@ fun HikeScreensManager(
         }
     }
 
-    LaunchedEffect(hikeId) {
-        val participantStatusRef = FirebaseDatabase.getInstance()
-            .getReference("hikes").child(hikeId).child("participantStatus")
-
-        participantStatusRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // Find the logged user's status
-                val loggedUserStatus = snapshot.children.find { it.child("id").getValue(String::class.java) == loggedUser.id }
-                val kicked = loggedUserStatus?.child("kicked")?.getValue(Boolean::class.java) ?: false
-
-                // Update stage based on the kicked status
-                if (stage == HikeStage.WAITING_FOR_KICK) {
-                    stage = if (kicked) HikeStage.ENTERING_OR_LEAVING_LAYER else HikeStage.STUCK
-                    stuckInLimbo = !kicked
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("HikeDebug", "Failed to listen for participant status updates: ", error.toException())
-            }
-        })
-    }
+//    LaunchedEffect(hikeId) {
+//        val participantStatusRef = FirebaseDatabase.getInstance()
+//            .getReference("hikes").child(hikeId).child("participantStatus")
+//
+//        participantStatusRef.addValueEventListener(object : ValueEventListener {
+//            override fun onDataChange(snapshot: DataSnapshot) {
+//                // Find the logged user's status
+//                val loggedUserStatus = snapshot.children.find { it.child("id").getValue(String::class.java) == loggedUser.id }
+//                val kicked = loggedUserStatus?.child("kicked")?.getValue(Boolean::class.java) ?: false
+//
+//                // Update stage based on the kicked status
+//                if (stage == HikeStage.WAITING_FOR_KICK) {
+//                    stage = if (kicked) HikeStage.ENTERING_OR_LEAVING_LAYER else HikeStage.STUCK
+//                    stuckInLimbo = !kicked
+//                }
+//            }
+//
+//            override fun onCancelled(error: DatabaseError) {
+//                Log.e("HikeDebug", "Failed to listen for participant status updates: ", error.toException())
+//            }
+//        })
+//    }
 
     // UI layout
     Box(
@@ -318,6 +320,7 @@ fun getNextStage(currentStage: HikeStage): HikeStage {
         HikeStage.WAITING_FOR_OTHERS -> HikeStage.ENTERING_OR_LEAVING_LAYER
         HikeStage.ENTERING_OR_LEAVING_LAYER -> HikeStage.IN_LAYER
         HikeStage.IN_LAYER -> HikeStage.ENTERING_OR_LEAVING_LAYER
+        HikeStage.WAITING_FOR_KICK -> HikeStage.ENTERING_OR_LEAVING_LAYER
         else -> HikeStage.HIKE_COMPLETE
     }
 }

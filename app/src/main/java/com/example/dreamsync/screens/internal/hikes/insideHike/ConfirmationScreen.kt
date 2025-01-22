@@ -69,8 +69,8 @@ fun ConfirmationScreen(
 //            Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
 //            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
             Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
-            readyCount = statuses.count { it.participation == ParticipantStatus.READY } + 1
-            totalParticipants = statuses.size + 1
+            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
+            totalParticipants = statuses.size
         }
     }
 
