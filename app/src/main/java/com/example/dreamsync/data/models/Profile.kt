@@ -18,14 +18,7 @@ data class Profile(
     val userBio: String = "",
     val preferredRole: Role = Role.Dreamer,
     val profilePicture: String = DEFAULT_PROFILE_PICTURE,
-    var friendsIds: List<String> = emptyList(),
-    //var hikeStatuses: List<HikeParticipation> = emptyList()
-)
-
-@Serializable
-class HikeParticipation(
-    val hikeId: String = "",
-    val status: ParticipantStatus = ParticipantStatus.NOT_READY
+    var friendsIds: List<String> = emptyList()
 )
 
 
