@@ -46,31 +46,13 @@ fun ConfirmationScreen(
     var totalParticipants by remember { mutableStateOf(0) }
     var stage by remember { mutableStateOf(HikeStage.NOT_STARTED) } // Initial stage
 
-    LaunchedEffect(hikeId) {  // Listen to hikeId changes
-        val hikeRef = FirebaseDatabase.getInstance().getReference("hikes").child(hikeId).child("stage")
-
-        hikeRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val updatedStage = snapshot.getValue(String::class.java)
-                if (updatedStage != null) {
-                    // Sync the stage from the Firebase data
-                    stage = HikeStage.valueOf(updatedStage)
-                }
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("HikeDebug", "Failed to listen for stage updates: ", error.toException())
-            }
-        })
-    }
-
     LaunchedEffect(Unit) {
         hikeService.observeParticipantStatus(hikeId) { statuses ->
 //            Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
 //            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
             Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
-            readyCount = statuses.count { it.participation == ParticipantStatus.READY } + 1
-            totalParticipants = statuses.size + 1
+            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
+            totalParticipants = statuses.size
         }
     }
 

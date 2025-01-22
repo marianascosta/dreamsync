@@ -106,8 +106,10 @@ fun InLayerScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     for (friend in friends) {
-                        item {
-                            FriendCard2(friend = friend)
+                        if (friend.id != loggedUser.id) {
+                            item {
+                                FriendCard2(friend = friend)
+                            }
                         }
                     }
                 }

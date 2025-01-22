@@ -47,6 +47,8 @@ class DatabaseInit {
             onProfilesSaved = { profiles ->
                 profilesList = profiles.toMutableList()
                 saveAdmin()
+                saveSophia()
+                saveMichael()
                 saveDreamsSample(dreamsSample)
             }
         )
@@ -65,6 +67,74 @@ class DatabaseInit {
             } else {
                 Log.e("DatabaseInit", "Failed to save admin profile")
             }
+        }
+    }
+
+    fun saveSophia() {
+        profileService.saveProfile(profilesSample[4]) { sophiaProfileId ->
+            if (sophiaProfileId != null) {
+                saveSophiaAccount(sophiaProfileId)
+                saveSophiaHikes(sophiaProfileId)
+                addSophiaFriends(sophiaProfileId)
+            } else {
+                Log.e("DatabaseInit", "Failed to save admin profile")
+            }
+        }
+    }
+
+    fun saveMichael() {
+        profileService.saveProfile(profilesSample[3]) { michaelProfileId ->
+            if (michaelProfileId != null) {
+                saveMichaelAccount(michaelProfileId)
+                saveMichaelHikes(michaelProfileId)
+                addMichaelFriends(michaelProfileId)
+            } else {
+                Log.e("DatabaseInit", "Failed to save admin profile")
+            }
+        }
+    }
+
+    private fun saveMichaelAccount(michaelProfileId: String) {
+        accountService.saveAccount(michaelAccount.copy(profileId = michaelProfileId)) { success ->
+            Log.d("DatabaseInit", "Michael account saved: $success")
+        }
+    }
+
+    private fun saveMichaelHikes(michaelProfileId: String) {
+        hikes.forEach { hike ->
+            hikesService.saveHike(hike.copy(createdBy = michaelProfileId)) { success ->
+                Log.d("DatabaseInit", "Hike saved: $hike")
+            }
+        }
+    }
+
+    private fun addMichaelFriends(michaelProfileId: String) {
+        for (profile in profilesList) {
+            if (profile.id != michaelProfileId) {
+                profileService.addFriend(profilesSample[3], profile.id)
+            }
+        }
+    }
+
+    private fun addSophiaFriends(sophiaProfileId: String) {
+        for (profile in profilesList) {
+            if (profile.id != sophiaProfileId) {
+                profileService.addFriend(profilesSample[4], profile.id)
+            }
+        }
+    }
+
+    private fun saveSophiaHikes(sophiaProfileId: String) {
+        hikes.forEach { hike ->
+            hikesService.saveHike(hike.copy(createdBy = sophiaProfileId)) { success ->
+                Log.d("DatabaseInit", "Hike saved: $hike")
+            }
+        }
+    }
+
+    private fun saveSophiaAccount(sophiaProfileId: String) {
+        accountService.saveAccount(sophieAccount.copy(profileId = sophiaProfileId)) { success ->
+            Log.d("DatabaseInit", "Sophia account saved: $success")
         }
     }
 
@@ -113,3 +183,6 @@ class DatabaseInit {
         }
     }
 }
+
+
+
