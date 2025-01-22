@@ -129,7 +129,7 @@ fun HikeScreensManager(
                 val updatedStage = snapshot.getValue(String::class.java)
                 if (updatedStage != null) {
                     // Sync the stage from the Firebase data
-                    if (stage != HikeStage.STUCK) {
+                    if (!stuckInLimbo) {
                         stage = HikeStage.valueOf(updatedStage)
                     }
                 }
@@ -145,14 +145,10 @@ fun HikeScreensManager(
     LaunchedEffect(stage) {
         when (stage) {
             HikeStage.ENTERING_OR_LEAVING_LAYER -> {
-                if (leavingLayer) {
-                    Log.d("HikeDebug", "Waiting for kick to leave layer...")
-                } else {
-                    startStageCountdown(ENTERING_LAYER_TIME) { timeLeft ->
-                        if (timeLeft == 0) {
-                            stage = getNextStage(stage)
-                            hikeService.updateHikeStage(hikeId, stage)
-                        }
+                startStageCountdown(ENTERING_LAYER_TIME) { timeLeft ->
+                    if (timeLeft == 0) {
+                        stage = getNextStage(stage)
+                        hikeService.updateHikeStage(hikeId, stage)
                     }
                 }
             }
@@ -169,29 +165,6 @@ fun HikeScreensManager(
             else -> {}
         }
     }
-
-//    LaunchedEffect(hikeId) {
-//        val participantStatusRef = FirebaseDatabase.getInstance()
-//            .getReference("hikes").child(hikeId).child("participantStatus")
-//
-//        participantStatusRef.addValueEventListener(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                // Find the logged user's status
-//                val loggedUserStatus = snapshot.children.find { it.child("id").getValue(String::class.java) == loggedUser.id }
-//                val kicked = loggedUserStatus?.child("kicked")?.getValue(Boolean::class.java) ?: false
-//
-//                // Update stage based on the kicked status
-//                if (stage == HikeStage.WAITING_FOR_KICK) {
-//                    stage = if (kicked) HikeStage.ENTERING_OR_LEAVING_LAYER else HikeStage.STUCK
-//                    stuckInLimbo = !kicked
-//                }
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                Log.e("HikeDebug", "Failed to listen for participant status updates: ", error.toException())
-//            }
-//        })
-//    }
 
     // UI layout
     Box(
@@ -228,13 +201,14 @@ fun HikeScreensManager(
                 hikeService = hikeService,
                 onTransitionToLayer = {
                     // Transition this user to the next layer
-                    stage = HikeStage.ENTERING_OR_LEAVING_LAYER
                     stuckInLimbo = false
+                    stage = HikeStage.ENTERING_OR_LEAVING_LAYER
+                    //hikeService.updateHikeStage(hikeId, HikeStage.ENTERING_OR_LEAVING_LAYER)
                 },
                 onTransitionToStuckScreen = {
                     // Transition this user to the stuck screen
-                    stage = HikeStage.STUCK
                     stuckInLimbo = true
+                    stage = HikeStage.STUCK
                 }
             )
 
