@@ -104,19 +104,8 @@ fun TimelineScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(hike.name, style = MaterialTheme.typography.headlineMedium)
-
-
             Text(hike.description, style = MaterialTheme.typography.bodyMedium)
 
-            Image(
-                painter = painterResource(id = R.drawable.love_stars), // Replace this with the correct resource
-                contentDescription = "${hike.name} Image",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-                    .clip(RoundedCornerShape(12.dp)),
-                contentScale = ContentScale.Crop
-            )
         }
 
         Column(
