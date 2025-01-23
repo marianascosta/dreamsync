@@ -37,19 +37,15 @@ import com.google.firebase.database.ValueEventListener
 fun ConfirmationScreen(
     hikeId: String,
     hikeService: HikeService,
-    //navController: NavHostController,
     loggedUser: Profile,
     leavingLayer: Boolean
 ) {
     var isConfirmed by remember { mutableStateOf(false) }
     var readyCount by remember { mutableStateOf(0) }
     var totalParticipants by remember { mutableStateOf(0) }
-    var stage by remember { mutableStateOf(HikeStage.NOT_STARTED) } // Initial stage
 
     LaunchedEffect(Unit) {
         hikeService.observeParticipantStatus(hikeId) { statuses ->
-//            Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
-//            readyCount = statuses.count { it.participation == ParticipantStatus.READY }
             Log.d("ParticipantStatus", "In confirm Statuses updated: $statuses")
             readyCount = statuses.count { it.participation == ParticipantStatus.READY }
             totalParticipants = statuses.size

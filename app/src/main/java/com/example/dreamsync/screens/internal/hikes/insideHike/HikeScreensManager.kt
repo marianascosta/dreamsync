@@ -200,7 +200,6 @@ fun HikeScreensManager(
                     if (stage == HikeStage.HIKE_COMPLETE) {
                         hikeService.updateHikeStage(hikeId, HikeStage.HIKE_COMPLETE)
                     }
-                    //hikeService.updateHikeStage(hikeId, HikeStage.ENTERING_OR_LEAVING_LAYER)
                 },
                 onTransitionToStuckScreen = {
                     // Transition this user to the stuck screen

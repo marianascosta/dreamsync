@@ -58,11 +58,8 @@ fun WaitingForOthersScreen(
 
     LaunchedEffect(Unit) {
         hikeService.observeParticipantStatus(hikeId) { statuses ->
-//            Log.d("ParticipantStatus", "In waiting Statuses updated: $statuses")
-//            participantStatuses = statuses//.toList()
             readyCount = statuses.count { it.participation == ParticipantStatus.READY }
             totalParticipants = statuses.size
-//            allReady = readyCount == totalParticipants
             participantStatuses = statuses
             allReady = statuses.all { it.participation == ParticipantStatus.READY }
             Log.d("ParticipantStatus", "Total: ${statuses.size}, Ready: ${statuses.count { it.participation == ParticipantStatus.READY }}")
@@ -86,22 +83,18 @@ fun WaitingForOthersScreen(
             Text(text = "$readyCount / $totalParticipants ready")
             Spacer(modifier = Modifier.height(16.dp))
 
-            //if (allReady) {
-                Button(onClick = { onStartHike() }, enabled = allReady) {
-                    if (currentLayer == 0 && !leavingLayer) {
-                        Text(text = "Start Hike")
-                    } else if (leavingLayer) {
-                        Text(text = "Leave Layer")
-                    } else if (!allReady) {
-                        Text(text = "Waiting for participants")
-                    } else {
-                        Text(text = "Enter Layer")
-                    }
+            Button(onClick = { onStartHike() }, enabled = allReady) {
+                if (currentLayer == 0 && !leavingLayer) {
+                    Text(text = "Start Hike")
+                } else if (leavingLayer) {
+                    Text(text = "Leave Layer")
+                } else if (!allReady) {
+                    Text(text = "Waiting for participants")
+                } else {
+                    Text(text = "Enter Layer")
                 }
-            //}
-            if (leavingLayer) {
-                Text("Waiting for Kick")
             }
+
         }
     }
 }
