@@ -3,6 +3,7 @@ package com.example.dreamsync.data.initialization
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.dreamsync.data.models.Hike
+import com.example.dreamsync.data.models.HikeDefaultImage
 import com.example.dreamsync.data.models.Layer
 import com.example.dreamsync.data.services.HikeService
 
@@ -14,6 +15,7 @@ val hikes = listOf(
         isComplete = false,
         createdBy = "Dom Cobb",
         invitedFriends = listOf(profilesSample[1].id, profilesSample[2].id, profilesSample[3].id),
+        hikeDefaultImage = HikeDefaultImage.JOURNEY_HEART,
         layers = listOf(
             Layer(
                 name = "Dream Level 1",

@@ -99,7 +99,10 @@ class DatabaseInit {
 
     private fun saveMichaelHikes(michaelProfileId: String) {
         hikes.forEach { hike ->
-            hikesService.saveHike(hike.copy(createdBy = michaelProfileId)) { success ->
+            hikesService.saveHike(
+                hike.copy(createdBy = michaelProfileId)
+
+            ) { success ->
                 Log.d("DatabaseInit", "Hike saved: $hike")
             }
         }

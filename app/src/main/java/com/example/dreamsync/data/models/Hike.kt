@@ -25,6 +25,7 @@ data class Hike(
     val currentLayerIndex: Int = 0,
     var categories: List<Category> = listOf(),
     var likedByProfiles: List<String> = listOf(),
+    var hikeDefaultImage: HikeDefaultImage = HikeDefaultImage.ATLANTIS
 )
 
 @Serializable
@@ -45,4 +46,20 @@ enum class Category(val displayName: String) {
     INSPIRATIONAL("Inspirational"),
     HISTORICAL("Historical"),
     OTHER("Other");
+}
+
+/**
+ * Enum class for profile pictures available in assets.
+ */
+enum class HikeDefaultImage(val fileName: String) {
+    ATLANTIS("atlantis.jpg"),
+    FOREST("forest.jpg"),
+    LAST_ENCHANTMENT("last_enchantment.jpg"),
+    CHRONICLES_OF_TIME("chronicles_of_time.jpg"),
+    HAUNTING_SHADOWS("haunting_shadows.jpg"),
+    LOVE_STARS("love_stars.jpg"),
+    COSMIC_WONDERS("cosmic_wonders.jpg"),
+    ESCAPE_UNKNOWN("escape_unknown.jpg"),
+    JOURNEY_HEART("journey_heart.jpg"),
+    MISSING_ARTIFACT("missing_artifact.jpg")
 }

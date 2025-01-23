@@ -1,6 +1,10 @@
 package com.example.dreamsync.screens.internal.explore
 
 import android.R.attr.onClick
+import android.R.attr.text
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -195,7 +199,7 @@ fun HikePost(
             }
 
             Image(
-                painter = painterResource(id = R.drawable.love_stars), //TODO temporary fix the resource cant be the id because thats updated with the db and the actual ids depend on each build
+                painter =rememberAsyncImagePainter(model = "file:///android_asset/${hike.hikeDefaultImage.fileName}"),
                 contentDescription = "${hike.name} Image",
                 modifier = Modifier
                     .fillMaxWidth()
