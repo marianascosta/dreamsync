@@ -1,10 +1,18 @@
 package com.example.dreamsync.screens.internal.hikes
 
+import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Send
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -15,9 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.example.dreamsync.AppState
+import com.example.dreamsync.R
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
 import com.example.dreamsync.data.models.Layer
@@ -74,73 +87,102 @@ fun TimelineScreen(
     isCreator: Boolean,
     onClickStartHike: () -> Unit = {},
     hike: Hike,
-    onNavigateToConfirmation: () -> Unit = {}
+    onNavigateToConfirmation: () -> Unit = {},
+    hikeService: HikeService = HikeService(),
 ) {
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(32.dp)
     ) {
-        Row(
+
+        Column(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
+            Text(hike.name, style = MaterialTheme.typography.headlineMedium)
 
-            if (isCreator && hike.status == HikeStatus.NOT_STARTED) {
-                Button(
-                    onClick = onClickStartHike,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
-                    shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
-                    modifier = Modifier.padding(start = 16.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.PlayArrow,
-                        contentDescription = "Play Icon",
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Start Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
-                }
-            } else if (hike.status == HikeStatus.WAITING) {
-                Button(
-                    onClick = onNavigateToConfirmation,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
-                    shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
-                    modifier = Modifier
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.PlayArrow,
-                        contentDescription = "Play Icon",
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Join Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
-                }
-            }
 
+            Text(hike.description, style = MaterialTheme.typography.bodyMedium)
+
+            Image(
+                painter = painterResource(id = R.drawable.love_stars), // Replace this with the correct resource
+                contentDescription = "${hike.name} Image",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
         }
 
-
-        if (layers.isEmpty()) {
-            // Show empty message if no layers
-            Text("No layers available.", style = MaterialTheme.typography.bodyMedium)
-        } else {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(32.dp)
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                layers.forEachIndexed { index, _ ->
-                    val isFirstItem = index == 0
-                    val isLastItem = index == layers.size - 1
-                    TimelineItem(
-                        label = layers[index].startDate,
-                        layer = layers[index],
-                        isFirstItem = isFirstItem,
-                        isLastItem = isLastItem
-                    )
+                Text("Hike Layers", style = MaterialTheme.typography.headlineSmall)
+
+                if (isCreator && hike.status == HikeStatus.NOT_STARTED) {
+                    Button(
+                        onClick = onClickStartHike,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
+                        shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
+                        modifier = Modifier.padding(start = 16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.PlayArrow,
+                            contentDescription = "Play Icon",
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Start Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
+                    }
+                } else if (hike.status == HikeStatus.WAITING) {
+                    Button(
+                        onClick = onNavigateToConfirmation,
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8DB600)),
+                        shape = MaterialTheme.shapes.medium.copy(CornerSize(16.dp)),
+                        modifier = Modifier
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.PlayArrow,
+                            contentDescription = "Play Icon",
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Join Hike", style = MaterialTheme.typography.labelMedium, color = Color.White)
+                    }
+                }
+
+            }
+
+
+            if (layers.isEmpty()) {
+                // Show empty message if no layers
+                Text("No layers available.", style = MaterialTheme.typography.bodyMedium)
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    layers.forEachIndexed { index, _ ->
+                        val isFirstItem = index == 0
+                        val isLastItem = index == layers.size - 1
+                        TimelineItem(
+                            label = layers[index].startDate,
+                            layer = layers[index],
+                            isFirstItem = isFirstItem,
+                            isLastItem = isLastItem
+                        )
+                    }
                 }
             }
         }

@@ -13,8 +13,8 @@ enum class HikeStatus {
 @Serializable
 data class Hike(
     val id: String = "",
-    val name: String = "",
-    val description: String = "",
+    var name: String = "",
+    var description: String = "",
     val layers: List<Layer> = emptyList(),
     val isComplete: Boolean = false,
     val createdBy: String = "",
@@ -24,7 +24,7 @@ data class Hike(
     val status : HikeStatus = HikeStatus.NOT_STARTED,
     val currentLayerIndex: Int = 0,
     var categories: List<Category> = listOf(),
-    var likedByProfiles: List<String> = listOf()
+    var likedByProfiles: List<String> = listOf(),
 )
 
 @Serializable
