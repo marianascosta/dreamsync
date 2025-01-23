@@ -18,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,7 +28,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dreamsync.data.handlers.AccountHandler
-import com.example.dreamsync.data.initialization.adminAccount
 import com.example.dreamsync.data.models.Profile
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +58,6 @@ fun RegisterScreen(
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Center-aligned TopAppBar
         CenterAlignedTopAppBar(
             title = {
                 Text(text = "Register", fontSize = 32.sp, style = MaterialTheme.typography.titleMedium)

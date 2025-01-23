@@ -13,7 +13,6 @@ import com.example.dreamsync.screens.components.AppOutlinedTextField
 import com.example.dreamsync.screens.components.forms.AppDatePickerField
 import com.example.dreamsync.screens.components.forms.AppDropdownMenuField
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StepCreateLayers(
     hike: Hike,
@@ -22,7 +21,6 @@ fun StepCreateLayers(
     var layers by remember { mutableStateOf(listOf(Layer())) }
     val difficulties = listOf("Easy", "Medium", "Hard")
 
-    // Add a new layer when button is clicked
     fun addNewLayer() {
         val newLayer = Layer()
         layers = layers + newLayer
@@ -32,7 +30,6 @@ fun StepCreateLayers(
         verticalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier.fillMaxSize()
     ) {
-        // Form list inside a LazyColumn
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
@@ -44,12 +41,11 @@ fun StepCreateLayers(
                     onStartDateChange = { startDate -> layers = layers.toMutableList().apply { this[index] = layer.copy(startDate = startDate) } },
                     onDifficultyChange = { difficulty -> layers = layers.toMutableList().apply { this[index] = layer.copy(difficulty = difficulty) } },
                     difficulties = difficulties,
-                    layerNumber = index + 1 // Display layer number
+                    layerNumber = index + 1
                 )
             }
         }
 
-        // Add new layer button at the bottom
         Button(
             onClick = { addNewLayer() },
             modifier = Modifier
@@ -59,7 +55,6 @@ fun StepCreateLayers(
             Text("Add New Layer")
         }
 
-        // Continue button
         Button(
             onClick = { onClickContinue(
                 hike.copy(layers = layers)
@@ -81,7 +76,7 @@ fun LayerForm(
     onStartDateChange: (String) -> Unit,
     onDifficultyChange: (String) -> Unit,
     difficulties: List<String>,
-    layerNumber: Int // Receive the layer number to display in the title
+    layerNumber: Int
 ) {
     Card(
         modifier = Modifier
@@ -92,14 +87,12 @@ fun LayerForm(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Layer Title with number
             Text(
                 text = "Layer $layerNumber",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            // Name
             AppOutlinedTextField(
                 value = layer.name,
                 onValueChange = onNameChange,
@@ -107,7 +100,6 @@ fun LayerForm(
                 placeholder = "Enter layer name"
             )
 
-            // Description
             AppOutlinedTextField(
                 value = layer.description,
                 onValueChange = onDescriptionChange,
@@ -121,7 +113,6 @@ fun LayerForm(
                 onDateSelected = onStartDateChange
             )
 
-            // Difficulty
             AppDropdownMenuField(
                 label = "Difficulty",
                 placeholder = "Select difficulty",

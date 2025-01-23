@@ -30,11 +30,11 @@ fun StepHikeDetails(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        //Form
+
         Column(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Name
+
             AppOutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
@@ -42,7 +42,6 @@ fun StepHikeDetails(
                 placeholder = "Enter the name of your dream hike"
             )
 
-            // Description
             AppOutlinedTextField(
                 value = description,
                 onValueChange = { description = it },
@@ -51,7 +50,6 @@ fun StepHikeDetails(
             )
         }
 
-        // Continue button
         Button(
             onClick = {
                 onClickContinue (
@@ -70,7 +68,6 @@ fun StepHikeDetails(
 @Preview
 @Composable
 fun PreviewStepHikeDetails() {
-    // Sample hike object for the preview
     val sampleHike = Hike(
         id = "1",
         name = "Sample Hike",

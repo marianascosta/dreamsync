@@ -1,18 +1,10 @@
 package com.example.dreamsync.screens.internal.hikes
 
-import android.widget.Toast
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Send
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -23,14 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
-import com.example.dreamsync.AppState
-import com.example.dreamsync.R
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
 import com.example.dreamsync.data.models.Layer
@@ -45,7 +31,7 @@ fun HikeDetailScreen(
     onClickStartHike : () -> Unit = {},
     onNavigateToConfirmation : () -> Unit = {}
 ) {
-    var hike by remember { mutableStateOf<Hike>(Hike()) }
+    var hike by remember { mutableStateOf(Hike()) }
     var isLoading by remember { mutableStateOf(true) }
     var isCreator by remember { mutableStateOf(false) }
 
@@ -55,7 +41,7 @@ fun HikeDetailScreen(
             onHikeFetched = { fetchedHike ->
                 if (fetchedHike != null) {
                     hike = fetchedHike
-                    isCreator = loggedUser.id == hike.createdBy //POSSIVELMENTE REFORMULAR
+                    isCreator = loggedUser.id == hike.createdBy
                 }
                 isLoading = false
             }
@@ -63,10 +49,8 @@ fun HikeDetailScreen(
     }
 
     if (isLoading) {
-        // Show loading effect
         LoadingIndicator()
     } else {
-        // Show the timeline screen with layers
         TimelineScreen(layers = hike.layers, isCreator = isCreator, onClickStartHike = onClickStartHike, hike = hike, onNavigateToConfirmation = onNavigateToConfirmation)
     }
 }
@@ -155,7 +139,6 @@ fun TimelineScreen(
 
 
             if (layers.isEmpty()) {
-                // Show empty message if no layers
                 Text("No layers available.", style = MaterialTheme.typography.bodyMedium)
             } else {
                 Column(

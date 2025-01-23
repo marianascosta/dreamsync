@@ -33,7 +33,6 @@ fun CreateHikeScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Display the tabs
         TabRow(selectedTabIndex = currentStep) {
             tabs.forEachIndexed { index, title ->
                 Tab(
@@ -45,7 +44,6 @@ fun CreateHikeScreen(
         }
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Display the content
         when (currentStep) {
             0 -> StepHikeDetails(hike = hike, onClickContinue = { updatedHike ->
                 hike = updatedHike
@@ -60,7 +58,6 @@ fun CreateHikeScreen(
             2 -> StepInviteFriends(hike = hike, profileService = profileService,
                 onClickFinish = { updatedHike ->
                     hike = updatedHike
-                    // Save to database
                     hikeService.saveHike(hike) { success ->
                         if (success) {
                             Toast.makeText(context, "Hike created!", Toast.LENGTH_SHORT).show()
@@ -77,7 +74,6 @@ fun CreateHikeScreen(
     }
 
 }
-
 
 @Composable
 @Preview

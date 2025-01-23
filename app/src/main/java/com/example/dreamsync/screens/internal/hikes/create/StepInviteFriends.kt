@@ -3,8 +3,6 @@ package com.example.dreamsync.screens.internal.hikes.create
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
@@ -41,7 +39,7 @@ fun StepInviteFriends(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        //Form
+
         Column (
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -76,7 +74,6 @@ fun StepInviteFriends(
             }
         }
 
-        // Finish button
         Button(
             onClick = {
                 val participantStatus = selectedFriends.map { friendId ->

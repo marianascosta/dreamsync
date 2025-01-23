@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.PersonAddAlt1
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,7 +24,10 @@ import com.example.dreamsync.navigation.toggleBottomBarVisibility
 import com.example.dreamsync.screens.external.LoginScreen
 import com.example.dreamsync.screens.external.RegisterScreen
 import com.example.dreamsync.screens.internal.explore.ExploreScreen
+import com.example.dreamsync.screens.internal.friends.AddFriendScreen
+import com.example.dreamsync.screens.internal.friends.FriendsScreen
 import com.example.dreamsync.screens.internal.hikes.HikeDetailScreen
+import com.example.dreamsync.screens.internal.hikes.HikesScreen
 import com.example.dreamsync.screens.internal.hikes.create.CreateHikeScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.ConfirmationScreen
 import com.example.dreamsync.screens.internal.hikes.insideHike.HikeScreensManager
@@ -38,8 +40,6 @@ import com.example.dreamsync.screens.internal.profile.ProfileScreen
 fun AppNavigation() {
     val navController = rememberNavController()
     val selectedIndex = remember { mutableIntStateOf(1) }
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val coroutineScope = rememberCoroutineScope()
     val dreamService = DreamService()
     val profileService = ProfileService()
     val hikeService = HikeService()
@@ -50,7 +50,7 @@ fun AppNavigation() {
             RegisterScreen (
                 onRegisterSuccess = { profile ->
                     AppState.updateLoggedInUser(profile)
-                    navController.navigate("explore") { // Default: Explore
+                    navController.navigate("explore") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -62,7 +62,7 @@ fun AppNavigation() {
                 onLoginSuccess = { profile ->
                     AppState.updateLoggedInUser(profile)
                     println("Logged in user: ${AppState.loggedInUser.value}")
-                    navController.navigate("explore") { // Default: Explore
+                    navController.navigate("explore") {
                         popUpTo("login") { inclusive = true }
                     }
                 },
@@ -77,7 +77,7 @@ fun AppNavigation() {
                 onNavigateToHikeInfoScreen = { hike ->
                     navController.navigate("hike_info/${hike.id}")
                 },
-                onHikeCreated = { newHike ->
+                onHikeCreated = { _ ->
                     navController.popBackStack()
                 },
                 onRoleSelected = { selectedRole ->
@@ -154,7 +154,7 @@ fun AppNavigation() {
                 hikeId = hikeId!!,
                 loggedUser = loggedInUser.value,
                 onClickStartHike = {
-                    toggleBottomBarVisibility() // Hide bottom bar
+                    toggleBottomBarVisibility()
                     hikeService.updateHikeStatus(hikeId, HikeStatus.WAITING)
                     hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_OTHERS)
                     navController.navigate("hike_info/${hikeId}/start")

@@ -1,6 +1,5 @@
 package com.example.dreamsync.data.initialization
 
-import com.example.dreamsync.R
 import com.example.dreamsync.data.models.AvatarImage
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.models.Role

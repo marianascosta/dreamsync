@@ -1,7 +1,6 @@
 package com.example.dreamsync.data.models
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 const val DEFAULT_PROFILE_PICTURE = "https://static.vecteezy.com/system/resources/previews/004/511/281/large_2x/default-avatar-photo-placeholder-profile-picture-vector.jpg"
 
@@ -41,9 +40,6 @@ enum class Role {
     Chemist
 }
 
-/**
- * Enum class for profile pictures available in assets.
- */
 enum class AvatarImage(val fileName: String) {
     AVATAR_MALE_1("default_profile_male_1.png"),
     AVATAR_MALE_2("default_profile_male_2.png"),

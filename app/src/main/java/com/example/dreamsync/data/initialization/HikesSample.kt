@@ -43,7 +43,7 @@ val hikes = listOf(
 @Preview
 @Composable
 fun HikesSample() {
-    val hikeService : HikeService = HikeService()
+    val hikeService = HikeService()
     hikes.forEach {
         hikeService.saveHike(it) { success ->
             if (success) {

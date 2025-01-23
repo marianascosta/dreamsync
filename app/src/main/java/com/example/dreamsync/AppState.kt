@@ -15,7 +15,7 @@ object AppState {
         updateProfileInDB()
     }
 
-    fun updateProfileInDB() {
+    private fun updateProfileInDB() {
         profileService.updateProfile(_loggedInUser.value.id, _loggedInUser.value) { success ->
             if (success) {
                 println("Logged in user profile updated successfully")

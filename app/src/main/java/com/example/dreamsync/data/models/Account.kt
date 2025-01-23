@@ -1,6 +1,6 @@
-package com.example.dreamsync.data.models;
+package com.example.dreamsync.data.models
 
-import kotlinx.serialization.Serializable;
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class Account (

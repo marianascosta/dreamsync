@@ -11,10 +11,7 @@ open class ProfileService {
 
     fun saveProfile(profile: Profile, onProfileSaved: (String?) -> Unit) {
         val newProfileId = profilesRef.push().key
-        if(newProfileId == null) {
-            throw Exception("Failed to generate a new profile ID")
-        }
-        //save the profile with the id
+            ?: throw Exception("Failed to generate a new profile ID")
         profile.id = newProfileId
         profilesRef.child(newProfileId).setValue(profile).addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -78,11 +75,10 @@ open class ProfileService {
                         if (friend != null) {
                             friends.add(friend)
                         }
-
                         friendsFetchedCount++
                         if (friendsFetchedCount == friendsIds.size) {
                             onFriendsFetched(friends)
-                            Log.d("FriendsScreen", "Fetched ${friends.size} friends for ${profile.userName}")
+                            Log.d("com.example.dreamsync.screens.internal.friends.FriendsScreen", "Fetched ${friends.size} friends for ${profile.userName}")
                         }
                     }
                 }

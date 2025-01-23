@@ -1,11 +1,8 @@
 package com.example.dreamsync.screens.internal.profile
 
-import android.R.attr.contentDescription
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,31 +22,22 @@ import com.example.dreamsync.data.models.Profile
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
-import com.example.dreamsync.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import coil.compose.AsyncImagePainter.State.Empty.painter
 import coil.compose.rememberAsyncImagePainter
 import com.example.dreamsync.AppState
-import com.example.dreamsync.data.initialization.hikes
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.Role
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.example.dreamsync.screens.internal.hikes.HikesListScreen
-import android.content.Context
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import com.example.dreamsync.data.models.AvatarImage
-
 
 private val DEFAULT_ROLE = Role.Dreamer
 
@@ -197,7 +185,6 @@ fun ProfileScreen(
                         )
                     }
                 }
-
                 HikesListScreen(
                     profileId = profile!!.id,
                     hikeService = hikeService,

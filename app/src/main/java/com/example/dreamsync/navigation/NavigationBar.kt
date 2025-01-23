@@ -13,7 +13,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import com.example.dreamsync.navigation.IS_BOTTOM_BAR_VISIBLE
 
 var IS_BOTTOM_BAR_VISIBLE = true
 
@@ -71,7 +70,7 @@ fun BottomNavigationBar(
                 label = { Text(item.label) },
                 selected = selectedItemIndex == index,
                 onClick = {
-                    onItemSelected(index) // Notify parent about the selection
+                    onItemSelected(index)
                 }
             )
         }

@@ -1,22 +1,17 @@
-import android.R.attr.onClick
+package com.example.dreamsync.screens.internal.hikes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.dreamsync.AppState
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.services.HikeService
-import com.example.dreamsync.screens.internal.hikes.HikesListScreen
 
 @Composable
 fun HikesScreen(
@@ -31,7 +26,7 @@ fun HikesScreen(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth() // Ensures the Row spans the full width of the screen
+                .fillMaxWidth()
                 .padding(bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween

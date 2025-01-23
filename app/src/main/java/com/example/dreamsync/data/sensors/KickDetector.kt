@@ -7,9 +7,6 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
 import androidx.compose.runtime.*
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
@@ -63,11 +60,9 @@ fun KickDetector(
         }
     }
 
-    // React to kick detection
     LaunchedEffect(kickDetected) {
         if (kickDetected) {
             scope.launch {
-                // Reset the kick detection for future use
                 kickDetected = false
             }
         }
@@ -97,7 +92,7 @@ suspend fun detectKick(context: Context, onResult: (Boolean) -> Unit) {
                 )
                 if (magnitude > threshold) {
                     Log.d("KickDetection", "Kick detected: magnitude=$magnitude")
-                    sensorManager.unregisterListener(this) // Ensure listener is removed
+                    sensorManager.unregisterListener(this)
                     kickDetected.complete(true)
                 }
             }
@@ -105,13 +100,9 @@ suspend fun detectKick(context: Context, onResult: (Boolean) -> Unit) {
 
         override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
     }
-
-    // Register the listener
     sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_NORMAL)
     Log.d("KickDetection", "Listener registered for accelerometer.")
-    // Use a try-finally block to ensure cleanup
     try {
-        // Wait for kick or timeout
         val result = withTimeoutOrNull(5000L) { // Timeout in milliseconds
             kickDetected.await()
         }

@@ -11,9 +11,6 @@ class AccountHandler {
     private val accountService = AccountService()
     private val profileService = ProfileService()
 
-    /**
-     * Login user and return the user's profile object
-     */
      fun loginUser(email: String, password: String, onLoginResult: (Profile?) -> Unit) {
         accountService.getAccountByEmail(email, onAccountFetched = { account ->
             if (account != null && account.password == password) {

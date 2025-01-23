@@ -1,10 +1,8 @@
 package com.example.dreamsync.data.initialization
 
-import android.service.dreams.DreamService
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.dreamsync.AppState.profileService
 import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.AccountService
 import com.example.dreamsync.data.services.HikeService
@@ -24,13 +22,13 @@ class DatabaseInit {
     private val database: FirebaseDatabase = FirebaseDatabase.getInstance()
     private val databaseReference: DatabaseReference = database.reference
     val profileService = ProfileService()
-    val accountService = AccountService()
-    val hikesService = HikeService()
+    private val accountService = AccountService()
+    private val hikesService = HikeService()
 
     // Cache
-    var profilesList = mutableListOf<Profile>()
+    private var profilesList = mutableListOf<Profile>()
 
-    constructor() {
+    init {
         Log.d("DatabaseInit", "Database URL: ${database.reference}")
     }
 
@@ -51,11 +49,11 @@ class DatabaseInit {
         )
     }
 
-    fun deleteAll() {
+    private fun deleteAll() {
         databaseReference.removeValue()
     }
 
-    fun saveAdmin() {
+    private fun saveAdmin() {
         profileService.saveProfile(adminProfile) { adminProfileId ->
             if (adminProfileId != null) {
                 saveAdminAccount(adminProfileId)
@@ -67,7 +65,7 @@ class DatabaseInit {
         }
     }
 
-    fun saveSophia() {
+    private fun saveSophia() {
         profileService.saveProfile(profilesSample[4]) { sophiaProfileId ->
             if (sophiaProfileId != null) {
                 saveSophiaAccount(sophiaProfileId)
@@ -79,7 +77,7 @@ class DatabaseInit {
         }
     }
 
-    fun saveMichael() {
+    private fun saveMichael() {
         profileService.saveProfile(profilesSample[3]) { michaelProfileId ->
             if (michaelProfileId != null) {
                 saveMichaelAccount(michaelProfileId)
@@ -102,7 +100,7 @@ class DatabaseInit {
             hikesService.saveHike(
                 hike.copy(createdBy = michaelProfileId)
 
-            ) { success ->
+            ) {
                 Log.d("DatabaseInit", "Hike saved: $hike")
             }
         }
@@ -126,7 +124,7 @@ class DatabaseInit {
 
     private fun saveSophiaHikes(sophiaProfileId: String) {
         hikes.forEach { hike ->
-            hikesService.saveHike(hike.copy(createdBy = sophiaProfileId)) { success ->
+            hikesService.saveHike(hike.copy(createdBy = sophiaProfileId)) {
                 Log.d("DatabaseInit", "Hike saved: $hike")
             }
         }
@@ -146,7 +144,7 @@ class DatabaseInit {
 
     private fun saveAdminHikes(adminProfileId: String) {
         hikes.forEach { hike ->
-            hikesService.saveHike(hike.copy(createdBy = adminProfileId)) { success ->
+            hikesService.saveHike(hike.copy(createdBy = adminProfileId)) {
                 Log.d("DatabaseInit", "Hike saved: $hike")
             }
         }
@@ -160,7 +158,7 @@ class DatabaseInit {
         }
     }
 
-    fun saveProfilesSample(profiles: List<Profile>, onProfilesSaved: (List<Profile>) -> Unit) {
+    private fun saveProfilesSample(profiles: List<Profile>, onProfilesSaved: (List<Profile>) -> Unit) {
         var counter = 0
         profiles.forEach { profile ->
             profileService.saveProfile(profile) { profileId ->

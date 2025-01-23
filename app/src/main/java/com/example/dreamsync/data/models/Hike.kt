@@ -30,8 +30,8 @@ data class Hike(
 
 @Serializable
 data class ParticipantStatusEntry(
-    val id: String = "",                        //participant's id
-    val participation: ParticipantStatus = ParticipantStatus.NOT_READY,     //model in Profile.kt
+    val id: String = "",
+    val participation: ParticipantStatus = ParticipantStatus.NOT_READY,
     val kicked: Boolean = false
 )
 
@@ -48,9 +48,6 @@ enum class Category(val displayName: String) {
     OTHER("Other");
 }
 
-/**
- * Enum class for profile pictures available in assets.
- */
 enum class HikeDefaultImage(val fileName: String) {
     ATLANTIS("atlantis.jpg"),
     FOREST("forest.jpg"),

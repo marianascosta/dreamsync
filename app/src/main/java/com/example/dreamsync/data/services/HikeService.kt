@@ -126,9 +126,6 @@ open class HikeService {
 //        })
 //    }
 
-
-
-
     fun updateHike(hike: Hike, onUpdateComplete: (Boolean) -> Unit) {
         hikesRef.child(hike.id).setValue(hike).addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -183,7 +180,6 @@ open class HikeService {
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-                        // Extract participant statuses
                         val statuses = snapshot.children.mapNotNull { child ->
                             val userId = child.child("id").getValue(String::class.java)
                             val status = child.child("participation").getValue(String::class.java)
@@ -218,7 +214,7 @@ open class HikeService {
         val hikeRef =hikesRef.child(hikeId)
         hikeRef.child("currentLayerIndex").get().addOnSuccessListener { snapshot ->
             val currentLayerIndex = snapshot.getValue(Int::class.java) ?: 0
-            onCurrentLayerIndexFetched(currentLayerIndex) // Correctly pass the value to the callback
+            onCurrentLayerIndexFetched(currentLayerIndex)
             Log.d("HikeDebug", "Current layer index fetched: $currentLayerIndex")
         }.addOnFailureListener { e ->
             Log.e("HikeDebug", "Failed to fetch current layer index: ", e)
@@ -228,7 +224,6 @@ open class HikeService {
     fun updateHikeStage(hikeId: String, newStage: HikeStage) {
         val hikeRef = hikesRef.child(hikeId)
 
-        // Update the 'stage' field in the 'hikes' node
         hikeRef.updateChildren(mapOf("stage" to newStage.name))
             .addOnSuccessListener {
                 Log.d("HikeDebug", "Hike stage updated to $newStage")

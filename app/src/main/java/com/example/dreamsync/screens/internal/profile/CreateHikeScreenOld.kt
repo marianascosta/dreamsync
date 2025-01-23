@@ -19,7 +19,6 @@ import com.example.dreamsync.data.models.Profile
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 
-
 @Composable
 fun CreateHikeScreenOld(
     onHikeCreated: (Hike) -> Unit,
@@ -35,7 +34,7 @@ fun CreateHikeScreenOld(
     var selectedFriendsIds by remember { mutableStateOf(emptyList<String>()) }
 
     val layers = (1..10).toList()
-    val context = LocalContext.current //for toast
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         profileService.getFriendsList(
