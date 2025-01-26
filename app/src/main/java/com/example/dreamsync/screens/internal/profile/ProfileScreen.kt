@@ -46,9 +46,6 @@ fun ProfileScreen(
     profileService: ProfileService,
     profileId: String,
     onNavigateToCreateHikeScreen: () -> Unit,
-    onNavigateToHikeInfoScreen: (Hike) -> Unit,
-    onHikeCreated: (Hike) -> Unit,
-    onRoleSelected: (Role) -> Unit,
     onProfileUpdated: (Profile) -> Unit,
     hikeService: HikeService,
     onHikeClicked: (Hike) -> Unit

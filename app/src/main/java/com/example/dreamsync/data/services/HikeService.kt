@@ -82,49 +82,6 @@ open class HikeService {
             }
         })
     }
-//    fun getHikesByUser(userId: String, onHikesFetched: (List<Hike>) -> Unit) {
-//        val hikes = mutableListOf<Hike>()
-//        val hikesRef = FirebaseDatabase.getInstance().getReference("hikes")
-//
-//        // Query for hikes created by the user
-//        val createdByQuery = hikesRef.orderByChild("createdBy").equalTo(userId)
-//
-//        // Listen for createdByQuery
-//        createdByQuery.addListenerForSingleValueEvent(object : ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                val createdByHikes = snapshot.children.mapNotNull { it.getValue(Hike::class.java) }
-//                hikes.addAll(createdByHikes)
-//
-//                // Now check for invitedFriends
-//                hikesRef.addListenerForSingleValueEvent(object : ValueEventListener {
-//                    override fun onDataChange(allHikesSnapshot: DataSnapshot) {
-//                        for (hikeSnapshot in allHikesSnapshot.children) {
-//                            val invitedFriends = hikeSnapshot.child("invitedFriends").children.mapNotNull { it.value as? String }
-//                            if (invitedFriends.contains(userId)) {
-//                                val hike = hikeSnapshot.getValue(Hike::class.java)
-//                                if (hike != null) {
-//                                    hikes.add(hike)
-//                                }
-//                            }
-//                        }
-//
-//                        // Return combined results
-//                        onHikesFetched(hikes)
-//                    }
-//
-//                    override fun onCancelled(error: DatabaseError) {
-//                        Log.e("HikeService", "Failed to fetch invited hikes", error.toException())
-//                        onHikesFetched(emptyList())
-//                    }
-//                })
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//                Log.e("HikeService", "Failed to fetch createdBy hikes", error.toException())
-//                onHikesFetched(emptyList())
-//            }
-//        })
-//    }
 
     fun updateHike(hike: Hike, onUpdateComplete: (Boolean) -> Unit) {
         hikesRef.child(hike.id).setValue(hike).addOnCompleteListener { task ->

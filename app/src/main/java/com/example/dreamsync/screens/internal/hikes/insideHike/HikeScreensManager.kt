@@ -1,37 +1,27 @@
 package com.example.dreamsync.screens.internal.hikes.insideHike
 
 import InLayerScreen
-import android.content.Context
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeStatus
 import com.example.dreamsync.data.models.ParticipantStatus
 import com.example.dreamsync.data.models.Profile
-import com.example.dreamsync.data.sensors.detectKick
 import com.example.dreamsync.data.services.HikeService
 import com.example.dreamsync.data.services.ProfileService
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 const val CIRCLE_SIZE = 300
-const val WAITING_FOR_OTHERS_TIME = 5
 const val ENTERING_LAYER_TIME = 3
 
 enum class HikeStage {
@@ -48,11 +38,9 @@ enum class HikeStage {
 fun HikeScreensManager(
     hikeId: String,
     hikeService: HikeService,
-    navController: NavController,
     loggedUser: Profile,
     profileService: ProfileService,
-    onBackToHome: () -> Unit = {},
-    onStartHike: () -> Unit = {}
+    onBackToHome: () -> Unit = {}
 ) {
     var stage by remember { mutableStateOf(HikeStage.WAITING_FOR_OTHERS) }
     var hike by remember { mutableStateOf(Hike()) }
@@ -66,7 +54,6 @@ fun HikeScreensManager(
     var kickDetected  by remember { mutableStateOf(false) }
     var loggedUserState by remember { mutableStateOf(loggedUser) }
     var stuckInLimbo by remember { mutableStateOf(false) }
-    val context = LocalContext.current
 
     // Load hike data and create friends list
     LaunchedEffect(Unit) {
@@ -171,7 +158,7 @@ fun HikeScreensManager(
             HikeStage.WAITING_FOR_OTHERS ->
                 if(isCreator) {
                     WaitingForOthersScreen(
-                        hikeId, hikeService, profileService, navController, loggedUserState, leavingLayer,
+                        hikeId, hikeService, leavingLayer,
                         onStartHike = {
                             if (leavingLayer) {
                                 hikeService.updateHikeStage(hikeId, HikeStage.WAITING_FOR_KICK)
@@ -187,7 +174,7 @@ fun HikeScreensManager(
                         }
                     )
                 } else {
-                    ConfirmationScreen(hikeId, hikeService, loggedUserState, leavingLayer)
+                    ConfirmationScreen(hikeId, hikeService, loggedUserState)
                 }
             HikeStage.WAITING_FOR_KICK -> KickTimerScreen(
                 hikeId = hike.id,

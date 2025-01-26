@@ -37,8 +37,7 @@ import com.google.firebase.database.ValueEventListener
 fun ConfirmationScreen(
     hikeId: String,
     hikeService: HikeService,
-    loggedUser: Profile,
-    leavingLayer: Boolean
+    loggedUser: Profile
 ) {
     var isConfirmed by remember { mutableStateOf(false) }
     var readyCount by remember { mutableStateOf(0) }

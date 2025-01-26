@@ -1,11 +1,8 @@
 package com.example.dreamsync.data.initialization
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.dreamsync.data.models.Hike
 import com.example.dreamsync.data.models.HikeDefaultImage
 import com.example.dreamsync.data.models.Layer
-import com.example.dreamsync.data.services.HikeService
 
 val hikes = listOf(
     Hike(
@@ -38,19 +35,3 @@ val hikes = listOf(
         )
     )
 )
-
-// run to update the database with the sample hikes
-@Preview
-@Composable
-fun HikesSample() {
-    val hikeService = HikeService()
-    hikes.forEach {
-        hikeService.saveHike(it) { success ->
-            if (success) {
-                println("Hike saved successfully: ${it.name}")
-            } else {
-                println("Failed to save hike: ${it.name}")
-            }
-        }
-    }
-}

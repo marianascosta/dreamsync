@@ -1,5 +1,4 @@
-import android.service.dreams.DreamService
-import android.util.Log
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -40,7 +39,6 @@ import com.example.dreamsync.screens.internal.profile.ProfileScreen
 fun AppNavigation() {
     val navController = rememberNavController()
     val selectedIndex = remember { mutableIntStateOf(1) }
-    val dreamService = DreamService()
     val profileService = ProfileService()
     val hikeService = HikeService()
     val loggedInUser = AppState.loggedInUser.collectAsState()
@@ -74,16 +72,6 @@ fun AppNavigation() {
                 profileService = profileService,
                 profileId = loggedInUser.value.id,
                 onNavigateToCreateHikeScreen = { navController.navigate("create_hike") },
-                onNavigateToHikeInfoScreen = { hike ->
-                    navController.navigate("hike_info/${hike.id}")
-                },
-                onHikeCreated = { _ ->
-                    navController.popBackStack()
-                },
-                onRoleSelected = { selectedRole ->
-                    AppState.updateLoggedInUser(AppState.loggedInUser.value.copy(preferredRole = selectedRole))
-                    Log.d("AppNavigation", "Role selected: $selectedRole")
-                },
                 onProfileUpdated = { updatedProfile ->
                     AppState.updateLoggedInUser(updatedProfile)
                 },
@@ -107,22 +95,13 @@ fun AppNavigation() {
             ProfileScreen (
                 profileService = profileService,
                 profileId = friendId!!,
-                onRoleSelected = { selectedRole ->
-                    Log.d("AppNavigation", "Role selected: $selectedRole")
-                },
                 onProfileUpdated = { updatedProfile ->
                     AppState.updateLoggedInUser(updatedProfile)
-                },
-                onHikeCreated = {
-                    // Do nothing
                 },
                 onHikeClicked = {
                     // Do nothing
                 },
                 onNavigateToCreateHikeScreen = {
-                    // Do nothing
-                },
-                onNavigateToHikeInfoScreen = {
                     // Do nothing
                 },
                 hikeService = hikeService
@@ -171,15 +150,10 @@ fun AppNavigation() {
                 hikeId = hikeId!!,
                 hikeService = hikeService,
                 profileService = profileService,
-                navController = navController,
                 loggedUser = loggedInUser.value,
                 onBackToHome = {
                     toggleBottomBarVisibility()
                     navController.navigate("hikes")
-                },
-                onStartHike = {
-                    hikeService.updateHikeStatus(hikeId, HikeStatus.IN_PROGRESS)
-                    navController.navigate("hike_info/${hikeId}/start")
                 }
             )
         }
@@ -188,9 +162,6 @@ fun AppNavigation() {
             WaitingForOthersScreen(
                 hikeId = hikeId!!,
                 hikeService = hikeService,
-                profileService = profileService,
-                navController = navController,
-                loggedUser = loggedInUser.value,
                 leavingLayer = false,
                 onStartHike = {
                     hikeService.updateHikeStatus(hikeId, HikeStatus.IN_PROGRESS)
@@ -203,8 +174,7 @@ fun AppNavigation() {
             ConfirmationScreen(
                 hikeId = hikeId!!,
                 hikeService = hikeService,
-                loggedUser = loggedInUser.value,
-                leavingLayer = false
+                loggedUser = loggedInUser.value
             )
         }
         composable("add_friend") {

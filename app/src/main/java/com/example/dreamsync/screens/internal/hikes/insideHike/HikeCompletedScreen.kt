@@ -2,8 +2,6 @@ package com.example.dreamsync.screens.internal.hikes.insideHike
 
 import FriendCard2
 import InfoRow
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,10 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.dreamsync.data.initialization.profilesSample
 import com.example.dreamsync.data.models.Profile
 
 @Composable
@@ -128,23 +124,4 @@ fun HikeCompletedScreen(
             }
         }
     }
-}
-
-@Preview
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun HikeCompletedScreenPreview() {
-    HikeCompletedScreen(
-        layers = listOf(
-            "Layer 1: Forest Trail" to "15 min",
-            "Layer 2: Mountain Ascent" to "30 min",
-            "Layer 3: River Crossing" to "20 min"
-        ),
-        friends = listOf(
-            profilesSample[0],
-            profilesSample[1],
-            profilesSample[2]
-        ),
-        onBackToHome = {}
-    )
 }

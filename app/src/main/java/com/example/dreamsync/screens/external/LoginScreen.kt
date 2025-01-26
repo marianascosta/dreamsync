@@ -173,41 +173,6 @@ fun LoginScreen(
             ) {
                 Text(text = "Register", fontSize = 16.sp, color = Color.White)
             }
-
-            // TODO DELETE THIS
-//            Text(
-//                text = "or",
-//                fontSize = 12.sp,
-//                color = Color.Gray,
-//                modifier = Modifier.padding(vertical = 8.dp)
-//            )
-//            Button(
-//                onClick = {
-//                    accountHandler.loginUser(
-//                        email = adminAccount.email,
-//                        password = adminAccount.password,
-//                        onLoginResult = { profile ->
-//                            if (profile != null) {
-//                                onLoginSuccess(profile)
-//                            } else {
-//                                Log.e("LoginScreen", "Login failed for admin account")
-//                            }
-//                        }
-//                    )
-//
-//                },
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(48.dp)
-//                    .padding(horizontal = 16.dp),
-//                shape = RoundedCornerShape(12.dp),
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = MaterialTheme.colorScheme.primary,
-//                    disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-//                )
-//            ) {
-//                Text(text = "Login as admin", fontSize = 16.sp, color = Color.White)
-//            }
         }
     }
 }

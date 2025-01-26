@@ -131,7 +131,6 @@ fun HikePost(
 ) {
     var isLiked by remember { mutableStateOf(hike.likedByProfiles.contains(loggedInUser.value.id)) }
     var amountLikes by remember { mutableIntStateOf(hike.likedByProfiles.size) }
-    val user by remember { mutableStateOf(loggedInUser.value) }
     var author by remember { mutableStateOf(Profile()) }
 
     LaunchedEffect(hike.createdBy) {

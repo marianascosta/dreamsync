@@ -44,9 +44,6 @@ import com.example.dreamsync.data.services.ProfileService
 fun WaitingForOthersScreen(
     hikeId: String,
     hikeService: HikeService,
-    profileService: ProfileService,
-    navController: NavController,
-    loggedUser: Profile,
     leavingLayer: Boolean,
     onStartHike: () -> Unit
 ) {

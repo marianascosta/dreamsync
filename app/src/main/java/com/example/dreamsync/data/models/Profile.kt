@@ -20,13 +20,6 @@ data class Profile(
     val profilePicture: String = "",
     var friendsIds: List<String> = emptyList(),
     var avatarImage : AvatarImage = AvatarImage.AVATAR_MALE_1
-    //var hikeStatuses: List<HikeParticipation> = emptyList()
-)
-
-@Serializable
-class HikeParticipation(
-    val hikeId: String = "",
-    val status: ParticipantStatus = ParticipantStatus.NOT_READY
 )
 
 

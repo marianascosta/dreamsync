@@ -1,5 +1,4 @@
-import android.os.Build
-import androidx.annotation.RequiresApi
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,11 +25,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.dreamsync.data.initialization.profilesSample
 import com.example.dreamsync.data.models.Layer
 import com.example.dreamsync.data.models.Profile
 
